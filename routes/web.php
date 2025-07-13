@@ -12,10 +12,19 @@ use App\Livewire\ImportManagement;
 use App\Livewire\Auth\Login;
 use App\Livewire\AnnouncementPage;
 use App\Http\Controllers\ExportController;
+use App\Livewire\MainPage;
 use Illuminate\Support\Facades\Auth;
 
-// Public announcement page (accessible to everyone)
-Route::get('/pengumuman', AnnouncementPage::class)->name('announcement');
+// Public pages (accessible to everyone)
+Route::get('/main', MainPage::class)->name('main-page');
+Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Keep for backward compatibility
+
+// Public Export routes
+Route::get('/download', \App\Livewire\DownloadPage::class)->name('download');
+Route::get('/public-export/daftar-hadir', [App\Http\Controllers\PublicExportController::class, 'exportDaftarHadir'])->name('public-export.daftar-hadir');
+Route::get('/public-export/daftar-nilai', [App\Http\Controllers\PublicExportController::class, 'exportDaftarNilai'])->name('public-export.daftar-nilai');
+Route::get('/api/kelas', [App\Http\Controllers\PublicExportController::class, 'getKelas'])->name('api.kelas');
+Route::get('/api/mata-pelajaran', [App\Http\Controllers\PublicExportController::class, 'getMataPelajaran'])->name('api.mata-pelajaran');
 
 // Guest routes (for non-authenticated users)
 Route::middleware('guest.custom')->group(function () {
@@ -49,7 +58,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
 });
 
-// Redirect root to dashboard if authenticated, otherwise to announcement page
+// Redirect root to main page
 Route::get('/', function () {
-    return Auth::check() ? redirect()->route('dashboard') : redirect()->route('announcement');
+    return redirect()->route('main-page');
 });
