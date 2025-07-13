@@ -22,7 +22,7 @@ class AnnouncementPage extends Component
     public $canAccessClassInfo = false;
     
     // Countdown properties
-    public $countdownTargetDate = '2025-07-13 07:00:00';
+    public $countdownTargetDate = '2025-07-13 14:00:00';
     public $countdownTitle = 'Countdown Menuju 13 Juli 2025 - 14:00 WIB';
 
     public function searchStudent()
