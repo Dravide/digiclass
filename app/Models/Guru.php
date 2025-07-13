@@ -14,7 +14,7 @@ class Guru extends Model
         'email',
         'telepon',
         'is_wali_kelas',
-        'mata_pelajaran'
+        'mata_pelajaran_id'
     ];
 
     protected $casts = [
@@ -31,6 +31,12 @@ class Guru extends Model
     public function siswa(): HasManyThrough
     {
         return $this->hasManyThrough(Siswa::class, Kelas::class, 'guru_id', 'kelas_id');
+    }
+
+    // Relationship dengan mata pelajaran
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
     }
 
     // Scope untuk guru yang menjadi wali kelas

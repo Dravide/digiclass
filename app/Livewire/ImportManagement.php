@@ -133,7 +133,7 @@ class ImportManagement extends Component
 
     public function downloadTemplate()
     {
-        $templatePath = public_path('templates/template_import_siswa.csv');
+        $templatePath = public_path('template_import_siswa.csv');
         
         if (file_exists($templatePath)) {
             return response()->download($templatePath, 'template_import_siswa.csv');

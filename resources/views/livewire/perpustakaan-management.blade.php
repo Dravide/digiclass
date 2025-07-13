@@ -1,7 +1,4 @@
 @section('title', 'Manajemen Perpustakaan')
-@section('breadcrumb')
-    <li class="breadcrumb-item active">Manajemen Perpustakaan</li>
-@endsection
 
 <div>
 
@@ -173,7 +170,10 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge badge-soft-info">{{ $item->siswa->kelas->nama_kelas ?? '-' }}</span>
+                                            @php
+                                                $currentKelas = $item->siswa->getCurrentKelas();
+                                            @endphp
+                                            <span class="badge badge-soft-info">{{ $currentKelas->nama_kelas ?? '-' }}</span>
                                         </td>
                                         <td>
                                             <span class="badge badge-soft-primary">{{ $item->siswa->tahunPelajaran->nama_tahun_pelajaran ?? '-' }}</span>
@@ -271,7 +271,10 @@
                                             id="siswa_id" wire:model="siswa_id">
                                         <option value="">Pilih Siswa</option>
                                         @foreach($siswaOptions as $siswa)
-                                            <option value="{{ $siswa->id }}">{{ $siswa->nama_siswa }} ({{ $siswa->nis }}) - {{ $siswa->kelas->nama_kelas ?? 'Tanpa Kelas' }}</option>
+                                            @php
+                                                $siswaKelas = $siswa->getCurrentKelas();
+                                            @endphp
+                                            <option value="{{ $siswa->id }}">{{ $siswa->nama_siswa }} ({{ $siswa->nis }}) - {{ $siswaKelas->nama_kelas ?? 'Tanpa Kelas' }}</option>
                                         @endforeach
                                     </select>
                                     @error('siswa_id')

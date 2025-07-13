@@ -1,8 +1,3 @@
-@section('title', 'Manajemen Data Siswa')
-@section('breadcrumb')
-    <li class="breadcrumb-item active">Manajemen Kelas</li>
-@endsection
-
 <div>
 
     <!-- Statistics Cards -->
@@ -210,7 +205,7 @@
                                             @if($editingSiswa === $siswa->id)
                                                 <select class="form-select form-select-sm" wire:model="editForm.kelas_id">
                                                     <option value="">Pilih Kelas</option>
-                                                    @foreach($kelasList as $kelas)
+                                                    @foreach($allKelasList as $kelas)
                                                         <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
                                                     @endforeach
                                                 </select>
@@ -314,18 +309,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="row align-items-center mt-3">
-                        <div class="col-sm-6">
-                            <div class="text-muted">
-                                Menampilkan {{ $siswaList->firstItem() ?? 0 }} sampai {{ $siswaList->lastItem() ?? 0 }} dari {{ $siswaList->total() }} data
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="float-sm-end">
-                                {{ $siswaList->links() }}
-                            </div>
-                        </div>
-                    </div>
+                    {{ $siswaList->links() }}
                 </div>
             </div>
         </div>
@@ -585,7 +569,7 @@
                                     <select class="form-select @error('createForm.kelas_id') is-invalid @enderror" 
                                             id="createKelas" wire:model="createForm.kelas_id">
                                         <option value="">Pilih Kelas</option>
-                                        @foreach($kelasList as $kelas)
+                                        @foreach($allKelasList as $kelas)
                                             <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
                                         @endforeach
                                     </select>

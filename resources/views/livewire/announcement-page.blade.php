@@ -24,12 +24,56 @@
         <div class="col-lg-6">
             <div class="p-lg-5 p-4">
                 <div>
-                    <div class="text-center mt-1">
-                        <h4 class="font-size-18">Pengumuman Kelas</h4>
-                        <p class="text-muted">Masukkan NIS untuk melihat informasi kelas Anda</p>
+                    <!-- Countdown Timer -->
+                    <div class="text-center mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body py-3">
+                                <h6 class="text-primary mb-2">
+                                    <i class="ri-time-line me-2"></i>{{ $countdownTitle }}
+                                </h6>
+                                <div id="countdown-timer" class="d-flex justify-content-center gap-3">
+                                    <div class="text-center">
+                                        <div class="bg-primary text-white rounded px-2 py-1">
+                                            <span id="days" class="fw-bold">00</span>
+                                        </div>
+                                        <small class="text-muted">Hari</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary text-white rounded px-2 py-1">
+                                            <span id="hours" class="fw-bold">00</span>
+                                        </div>
+                                        <small class="text-muted">Jam</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary text-white rounded px-2 py-1">
+                                            <span id="minutes" class="fw-bold">00</span>
+                                        </div>
+                                        <small class="text-muted">Menit</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary text-white rounded px-2 py-1">
+                                            <span id="seconds" class="fw-bold">00</span>
+                                        </div>
+                                        <small class="text-muted">Detik</small>
+                                    </div>
+                                </div>
+                                <div id="countdown-message" class="mt-2" style="display: none;">
+                                    <div class="alert alert-success mb-0">
+                                        <i class="ri-check-circle-line me-2"></i>
+                                        <strong>Waktu telah tiba!</strong> 13 Juli 2025 - 14:00 WIB
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <form wire:submit.prevent="searchStudent" class="auth-input">
+                    <div id="form-section" style="display: none;">
+                        <div class="text-center mt-1">
+                            <h4 class="font-size-18">Pengumuman Kelas</h4>
+                            <p class="text-muted">Masukkan NIS untuk melihat informasi kelas Anda</p>
+                        </div>
+
+                        <form wire:submit.prevent="searchStudent" class="auth-input">
                         <div class="mb-3">
                             <label for="nis" class="form-label">Nomor Induk Siswa (NIS)</label>
                             <input type="text" 
@@ -118,12 +162,64 @@
                             @endif
                         </div>
                     @endif
+                    </div>
                 </div>
             
-                <div class="mt-4 text-center">
+                {{-- <div class="mt-4 text-center">
                     <p class="mb-0">Sudah punya akses admin? <a href="{{ route('login') }}" class="fw-medium text-primary">Login di sini</a></p>
-                </div>
+                </div> --}}
             </div>
         </div>  
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the target date from Livewire component
+        const targetDate = new Date('{{ $this->getCountdownTargetDateJs() }}').getTime();
+        const isExpired = {{ $this->isCountdownExpired() ? 'true' : 'false' }};
+        
+        function updateCountdown() {
+            // Check if already expired on server side
+            if (isExpired) {
+                document.getElementById('countdown-timer').style.display = 'none';
+                document.getElementById('countdown-message').style.display = 'block';
+                document.getElementById('form-section').style.display = 'block';
+                return;
+            }
+            
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            
+            if (distance > 0) {
+                // Calculate time units
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Update the display
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                
+                // Show countdown timer, hide form
+                document.getElementById('countdown-timer').style.display = 'flex';
+                document.getElementById('countdown-message').style.display = 'none';
+                document.getElementById('form-section').style.display = 'none';
+            } else {
+                // Time has passed - show form
+                document.getElementById('countdown-timer').style.display = 'none';
+                document.getElementById('countdown-message').style.display = 'block';
+                document.getElementById('form-section').style.display = 'block';
+            }
+        }
+        
+        // Update countdown immediately
+        updateCountdown();
+        
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+    });
+</script>

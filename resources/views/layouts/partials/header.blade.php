@@ -4,7 +4,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="{{ route('dashboard') }}" wire:navigate class="logo logo-dark">
+                <a href="{{ route('dashboard') }}" class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/logo-dark.png') }}" alt="logo-sm-dark" height="24">
                     </span>
@@ -13,7 +13,7 @@
                     </span>
                 </a>
 
-                <a href="{{ route('dashboard') }}" wire:navigate class="logo logo-light">
+                <a href="{{ route('dashboard') }}" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/logo-light.png') }}" alt="logo-sm-light" height="24">
                     </span>
@@ -47,6 +47,16 @@
                 <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
                     <i class="ri-settings-2-line"></i>
                 </button>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="dropdown d-inline-block">
+                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn header-item waves-effect" title="Logout">
+                        <i class="ri-logout-circle-line font-size-16 align-middle"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </div>

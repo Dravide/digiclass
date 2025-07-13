@@ -1,7 +1,4 @@
 @section('title', 'Manajemen Guru')
-@section('breadcrumb')
-    <li class="breadcrumb-item active">Manajemen Guru</li>
-@endsection
 
 <div>
 
@@ -79,9 +76,14 @@
                             <h4 class="card-title mb-0">Data Guru</h4>
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#guruModal">
-                                <i class="ri-add-line align-middle me-1"></i> Tambah Guru
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-success" wire:click="openImportModal">
+                                    <i class="ri-file-excel-2-line align-middle me-1"></i> Import Data
+                                </button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#guruModal">
+                                    <i class="ri-add-line align-middle me-1"></i> Tambah Guru
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -331,6 +333,105 @@
         </div>
     </div>
 
+    <!-- Import Modal -->
+    @if($showImportModal)
+    <div class="modal fade show" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true" style="display: block; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">
+                        <i class="ri-file-excel-2-line me-2"></i>Import Data Guru
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="closeImportModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if($importProgress == 0)
+                        <!-- File Upload Section -->
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading"><i class="ri-information-line me-2"></i>Informasi Import</h6>
+                                <p class="mb-2">File yang akan diimport harus memiliki kolom berikut:</p>
+                                <ul class="mb-2">
+                                     <li><strong>nama_guru</strong> - Nama lengkap guru</li>
+                                     <li><strong>nip</strong> - Nomor Induk Pegawai (harus berupa angka)</li>
+                                     <li><strong>email</strong> - Alamat email guru</li>
+                                     <li><strong>telepon</strong> - Nomor telepon guru (harus berupa angka, tanpa tanda +)</li>
+                                 </ul>
+                                <p class="mb-0"><strong>Catatan:</strong> Mata pelajaran dan status wali kelas akan diatur secara manual setelah import.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Pilih File Excel/CSV</label>
+                            <input type="file" class="form-control @error('importFile') is-invalid @enderror" 
+                                   id="importFile" wire:model="importFile" 
+                                   accept=".xlsx,.xls,.csv">
+                            @error('importFile')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Format yang didukung: .xlsx, .xls, .csv (Maksimal 2MB)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary" wire:click="downloadTemplate">
+                                <i class="ri-download-line me-1"></i>Download Template
+                            </button>
+                        </div>
+                    @else
+                        <!-- Progress Section -->
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <h6>{{ $importStatus }}</h6>
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" style="width: {{ $importProgress }}%" 
+                                     aria-valuenow="{{ $importProgress }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ $importProgress }}%
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($importProgress == 100 && $importedCount > 0)
+                        <div class="alert alert-success">
+                            <h6 class="alert-heading"><i class="ri-check-line me-2"></i>Import Berhasil!</h6>
+                            <p class="mb-0">{{ $importedCount }} data guru berhasil diimport.</p>
+                        </div>
+                    @endif
+
+                    @if(!empty($importErrors))
+                        <div class="alert alert-warning">
+                            <h6 class="alert-heading"><i class="ri-alert-line me-2"></i>Peringatan</h6>
+                            <p>Beberapa data mengalami masalah:</p>
+                            <ul class="mb-0">
+                                @foreach($importErrors as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    @if($importProgress == 0)
+                        <button type="button" class="btn btn-secondary" wire:click="closeImportModal">Batal</button>
+                        <button type="button" class="btn btn-primary" wire:click="importData" 
+                                @if(!$importFile) disabled @endif>
+                            <i class="ri-upload-line me-1"></i>Import Data
+                        </button>
+                    @elseif($importProgress == 100)
+                        <button type="button" class="btn btn-primary" wire:click="closeImportModal">
+                            <i class="ri-check-line me-1"></i>Selesai
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Toast Container -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1200">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -473,6 +574,20 @@
                     title: 'Error!',
                     text: message
                 });
+            });
+
+            Livewire.on('guru-imported', (message) => {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Import Berhasil!',
+                    text: message
+                });
+            });
+
+            Livewire.on('close-import-modal-delayed', () => {
+                setTimeout(() => {
+                    @this.closeImportModal();
+                }, 2000);
             });
         });
 

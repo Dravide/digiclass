@@ -1,7 +1,4 @@
 @section('title', 'Manajemen Kelas')
-@section('breadcrumb')
-    <li class="breadcrumb-item active">Manajemen Kelas</li>
-@endsection
 
 <div>
 

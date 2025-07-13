@@ -19,6 +19,10 @@ class AnnouncementPage extends Component
     public $tahunPelajaran = '';
     public $libraryStatus = false;
     public $canAccessClassInfo = false;
+    
+    // Countdown properties
+    public $countdownTargetDate = '2025-07-13 14:00:00';
+    public $countdownTitle = 'Countdown Menuju 13 Juli 2025 - 14:00 WIB';
 
     public function searchStudent()
     {
@@ -93,6 +97,24 @@ class AnnouncementPage extends Component
         $this->tahunPelajaran = '';
         $this->libraryStatus = false;
         $this->canAccessClassInfo = false;
+    }
+    
+    /**
+     * Check if the countdown target date has passed
+     */
+    public function isCountdownExpired()
+    {
+        $targetDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $this->countdownTargetDate, 'Asia/Jakarta');
+        return now('Asia/Jakarta')->greaterThan($targetDate);
+    }
+    
+    /**
+     * Get the countdown target date in JavaScript format
+     */
+    public function getCountdownTargetDateJs()
+    {
+        $targetDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $this->countdownTargetDate, 'Asia/Jakarta');
+        return $targetDate->toISOString();
     }
 
     public function render()

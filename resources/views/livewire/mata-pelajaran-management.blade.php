@@ -2,9 +2,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-book me-2"></i>Manajemen Mata Pelajaran
+                <div class="card-header bg-primary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">
+                        <i class="fas fa-book me-2 text-white"></i>Manajemen Mata Pelajaran
                     </h5>
                     <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#mataPelajaranModal" wire:click="resetForm">
                         <i class="fas fa-plus me-1"></i>Tambah Mata Pelajaran

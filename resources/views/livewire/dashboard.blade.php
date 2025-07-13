@@ -1,10 +1,3 @@
-@section('title')
-    Dashboard
-    @if($activeTahunPelajaran)
-        <br><small class="text-muted">Tahun Pelajaran: <span class="badge badge-soft-primary">{{ $activeTahunPelajaran->nama_tahun_pelajaran }}</span></small>
-    @endif
-@endsection
-
 <div>
 
     <!-- Statistics Cards -->
@@ -93,7 +86,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <a href="{{ route('class-management') }}" wire:navigate class="btn btn-primary btn-lg w-100">
+                            <a href="{{ route('class-management') }}" class="btn btn-primary btn-lg w-100">
                                 <i class="ri-group-line me-2"></i>
                                 Kelola Data Siswa
                             </a>

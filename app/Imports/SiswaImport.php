@@ -30,13 +30,6 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
     public function model(array $row)
     {
         try {
-            // Cari kelas berdasarkan nama
-            $kelas = Kelas::where('nama_kelas', trim($row['kelas']))->first();
-            if (!$kelas) {
-                $this->errors[] = "Kelas '{$row['kelas']}' tidak ditemukan untuk siswa {$row['nama_siswa']}";
-                return null;
-            }
-
             // Get tahun pelajaran
             if ($this->tahunPelajaranId) {
                 $tahunPelajaran = TahunPelajaran::find($this->tahunPelajaranId);
@@ -49,21 +42,37 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
                 return null;
             }
 
+            // Cari atau buat kelas berdasarkan nama dan tahun pelajaran
+            $namaKelas = (string) trim($row['kelas']);
+            $kelas = Kelas::where('nama_kelas', $namaKelas)
+                          ->where('tahun_pelajaran_id', $tahunPelajaran->id)
+                          ->first();
+                          
+            if (!$kelas) {
+                // Buat kelas baru jika tidak ditemukan
+                $tingkat = $this->extractTingkatFromKelas($namaKelas);
+                $kelas = Kelas::create([
+                    'nama_kelas' => $namaKelas,
+                    'tingkat' => (string) $tingkat,
+                    'jurusan' => null, // Will be set manually later if needed
+                    'kapasitas' => 30, // Default capacity
+                    'tahun_pelajaran_id' => $tahunPelajaran->id,
+                    'guru_id' => null // Will be assigned later if guru exists
+                ]);
+            }
+
             // Cari guru berdasarkan nama dan assign ke kelas jika belum ada
-            $guru = null;
             if (!empty($row['guru'])) {
                 $guru = Guru::where('nama_guru', trim($row['guru']))->first();
-                if (!$guru) {
-                    $this->errors[] = "Guru '{$row['guru']}' tidak ditemukan untuk siswa {$row['nama_siswa']}";
-                } else {
+                if ($guru) {
                     // Assign guru ke kelas jika kelas belum memiliki guru
                     if (!$kelas->guru_id) {
                         $kelas->update(['guru_id' => $guru->id]);
                     }
+                } else {
+                    $this->errors[] = "Guru '{$row['guru']}' tidak ditemukan untuk siswa {$row['nama_siswa']} - siswa tetap diimport";
                 }
             }
-
-
 
             // Tentukan status perpustakaan
             $terpenuhi = false;
@@ -74,23 +83,32 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
                 }
             }
 
-            // Buat siswa baru
-            $siswa = new Siswa([
+            // Buat siswa baru dengan semua field yang diperlukan
+            $siswa = Siswa::create([
                 'nama_siswa' => trim($row['nama_siswa']),
                 'jk' => strtoupper(trim($row['jk'])),
-                'nisn' => trim($row['nisn']),
-                'nis' => trim($row['nis']),
+                'nisn' => (string) trim($row['nisn']),
+                'nis' => (string) trim($row['nis']),
                 'tahun_pelajaran_id' => $tahunPelajaran->id
             ]);
-
-            // Simpan siswa terlebih dahulu
-            $siswa->save();
             
-            // Create KelasSiswa record
+            // Pastikan kelas berhasil dibuat dan memiliki ID
+            if (!$kelas || !$kelas->id) {
+                $this->errors[] = "Gagal membuat atau menemukan kelas '{$namaKelas}' untuk siswa {$row['nama_siswa']}";
+                return null;
+            }
+            
+            // Pastikan siswa berhasil dibuat dan memiliki ID
+            if (!$siswa || !$siswa->id) {
+                $this->errors[] = "Gagal membuat siswa {$row['nama_siswa']}";
+                return null;
+            }
+            
+            // Create KelasSiswa record dengan semua field yang diperlukan
             KelasSiswa::create([
+                'tahun_pelajaran_id' => $tahunPelajaran->id,
                 'siswa_id' => $siswa->id,
-                'kelas_id' => $kelas->id,
-                'tahun_pelajaran_id' => $tahunPelajaran->id
+                'kelas_id' => $kelas->id
             ]);
 
             // Buat data perpustakaan
@@ -109,15 +127,30 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
             return null;
         }
     }
+    
+    /**
+     * Extract tingkat (grade level) from class name
+     * Examples: 7A -> 7, 8B -> 8, 9IPA1 -> 9
+     */
+    private function extractTingkatFromKelas($namaKelas)
+    {
+        // Extract first digit from class name
+        if (preg_match('/^(\d+)/', $namaKelas, $matches)) {
+            return (int) $matches[1];
+        }
+        
+        // Default to 7 if no digit found
+        return 7;
+    }
 
     public function rules(): array
     {
         return [
             'nama_siswa' => 'required|string|max:255',
             'jk' => 'required|in:L,P,l,p',
-            'nisn' => 'required|string|unique:siswa,nisn',
-            'nis' => 'required|string|unique:siswa,nis',
-            'kelas' => 'required|string',
+            'nisn' => 'required|unique:siswa,nisn',
+            'nis' => 'required|unique:siswa,nis',
+            'kelas' => 'required',
             'guru' => 'nullable|string',
 
         ];
@@ -134,7 +167,6 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
             'nis.required' => 'NIS harus diisi',
             'nis.unique' => 'NIS sudah terdaftar',
             'kelas.required' => 'Kelas harus diisi',
-
         ];
     }
 

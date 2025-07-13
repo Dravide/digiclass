@@ -189,7 +189,7 @@ class PerpustakaanManagement extends Component
             $tahunPelajaranFilter = $activeTahunPelajaran ? $activeTahunPelajaran->id : null;
         }
 
-        $query = Perpustakaan::with(['siswa', 'siswa.kelas', 'siswa.tahunPelajaran'])
+        $query = Perpustakaan::with(['siswa', 'siswa.tahunPelajaran'])
             ->when($this->search, function ($query) {
                 $query->whereHas('siswa', function ($q) {
                     $q->where('nama_siswa', 'like', '%' . $this->search . '%')
@@ -209,7 +209,7 @@ class PerpustakaanManagement extends Component
         $perpustakaan = $query->paginate($this->perPage);
         
         // Get siswa options for dropdown (exclude those already in perpustakaan unless editing)
-        $siswaOptions = Siswa::with(['kelas', 'tahunPelajaran'])
+        $siswaOptions = Siswa::with(['tahunPelajaran'])
             ->when($tahunPelajaranFilter, function ($query) use ($tahunPelajaranFilter) {
                 $query->where('tahun_pelajaran_id', $tahunPelajaranFilter);
             })

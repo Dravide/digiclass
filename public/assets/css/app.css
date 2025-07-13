@@ -5,7 +5,7 @@ Version: 2.0.0
 Contact: themesdesign.in@gmail.com
 File: Main Css File
 */
-@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 #page-topbar {
   position: fixed;
   top: 0;
@@ -504,7 +504,7 @@ body[data-layout=horizontal] .footer {
   font-size: 14px;
   -webkit-transition: all 0.4s;
   transition: all 0.4s;
-  font-family: "Rubik", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 #sidebar-menu ul li a i {
   display: inline-block;
@@ -570,7 +570,7 @@ body[data-layout=horizontal] .footer {
   text-transform: uppercase;
   color: var(--bs-sidebar-menu-item-icon-color);
   font-weight: 600;
-  font-family: "Rubik", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   opacity: 0.5;
 }
 
@@ -1031,7 +1031,7 @@ body[data-sidebar=colored] .menu-title {
   position: relative;
   padding: 1rem 1.3rem;
   color: var(--bs-menu-item-color);
-  font-family: "Rubik", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 .topnav .navbar-nav .nav-link i {
   font-size: 15px;
@@ -1788,7 +1788,7 @@ body[data-layout=horizontal][data-layout-size=boxed] .container-fluid, body[data
 }
 
 .font-family-secondary {
-  font-family: "Rubik", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 .font-size-10 {
@@ -4733,7 +4733,7 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
 
 .counter-number {
   font-size: 30px;
-  font-family: "Rubik", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
   text-align: center;
 }
 .counter-number span {

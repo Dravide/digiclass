@@ -2,7 +2,7 @@
 <div class="vertical-menu">
     <!-- LOGO -->
     <div class="navbar-brand-box">
-        <a href="{{ route('dashboard') }}" wire:navigate class="logo logo-dark">
+        <a href="{{ route('dashboard') }}" class="logo logo-dark">
             <span class="logo-sm">
                 <img src="{{ asset('assets/images/logo-sm-dark.png') }}" alt="logo-sm-dark" height="24">
             </span>
@@ -11,7 +11,7 @@
             </span>
         </a>
 
-        <a href="{{ route('dashboard') }}" wire:navigate class="logo logo-light">
+        <a href="{{ route('dashboard') }}" class="logo logo-light">
             <span class="logo-sm">
                 <img src="{{ asset('assets/images/logo-sm-light.png') }}" alt="logo-sm-light" height="24">
             </span>
@@ -33,21 +33,21 @@
                 <li class="menu-title">Menu</li>
 
                 <li>
-                    <a href="{{ route('dashboard') }}" wire:navigate class="waves-effect">
+                    <a href="{{ route('dashboard') }}" class="waves-effect">
                         <i class="ri-dashboard-line"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('tahun-pelajaran-management') }}" wire:navigate class="waves-effect">
+                    <a href="{{ route('tahun-pelajaran-management') }}" class="waves-effect">
                         <i class="ri-calendar-line"></i>
                         <span>Tahun Pelajaran</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('mata-pelajaran-management') }}" wire:navigate class="waves-effect">
+                    <a href="{{ route('mata-pelajaran-management') }}" class="waves-effect">
                         <i class="ri-book-line"></i>
                         <span>Mata Pelajaran</span>
                     </a>
@@ -59,15 +59,15 @@
                         <span>Manajemen Kelas</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="{{ route('class-management') }}" wire:navigate>Data Siswa</a></li>
-                        <li><a href="{{ route('kelas-management') }}" wire:navigate>Kelas</a></li>
-                        <li><a href="{{ route('guru-management') }}" wire:navigate>Guru</a></li>
-                        <li><a href="{{ route('perpustakaan-management') }}" wire:navigate>Perpustakaan</a></li>
+                        <li><a href="{{ route('class-management') }}">Data Siswa</a></li>
+                        <li><a href="{{ route('kelas-management') }}">Kelas</a></li>
+                        <li><a href="{{ route('guru-management') }}">Guru</a></li>
+                        <li><a href="{{ route('perpustakaan-management') }}">Perpustakaan</a></li>
                     </ul>
                 </li>
 
                 <li>
-                    <a href="{{ route('import-management') }}" wire:navigate class="waves-effect">
+                    <a href="{{ route('import-management') }}" class="waves-effect">
                         <i class="ri-file-upload-line"></i>
                         <span>Import Data Excel</span>
                     </a>
@@ -85,17 +85,7 @@
                     </ul>
                 </li>
 
-                <li class="menu-title">Akun</li>
-                
-                <li>
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                        @csrf
-                        <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="waves-effect">
-                            <i class="ri-logout-circle-line"></i>
-                            <span>Logout</span>
-                        </a>
-                    </form>
-                </li>
+
             </ul>
         </div>
         <!-- Sidebar -->

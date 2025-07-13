@@ -391,11 +391,14 @@ class ClassManagement extends Component
 
         $siswaList = $query->paginate(10);
         
-        // Filter kelas based on selected academic year
+        // Filter kelas based on selected academic year for table filter
         $kelasList = Kelas::when($tahunPelajaranFilter, function ($q) use ($tahunPelajaranFilter) {
                 $q->where('tahun_pelajaran_id', $tahunPelajaranFilter);
             })
             ->orderBy('nama_kelas')->get();
+            
+        // Get all available classes for create/edit forms (not filtered by academic year)
+        $allKelasList = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
             
         // Get classes grouped by grade level (7, 8, 9)
         $kelasPerTingkat = Kelas::with(['guru', 'siswa.perpustakaan'])
@@ -426,6 +429,7 @@ class ClassManagement extends Component
         return view('livewire.class-management', [
             'siswaList' => $siswaList,
             'kelasList' => $kelasList,
+            'allKelasList' => $allKelasList,
             'kelasPerTingkat' => $kelasPerTingkat,
             'guruList' => $guruList,
             'tahunPelajaranOptions' => $tahunPelajaranOptions

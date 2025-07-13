@@ -32,10 +32,10 @@
                         <div class="w-100">
                             <div class="d-flex flex-column h-100 py-0 py-xl-3">
                                 <div class="text-center mb-4">
-                                    <a href="{{ url('/') }}" class="">
-                                        <img src="{{ asset('assets/images/logo-dark.png') }}" alt="" height="22" class="auth-logo logo-dark mx-auto">
-                                        <img src="{{ asset('assets/images/logo-light.png') }}" alt="" height="22" class="auth-logo logo-light mx-auto">
-                                    </a>
+                                    {{-- <a href="{{ url('/') }}" class="">
+                                        <img src="{{ asset('assets/cropped-Logo-SMPN-1-Cipanas-2024.png') }}" alt="" height="22" class="auth-logo logo-dark mx-auto">
+                                        <img src="{{ asset('assets/cropped-Logo-SMPN-1-Cipanas-2024.png') }}" alt="" height="22" class="auth-logo logo-light mx-auto">
+                                    </a> --}}
                                     <h3 class="mt-3 text-primary">DigiClass</h3>
                                     <p class="text-muted mt-2">Sistem Informasi Manajemen Kelas Digital</p>
                                 </div>

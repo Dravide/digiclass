@@ -14,6 +14,8 @@ class KelasManagement extends Component
 {
     use WithPagination;
 
+
+
     // Form properties
     public $nama_kelas = '';
     public $tingkat = '';

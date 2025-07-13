@@ -41,8 +41,6 @@
         <div class="main-content">
             <div class="page-content">
                 <div class="container-fluid">
-                    @include('layouts.partials.breadcrumb')
-                    
                     {{ $slot }}
                 </div>
             </div>
@@ -70,8 +68,8 @@
     @livewireScripts
     
     <script>
-        // Re-initialize components after Livewire navigation
-        document.addEventListener('livewire:navigated', () => {
+        // Initialize components on page load
+        document.addEventListener('DOMContentLoaded', () => {
             initializeComponents();
         });
         

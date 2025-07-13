@@ -4,13 +4,17 @@ namespace App\Livewire;
 
 use App\Models\Guru;
 use App\Models\MataPelajaran;
+use App\Imports\GuruImport;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class GuruManagement extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Form properties
     public $nama_guru;
@@ -30,6 +34,14 @@ class GuruManagement extends Component
     public $sortField = 'nama_guru';
     public $sortDirection = 'asc';
     public $filterWaliKelas = '';
+
+    // Import properties
+    public $importFile;
+    public $showImportModal = false;
+    public $importProgress = 0;
+    public $importStatus = '';
+    public $importErrors = [];
+    public $importedCount = 0;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -111,20 +123,13 @@ class GuruManagement extends Component
         $this->validate();
 
         try {
-            // Get mata pelajaran name if ID is provided
-            $mataPelajaranName = null;
-            if ($this->mata_pelajaran_id) {
-                $mataPelajaran = MataPelajaran::find($this->mata_pelajaran_id);
-                $mataPelajaranName = $mataPelajaran ? $mataPelajaran->nama_mapel : null;
-            }
-
             Guru::create([
                 'nama_guru' => $this->nama_guru,
                 'nip' => $this->nip,
                 'email' => $this->email,
                 'telepon' => $this->telepon,
                 'is_wali_kelas' => $this->is_wali_kelas,
-                'mata_pelajaran' => $mataPelajaranName,
+                'mata_pelajaran_id' => $this->mata_pelajaran_id,
             ]);
 
             $this->resetForm();
@@ -145,13 +150,7 @@ class GuruManagement extends Component
             $this->email = $guru->email;
             $this->telepon = $guru->telepon;
             $this->is_wali_kelas = $guru->is_wali_kelas;
-            
-            // Find mata pelajaran ID based on name
-            $this->mata_pelajaran_id = null;
-            if ($guru->mata_pelajaran) {
-                $mataPelajaran = MataPelajaran::where('nama_mapel', $guru->mata_pelajaran)->first();
-                $this->mata_pelajaran_id = $mataPelajaran ? $mataPelajaran->id : null;
-            }
+            $this->mata_pelajaran_id = $guru->mata_pelajaran_id;
             
             $this->isEditing = true;
             
@@ -168,20 +167,13 @@ class GuruManagement extends Component
         try {
             $guru = Guru::findOrFail($this->editingGuruId);
             
-            // Get mata pelajaran name if ID is provided
-            $mataPelajaranName = null;
-            if ($this->mata_pelajaran_id) {
-                $mataPelajaran = MataPelajaran::find($this->mata_pelajaran_id);
-                $mataPelajaranName = $mataPelajaran ? $mataPelajaran->nama_mapel : null;
-            }
-            
             $guru->update([
                 'nama_guru' => $this->nama_guru,
                 'nip' => $this->nip,
                 'email' => $this->email,
                 'telepon' => $this->telepon,
                 'is_wali_kelas' => $this->is_wali_kelas,
-                'mata_pelajaran' => $mataPelajaranName,
+                'mata_pelajaran_id' => $this->mata_pelajaran_id,
             ]);
 
             $this->resetForm();
@@ -210,14 +202,114 @@ class GuruManagement extends Component
         }
     }
 
+    public function openImportModal()
+    {
+        $this->showImportModal = true;
+        $this->resetImportData();
+    }
+
+    public function closeImportModal()
+    {
+        $this->showImportModal = false;
+        $this->resetImportData();
+    }
+
+    public function resetImportData()
+    {
+        $this->importFile = null;
+        $this->importProgress = 0;
+        $this->importStatus = '';
+        $this->importErrors = [];
+        $this->importedCount = 0;
+    }
+
+    public function importData()
+    {
+        $this->validate([
+            'importFile' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ], [
+            'importFile.required' => 'File import harus dipilih.',
+            'importFile.mimes' => 'File harus berformat Excel (.xlsx, .xls) atau CSV.',
+            'importFile.max' => 'Ukuran file maksimal 2MB.'
+        ]);
+
+        try {
+            $this->importStatus = 'Memproses import...';
+            $this->importProgress = 25;
+
+            // Store the uploaded file temporarily
+            $filePath = $this->importFile->store('temp-imports');
+            
+            $this->importProgress = 50;
+
+            // Import the data
+            $import = new GuruImport();
+            Excel::import($import, $filePath);
+
+            $this->importProgress = 75;
+
+            // Clean up temporary file
+            Storage::delete($filePath);
+
+            $this->importProgress = 100;
+            $this->importedCount = $import->getRowCount();
+            $this->importStatus = "Import berhasil! {$this->importedCount} data guru telah diimport.";
+            
+            // Get any validation errors from import
+            $this->importErrors = $import->getErrors();
+
+            $this->dispatch('guru-imported', $this->importStatus);
+            
+            // Reset form and close modal after 2 seconds
+            $this->dispatch('close-import-modal-delayed');
+            
+        } catch (\Exception $e) {
+            $this->importStatus = 'Import gagal: ' . $e->getMessage();
+            $this->importProgress = 0;
+            
+            // Clean up temporary file if it exists
+            if (isset($filePath) && Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
+            
+            $this->dispatch('guru-error', $this->importStatus);
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="template_import_guru.xlsx"',
+        ];
+
+        // Create sample data for template
+        $sampleData = [
+            ['nama_guru', 'nip', 'email', 'telepon'],
+            ['John Doe', 123456789012345678, 'john.doe@example.com', 81234567890],
+            ['Jane Smith', 987654321098765432, 'jane.smith@example.com', 81234567891],
+        ];
+
+        return response()->streamDownload(function () use ($sampleData) {
+            $file = fopen('php://output', 'w');
+            foreach ($sampleData as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        }, 'template_import_guru.csv', $headers);
+    }
+
     public function render()
     {
         $query = Guru::withCount('siswa')
+            ->with('mataPelajaran')
             ->when($this->search, function ($query) {
                 $query->where('nama_guru', 'like', '%' . $this->search . '%')
                       ->orWhere('nip', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%')
-                      ->orWhere('mata_pelajaran', 'like', '%' . $this->search . '%');
+                      ->orWhereHas('mataPelajaran', function ($q) {
+                          $q->where('nama_mapel', 'like', '%' . $this->search . '%');
+                      });
             })
             ->when($this->filterWaliKelas !== '', function ($query) {
                 $query->where('is_wali_kelas', $this->filterWaliKelas);

@@ -74,10 +74,7 @@
     @livewireScripts
     
     <script>
-        // Re-initialize components after Livewire navigation
-        document.addEventListener('livewire:navigated', () => {
-            initializeComponents();
-        });
+        // Components are initialized on DOMContentLoaded and livewire:updated
         
         // Handle livewire:load for compatibility with older Livewire versions
         document.addEventListener('livewire:load', () => {

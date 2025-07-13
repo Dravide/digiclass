@@ -1,7 +1,4 @@
 @section('title', 'Import Data Excel')
-@section('breadcrumb')
-    <li class="breadcrumb-item active">Import Data Excel</li>
-@endsection
 
 <div>
 
@@ -168,27 +165,34 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="font-size-14 mb-2">Data Siswa:</h6>
+                        <h6 class="font-size-14 mb-2">Data Siswa (Wajib):</h6>
                         <ul class="list-unstyled mb-0">
                             <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Siswa</li>
                             <li class="py-1"><i class="ri-check-line text-success me-2"></i>Jenis Kelamin (L/P)</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NISN</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NIS</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NISN (numerik/string, harus unik)</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NIS (numerik/string, harus unik)</li>
                         </ul>
                     </div>
                     <div class="mb-3">
                         <h6 class="font-size-14 mb-2">Data Kelas:</h6>
                         <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Kelas</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Tingkat (7/8/9)</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Jurusan (opsional)</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Kelas (numerik/string, contoh: 7A, 8B, 9IPA1)</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Kelas akan dibuat otomatis jika belum ada</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Tingkat diekstrak dari nama kelas</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="font-size-14 mb-2">Data Guru (Opsional):</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Guru (wali kelas)</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Guru harus sudah terdaftar di sistem</li>
                         </ul>
                     </div>
                     <div class="mb-0">
-                        <h6 class="font-size-14 mb-2">Data Perpustakaan:</h6>
+                        <h6 class="font-size-14 mb-2">Data Perpustakaan (Opsional):</h6>
                         <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Status Terpenuhi (Ya/Tidak)</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Keterangan (opsional)</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Status: Ya/Tidak/Aktif/True/1</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Default: Tidak terpenuhi jika kosong</li>
                         </ul>
                     </div>
                 </div>
@@ -205,8 +209,10 @@
                         <ul class="mb-0 font-size-13">
                             <li>Pastikan tahun pelajaran sudah dipilih sebelum import</li>
                             <li>Data yang diimport akan terkait dengan tahun pelajaran yang dipilih</li>
-                            <li>Jika kelas belum ada, akan dibuat otomatis</li>
-                            <li>NISN dan NIS harus unik untuk setiap siswa</li>
+                            <li>Kelas akan dibuat otomatis jika belum ada untuk tahun pelajaran tersebut</li>
+                            <li>NISN dan NIS dapat berupa data numerik atau string, harus unik untuk setiap siswa</li>
+                            <li>Guru harus sudah terdaftar di sistem sebelum import</li>
+                            <li>Sistem akan membuat relasi KelasSiswa dan Perpustakaan otomatis</li>
                             <li>Backup data sebelum melakukan import</li>
                         </ul>
                     </div>
