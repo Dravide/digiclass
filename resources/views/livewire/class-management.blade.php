@@ -93,6 +93,40 @@
                             <h4 class="card-title mb-0">Data Siswa</h4>
                         </div>
                         <div class="col-auto">
+                            <div class="btn-group me-2" role="group">
+                                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-file-pdf-line me-1"></i> Export PDF
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if($filterKelas)
+                                        @php
+                                            $selectedKelas = $kelasList->firstWhere('id', $filterKelas);
+                                        @endphp
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('export.daftar-hadir', $filterKelas) }}" target="_blank">
+                                                <i class="ri-file-list-3-line me-2"></i>Daftar Hadir - {{ $selectedKelas->nama_kelas ?? '' }}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('export.rekap-absensi', $filterKelas) }}" target="_blank">
+                                                <i class="ri-bar-chart-box-line me-2"></i>Rekap Absensi - {{ $selectedKelas->nama_kelas ?? '' }}
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportNilaiModal">
+                                                <i class="ri-file-text-line me-2"></i>Daftar Nilai - {{ $selectedKelas->nama_kelas ?? '' }}
+                                            </a>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <span class="dropdown-item-text text-muted">
+                                                <i class="ri-information-line me-2"></i>Pilih kelas terlebih dahulu untuk export
+                                            </span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
                             <button type="button" class="btn btn-primary" wire:click="openCreateModal">
                                 <i class="ri-add-line me-1"></i> Tambah Siswa
                             </button>
@@ -133,7 +167,7 @@
                                 <option value="tidak_aktif">Tidak Aktif</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <select class="form-select" wire:model.live="filterKeterangan">
                                 <option value="">Semua Keterangan</option>
                                 <option value="siswa_baru">Siswa Baru</option>
@@ -142,13 +176,6 @@
                                 <option value="keluar">Keluar</option>
                                 <option value="meninggal_dunia">Meninggal Dunia</option>
                                 <option value="alumni">Alumni</option>
-                            </select>
-                        </div>
-                        <div class="col-md-1">
-                            <select class="form-select" wire:model.live="filterPerpustakaan">
-                                <option value="">Perpustakaan</option>
-                                <option value="1">Terpenuhi</option>
-                                <option value="0">Belum</option>
                             </select>
                         </div>
                     </div>
@@ -168,8 +195,6 @@
                                     <th>Tahun Pelajaran</th>
                                     <th>Status</th>
                                     <th>Keterangan</th>
-                                    <th>Perpustakaan</th>
-                                    <th>Link WA</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -307,35 +332,7 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td>
-                                            @if($editingSiswa === $siswa->id)
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" wire:model="editForm.perpustakaan_terpenuhi">
-                                                    <label class="form-check-label">Terpenuhi</label>
-                                                </div>
-                                            @else
-                                                @if($siswa->status_perpustakaan === 'aktif')
-                                                    <span class="badge bg-success">Terpenuhi</span>
-                                                @else
-                                                    <span class="badge bg-warning">Belum</span>
-                                                @endif
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php
-                                                $currentKelas = $siswa->getCurrentKelas();
-                                                $kelasLinkWa = $currentKelas ? $currentKelas->link_wa : null;
-                                            @endphp
-                                            @if($siswa->can_access_link_wa && $kelasLinkWa)
-                                                <a href="{{ $kelasLinkWa }}" target="_blank" class="btn btn-sm btn-success" title="Grup WhatsApp Kelas">
-                                                    <i class="ri-whatsapp-line"></i>
-                                                </a>
-                                            @elseif($kelasLinkWa)
-                                                <span class="badge bg-secondary" title="Akses terbatas - Status perpustakaan tidak aktif">Akses Terbatas</span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
+
                                         <td>
                                             @if($editingSiswa === $siswa->id)
                                                 <div class="btn-group btn-group-sm">
@@ -366,7 +363,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="13" class="text-center py-4">
+                                        <td colspan="11" class="text-center py-4">
                                             <div class="text-muted">
                                                 <i class="ri-inbox-line font-size-48 d-block mb-2"></i>
                                                 Tidak ada data siswa
@@ -742,6 +739,46 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal Export Daftar Nilai -->
+    <div class="modal fade" id="exportNilaiModal" tabindex="-1" aria-labelledby="exportNilaiModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exportNilaiModalLabel">
+                        <i class="fas fa-file-pdf me-2"></i>Export Daftar Nilai
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="mataPelajaranSelect" class="form-label">Pilih Mata Pelajaran <span class="text-danger">*</span></label>
+                        <select class="form-select" id="mataPelajaranSelect" required>
+                            <option value="">-- Pilih Mata Pelajaran --</option>
+                            @foreach($mataPelajaranList as $mapel)
+                                <option value="{{ $mapel->id }}">{{ $mapel->kode_mapel }} - {{ $mapel->nama_mapel }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback" id="mataPelajaranError">
+                            Silakan pilih mata pelajaran terlebih dahulu.
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Informasi:</strong> Daftar nilai akan digenerate dalam format PDF dengan layout landscape A4.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="exportDaftarNilai()">
+                        <i class="fas fa-download me-1"></i>Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     <script>
@@ -1120,6 +1157,75 @@
                   confirmButtonColor: '#d33'
               });
           });
+          
+          // Function untuk export daftar nilai
+          function exportDaftarNilai() {
+              const mataPelajaranSelect = document.getElementById('mataPelajaranSelect');
+              const mataPelajaranId = mataPelajaranSelect.value;
+              
+              // Reset validation state
+              mataPelajaranSelect.classList.remove('is-invalid');
+              
+              if (!mataPelajaranId) {
+                  mataPelajaranSelect.classList.add('is-invalid');
+                  mataPelajaranSelect.focus();
+                  return;
+              }
+              
+              // Get selected class ID from the current filter or selected class
+              const selectedKelasId = @this.get('filterKelas') || @js($kelasPerTingkat->flatten()->first()->id ?? null);
+              
+              if (!selectedKelasId) {
+                  Swal.fire({
+                      icon: 'warning',
+                      title: 'Pilih Kelas',
+                      text: 'Silakan pilih kelas terlebih dahulu dari filter kelas.',
+                      confirmButtonText: 'OK'
+                  });
+                  return;
+              }
+              
+              // Close modal
+              const modal = bootstrap.Modal.getInstance(document.getElementById('exportNilaiModal'));
+              modal.hide();
+              
+              // Reset select
+              mataPelajaranSelect.value = '';
+              
+              // Show loading
+              Swal.fire({
+                  title: 'Memproses Export...',
+                  text: 'Mohon tunggu, sedang membuat file PDF',
+                  icon: 'info',
+                  allowOutsideClick: false,
+                  allowEscapeKey: false,
+                  showConfirmButton: false,
+                  didOpen: () => {
+                      Swal.showLoading();
+                  }
+              });
+              
+              // Create export URL
+              const exportUrl = `/export/daftar-nilai/${selectedKelasId}?mata_pelajaran_id=${mataPelajaranId}`;
+              
+              // Create temporary link and trigger download
+              const link = document.createElement('a');
+              link.href = exportUrl;
+              link.target = '_blank';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              
+              // Close loading after a short delay
+              setTimeout(() => {
+                  Swal.close();
+                  Toast.fire({
+                      icon: 'success',
+                      title: 'Export Berhasil',
+                      text: 'File PDF daftar nilai telah diunduh'
+                  });
+              }, 2000);
+          }
     </script>
     @endpush
 </div>

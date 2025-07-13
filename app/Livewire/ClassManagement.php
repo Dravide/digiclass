@@ -459,6 +459,7 @@ class ClassManagement extends Component
             
         $guruList = Guru::orderBy('nama_guru')->get();
         $tahunPelajaranOptions = TahunPelajaran::orderBy('nama_tahun_pelajaran')->get();
+        $mataPelajaranList = \App\Models\MataPelajaran::active()->orderBy('nama_mapel')->get();
 
         return view('livewire.class-management', [
             'siswaList' => $siswaList,
@@ -466,7 +467,8 @@ class ClassManagement extends Component
             'allKelasList' => $allKelasList,
             'kelasPerTingkat' => $kelasPerTingkat,
             'guruList' => $guruList,
-            'tahunPelajaranOptions' => $tahunPelajaranOptions
+            'tahunPelajaranOptions' => $tahunPelajaranOptions,
+            'mataPelajaranList' => $mataPelajaranList
         ])->layout('layouts.app', [
             'title' => 'Manajemen Kelas',
             'page-title' => 'Manajemen Kelas'

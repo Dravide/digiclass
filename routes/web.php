@@ -11,6 +11,7 @@ use App\Livewire\MataPelajaranManagement;
 use App\Livewire\ImportManagement;
 use App\Livewire\Auth\Login;
 use App\Livewire\AnnouncementPage;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Auth;
 
 // Public announcement page (accessible to everyone)
@@ -29,6 +30,8 @@ Route::post('/logout', function () {
     return redirect()->route('login')->with('success', 'Berhasil logout.');
 })->name('logout');
 
+
+
 // Protected routes (for authenticated users)
 Route::middleware('auth.custom')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
@@ -40,6 +43,10 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/tahun-pelajaran-management', TahunPelajaranManagement::class)->name('tahun-pelajaran-management');
     Route::get('/mata-pelajaran-management', MataPelajaranManagement::class)->name('mata-pelajaran-management');
     Route::get('/import-management', ImportManagement::class)->name('import-management');
+    
+    // Export routes
+    Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
+    Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
 });
 
 // Redirect root to dashboard if authenticated, otherwise to announcement page
