@@ -122,53 +122,6 @@
         </div>
     </div>
 
-    <!-- Quick Access Section -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="mdi mdi-lightning-bolt text-warning me-2"></i>
-                        Akses Cepat
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="d-flex align-items-center p-3 bg-light rounded">
-                                <div class="flex-shrink-0">
-                                    <i class="mdi mdi-download text-primary" style="font-size: 2rem;"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="mb-1">Download Dokumen</h6>
-                                    <p class="text-muted mb-2">Unduh daftar hadir dan daftar nilai dalam format PDF</p>
-                                    <a href="{{ route('download') }}" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-arrow-right me-1"></i>
-                                        Buka Halaman Download
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="d-flex align-items-center p-3 bg-light rounded">
-                                <div class="flex-shrink-0">
-                                    <i class="mdi mdi-bullhorn text-info" style="font-size: 2rem;"></i>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="mb-1">Pengumuman</h6>
-                                    <p class="text-muted mb-2">Lihat pengumuman dan informasi terbaru sekolah</p>
-                                    <a href="{{ route('announcements') }}" class="btn btn-info btn-sm">
-                                        <i class="mdi mdi-arrow-right me-1"></i>
-                                        Lihat Pengumuman
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer Info -->
     <div class="row mt-4">
