@@ -301,8 +301,8 @@ class GuruManagement extends Component
 
     public function render()
     {
-        $query = Guru::withCount('siswa')
-            ->with('mataPelajaran')
+        $query = Guru::with('mataPelajaran')
+            ->withCount('siswa')
             ->when($this->search, function ($query) {
                 $query->where('nama_guru', 'like', '%' . $this->search . '%')
                       ->orWhere('nip', 'like', '%' . $this->search . '%')
@@ -317,6 +317,8 @@ class GuruManagement extends Component
             ->orderBy($this->sortField, $this->sortDirection);
 
         $gurus = $query->paginate($this->perPage);
+
+     
         
         // Get active mata pelajaran for dropdown
         $mataPelajaranList = MataPelajaran::active()->orderBy('nama_mapel')->get();

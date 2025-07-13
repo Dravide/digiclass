@@ -165,7 +165,7 @@
                                         </td>
                                         <td>{{ $item->email ?: '-' }}</td>
                                         <td>{{ $item->telepon ?: '-' }}</td>
-                                        <td>{{ $item->mata_pelajaran ?: '-' }}</td>
+                                        <td>{{ $item->mataPelajaran ? $item->mataPelajaran->nama_mapel : '-' }}</td>
                                         <td>
                                             @if($item->is_wali_kelas)
                                                 <span class="badge badge-soft-success">Ya</span>

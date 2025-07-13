@@ -116,7 +116,11 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-12">
+                                        <div class="col-sm-6">
+                                            <p class="mb-2"><strong>Wali Kelas:</strong></p>
+                                            <p class="mb-3">{{ $waliKelasName }}</p>
+                                        </div>
+                                        <div class="col-sm-6">
                                             <p class="mb-2"><strong>Tahun Pelajaran:</strong></p>
                                             <p class="mb-3">{{ $tahunPelajaran }}</p>
                                         </div>

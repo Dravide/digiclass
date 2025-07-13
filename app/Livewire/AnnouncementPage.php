@@ -14,6 +14,7 @@ class AnnouncementPage extends Component
     public $studentFound = false;
     public $studentName = '';
     public $className = '';
+    public $waliKelasName = '';
     public $whatsappLink = '';
     public $errorMessage = '';
     public $tahunPelajaran = '';
@@ -21,7 +22,7 @@ class AnnouncementPage extends Component
     public $canAccessClassInfo = false;
     
     // Countdown properties
-    public $countdownTargetDate = '2025-07-13 14:00:00';
+    public $countdownTargetDate = '2025-07-13 07:00:00';
     public $countdownTitle = 'Countdown Menuju 13 Juli 2025 - 14:00 WIB';
 
     public function searchStudent()
@@ -59,7 +60,7 @@ class AnnouncementPage extends Component
             return;
         }
 
-        $kelas = Kelas::find($kelasSiswa->kelas_id);
+        $kelas = Kelas::with('guru')->find($kelasSiswa->kelas_id);
         
         if (!$kelas) {
             $this->errorMessage = 'Data kelas tidak ditemukan.';
@@ -74,15 +75,19 @@ class AnnouncementPage extends Component
         $this->studentFound = true;
         $this->studentName = $student->nama_siswa;
         $this->tahunPelajaran = $activeTahunPelajaran->nama_tahun_pelajaran;
+
+   
         
         // Only show class info if library requirements are met
         if ($this->libraryStatus) {
             $this->canAccessClassInfo = true;
             $this->className = $kelas->nama_kelas;
+            $this->waliKelasName = $kelas->guru ? $kelas->guru->nama_guru : 'Belum ditentukan';
             $this->whatsappLink = $kelas->link_wa ?? '';
         } else {
             $this->canAccessClassInfo = false;
             $this->className = '';
+            $this->waliKelasName = '';
             $this->whatsappLink = '';
         }
     }
@@ -92,6 +97,7 @@ class AnnouncementPage extends Component
         $this->studentFound = false;
         $this->studentName = '';
         $this->className = '';
+        $this->waliKelasName = '';
         $this->whatsappLink = '';
         $this->errorMessage = '';
         $this->tahunPelajaran = '';
