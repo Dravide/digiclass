@@ -107,11 +107,7 @@
                                                 <i class="ri-file-list-3-line me-2"></i>Daftar Hadir - {{ $selectedKelas->nama_kelas ?? '' }}
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('export.rekap-absensi', $filterKelas) }}" target="_blank">
-                                                <i class="ri-bar-chart-box-line me-2"></i>Rekap Absensi - {{ $selectedKelas->nama_kelas ?? '' }}
-                                            </a>
-                                        </li>
+
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportNilaiModal">
