@@ -89,7 +89,7 @@ class ExportController extends Controller
     private function generateTanggalBulan($bulan, $tahun)
     {
         $tanggalList = [];
-        $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun);
+        $jumlahHari = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth;
         
         for ($i = 1; $i <= $jumlahHari; $i++) {
             $tanggalList[] = $i;
