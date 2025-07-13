@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Kelas extends Model
 {
@@ -25,15 +26,26 @@ class Kelas extends Model
     ];
 
     // Relationship dengan siswa melalui KelasSiswa untuk tahun pelajaran aktif
-    public function siswa(): HasMany
+    public function siswa(): BelongsToMany
     {
-        return $this->hasMany(Siswa::class)
-            ->whereHas('kelasSiswa', function ($query) {
-                $query->where('kelas_id', $this->id)
-                    ->whereHas('tahunPelajaran', function ($q) {
-                        $q->where('is_active', true);
-                    });
+        return $this->belongsToMany(Siswa::class, 'kelas_siswa', 'kelas_id', 'siswa_id')
+            ->withPivot('tahun_pelajaran_id')
+            ->whereHas('tahunPelajaran', function ($query) {
+                $query->where('is_active', true);
             });
+    }
+
+    // Alternative method to get students for a specific academic year
+    public function siswaByTahunPelajaran($tahunPelajaranId = null)
+    {
+        if (!$tahunPelajaranId) {
+            $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
+            $tahunPelajaranId = $activeTahunPelajaran ? $activeTahunPelajaran->id : null;
+        }
+        
+        return $this->belongsToMany(Siswa::class, 'kelas_siswa', 'kelas_id', 'siswa_id')
+            ->withPivot('tahun_pelajaran_id')
+            ->wherePivot('tahun_pelajaran_id', $tahunPelajaranId);
     }
 
     // Relationship dengan tahun pelajaran

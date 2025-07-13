@@ -226,7 +226,7 @@ class KelasManagement extends Component
 
     public function render()
     {
-        $query = Kelas::with(['tahunPelajaran', 'guru']);
+        $query = Kelas::with(['tahunPelajaran', 'guru','siswa']);
 
         // Apply tahun pelajaran filter (default to active if not set)
         if ($this->filterTahunPelajaran) {
@@ -261,6 +261,8 @@ class KelasManagement extends Component
         $query->orderBy($this->sortField, $this->sortDirection);
 
         $kelas = $query->withCount('siswa')->paginate($this->perPage);
+
+     
 
         // Get unique values for filters based on current tahun pelajaran filter
         $baseQuery = Kelas::query();
