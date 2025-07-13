@@ -46,7 +46,7 @@
                     </div>
                     <h5 class="card-title fw-bold">Daftar Nilai dan Hadir</h5>
                     <p class="card-text text-muted mb-4">Unduh Daftar Nilai dan Daftar Siswa PDF</p>
-                    <a href="{{ route('download') }}" class="btn btn-dange px-4">Unduh</a>
+                    <a href="{{ route('download') }}" class="btn btn-danger px-4">Unduh</a>
                 </div>
             </div>
         </div>
