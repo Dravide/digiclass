@@ -110,7 +110,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <select class="form-select" wire:model.live="filterTahunPelajaran">
                                 <option value="">Semua Tahun Pelajaran</option>
                                 @foreach($tahunPelajaranOptions as $tahun)
@@ -118,7 +118,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <select class="form-select" wire:model.live="filterKelas">
                                 <option value="">Semua Kelas</option>
                                 @foreach($kelasList as $kelas)
@@ -126,11 +126,29 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <select class="form-select" wire:model.live="filterStatus">
+                                <option value="">Semua Status</option>
+                                <option value="aktif">Aktif</option>
+                                <option value="tidak_aktif">Tidak Aktif</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" wire:model.live="filterKeterangan">
+                                <option value="">Semua Keterangan</option>
+                                <option value="siswa_baru">Siswa Baru</option>
+                                <option value="pindahan">Pindahan</option>
+                                <option value="mengundurkan_diri">Mengundurkan Diri</option>
+                                <option value="keluar">Keluar</option>
+                                <option value="meninggal_dunia">Meninggal Dunia</option>
+                                <option value="alumni">Alumni</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
                             <select class="form-select" wire:model.live="filterPerpustakaan">
-                                <option value="">Semua Status Perpustakaan</option>
+                                <option value="">Perpustakaan</option>
                                 <option value="1">Terpenuhi</option>
-                                <option value="0">Belum Terpenuhi</option>
+                                <option value="0">Belum</option>
                             </select>
                         </div>
                     </div>
@@ -148,6 +166,8 @@
                                     <th>Kelas</th>
                                     <th>Wali Kelas</th>
                                     <th>Tahun Pelajaran</th>
+                                    <th>Status</th>
+                                    <th>Keterangan</th>
                                     <th>Perpustakaan</th>
                                     <th>Link WA</th>
                                     <th>Aksi</th>
@@ -239,6 +259,56 @@
                                         </td>
                                         <td>
                                             @if($editingSiswa === $siswa->id)
+                                                <select class="form-select form-select-sm" wire:model="editForm.status">
+                                                    <option value="">Pilih Status</option>
+                                                    <option value="aktif">Aktif</option>
+                                                    <option value="tidak_aktif">Tidak Aktif</option>
+                                                </select>
+                                                @error('editForm.status') <small class="text-danger">{{ $message }}</small> @enderror
+                                            @else
+                                                <span class="badge bg-{{ $siswa->status === 'aktif' ? 'success' : 'danger' }}">
+                                                    {{ $siswa->status === 'aktif' ? 'Aktif' : 'Tidak Aktif' }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($editingSiswa === $siswa->id)
+                                                <select class="form-select form-select-sm" wire:model="editForm.keterangan">
+                                                    <option value="">Pilih Keterangan</option>
+                                                    <option value="siswa_baru">Siswa Baru</option>
+                                                    <option value="pindahan">Pindahan</option>
+                                                    <option value="mengundurkan_diri">Mengundurkan Diri</option>
+                                                    <option value="keluar">Keluar</option>
+                                                    <option value="meninggal_dunia">Meninggal Dunia</option>
+                                                    <option value="alumni">Alumni</option>
+                                                </select>
+                                                @error('editForm.keterangan') <small class="text-danger">{{ $message }}</small> @enderror
+                                            @else
+                                                @php
+                                                    $keteranganLabels = [
+                                                        'siswa_baru' => 'Siswa Baru',
+                                                        'pindahan' => 'Pindahan',
+                                                        'mengundurkan_diri' => 'Mengundurkan Diri',
+                                                        'keluar' => 'Keluar',
+                                                        'meninggal_dunia' => 'Meninggal Dunia',
+                                                        'alumni' => 'Alumni'
+                                                    ];
+                                                    $keteranganColors = [
+                                                        'siswa_baru' => 'primary',
+                                                        'pindahan' => 'info',
+                                                        'mengundurkan_diri' => 'warning',
+                                                        'keluar' => 'danger',
+                                                        'meninggal_dunia' => 'dark',
+                                                        'alumni' => 'success'
+                                                    ];
+                                                @endphp
+                                                <span class="badge bg-{{ $keteranganColors[$siswa->keterangan] ?? 'secondary' }}">
+                                                    {{ $keteranganLabels[$siswa->keterangan] ?? $siswa->keterangan }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($editingSiswa === $siswa->id)
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" wire:model="editForm.perpustakaan_terpenuhi">
                                                     <label class="form-check-label">Terpenuhi</label>
@@ -296,7 +366,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="11" class="text-center py-4">
+                                        <td colspan="13" class="text-center py-4">
                                             <div class="text-muted">
                                                 <i class="ri-inbox-line font-size-48 d-block mb-2"></i>
                                                 Tidak ada data siswa
@@ -591,6 +661,45 @@
                                         @endforeach
                                     </select>
                                     @error('createForm.tahun_pelajaran_id')
+                                        <div class="invalid-feedback">
+                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="createStatus" class="form-label">Status <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('createForm.status') is-invalid @enderror" 
+                                            id="createStatus" wire:model="createForm.status">
+                                        <option value="">Pilih Status</option>
+                                        <option value="aktif">Aktif</option>
+                                        <option value="tidak_aktif">Tidak Aktif</option>
+                                    </select>
+                                    @error('createForm.status')
+                                        <div class="invalid-feedback">
+                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="createKeterangan" class="form-label">Keterangan <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('createForm.keterangan') is-invalid @enderror" 
+                                            id="createKeterangan" wire:model="createForm.keterangan">
+                                        <option value="">Pilih Keterangan</option>
+                                        <option value="siswa_baru">Siswa Baru</option>
+                                        <option value="pindahan">Pindahan</option>
+                                        <option value="mengundurkan_diri">Mengundurkan Diri</option>
+                                        <option value="keluar">Keluar</option>
+                                        <option value="meninggal_dunia">Meninggal Dunia</option>
+                                        <option value="alumni">Alumni</option>
+                                    </select>
+                                    @error('createForm.keterangan')
                                         <div class="invalid-feedback">
                                             <i class="ri-error-warning-line me-1"></i>{{ $message }}
                                         </div>

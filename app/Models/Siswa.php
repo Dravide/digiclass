@@ -17,12 +17,28 @@ class Siswa extends Model
         'jk',
         'nisn',
         'nis',
-        'tahun_pelajaran_id'
+        'tahun_pelajaran_id',
+        'status',
+        'keterangan'
     ];
 
     protected $casts = [
-        'jk' => 'string'
+        'jk' => 'string',
+        'status' => 'string',
+        'keterangan' => 'string'
     ];
+
+    // Constants untuk status siswa
+    const STATUS_AKTIF = 'aktif';
+    const STATUS_TIDAK_AKTIF = 'tidak_aktif';
+
+    // Constants untuk keterangan siswa
+    const KETERANGAN_SISWA_BARU = 'siswa_baru';
+    const KETERANGAN_PINDAHAN = 'pindahan';
+    const KETERANGAN_MENGUNDURKAN_DIRI = 'mengundurkan_diri';
+    const KETERANGAN_KELUAR = 'keluar';
+    const KETERANGAN_MENINGGAL_DUNIA = 'meninggal_dunia';
+    const KETERANGAN_ALUMNI = 'alumni';
 
     // Relationship dengan kelas saat ini melalui KelasSiswa aktif
     public function kelas(): BelongsTo
@@ -148,5 +164,59 @@ class Siswa extends Model
     public function scopeByTahunPelajaran($query, $tahunPelajaranId)
     {
         return $query->where('tahun_pelajaran_id', $tahunPelajaranId);
+    }
+
+    // Scope untuk siswa dengan status aktif
+    public function scopeStatusAktif($query)
+    {
+        return $query->where('status', self::STATUS_AKTIF);
+    }
+
+    // Scope untuk siswa dengan status tidak aktif
+    public function scopeStatusTidakAktif($query)
+    {
+        return $query->where('status', self::STATUS_TIDAK_AKTIF);
+    }
+
+    // Scope untuk siswa berdasarkan keterangan tertentu
+    public function scopeByKeterangan($query, $keterangan)
+    {
+        return $query->where('keterangan', $keterangan);
+    }
+
+    // Method untuk mendapatkan daftar status yang tersedia
+    public static function getAvailableStatuses()
+    {
+        return [
+            self::STATUS_AKTIF => 'Aktif',
+            self::STATUS_TIDAK_AKTIF => 'Tidak Aktif'
+        ];
+    }
+
+    // Method untuk mendapatkan daftar keterangan yang tersedia
+    public static function getAvailableKeterangans()
+    {
+        return [
+            self::KETERANGAN_SISWA_BARU => 'Siswa Baru',
+            self::KETERANGAN_PINDAHAN => 'Pindahan',
+            self::KETERANGAN_MENGUNDURKAN_DIRI => 'Mengundurkan Diri',
+            self::KETERANGAN_KELUAR => 'Keluar',
+            self::KETERANGAN_MENINGGAL_DUNIA => 'Meninggal Dunia',
+            self::KETERANGAN_ALUMNI => 'Alumni'
+        ];
+    }
+
+    // Accessor untuk mendapatkan label status
+    public function getStatusLabelAttribute()
+    {
+        $statuses = self::getAvailableStatuses();
+        return $statuses[$this->status] ?? $this->status;
+    }
+
+    // Accessor untuk mendapatkan label keterangan
+    public function getKeteranganLabelAttribute()
+    {
+        $keterangans = self::getAvailableKeterangans();
+        return $keterangans[$this->keterangan] ?? $this->keterangan;
     }
 }

@@ -20,6 +20,8 @@ class ClassManagement extends Component
     public $filterKelas = '';
     public $filterPerpustakaan = '';
     public $filterTahunPelajaran = '';
+    public $filterStatus = '';
+    public $filterKeterangan = '';
 
     // Form properties untuk edit siswa
     public $editingSiswa = null;
@@ -30,7 +32,9 @@ class ClassManagement extends Component
         'nis' => '',
         'kelas_id' => '',
         'tahun_pelajaran_id' => '',
-        'perpustakaan_terpenuhi' => false
+        'perpustakaan_terpenuhi' => false,
+        'status' => '',
+        'keterangan' => ''
     ];
 
     // Form properties untuk tambah siswa manual
@@ -42,7 +46,9 @@ class ClassManagement extends Component
         'nis' => '',
         'kelas_id' => '',
         'tahun_pelajaran_id' => '',
-        'perpustakaan_terpenuhi' => false
+        'perpustakaan_terpenuhi' => false,
+        'status' => '',
+        'keterangan' => ''
     ];
 
     protected function rules()
@@ -130,6 +136,16 @@ class ClassManagement extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterKeterangan()
+    {
+        $this->resetPage();
+    }
+
 
 
     public function editSiswa($siswaId)
@@ -145,7 +161,9 @@ class ClassManagement extends Component
                 'nis' => $siswa->nis,
                 'kelas_id' => $siswa->current_kelas_id,
                 'tahun_pelajaran_id' => $siswa->tahun_pelajaran_id,
-                'perpustakaan_terpenuhi' => $siswa->perpustakaan ? $siswa->perpustakaan->terpenuhi : false
+                'perpustakaan_terpenuhi' => $siswa->perpustakaan ? $siswa->perpustakaan->terpenuhi : false,
+                'status' => $siswa->status ?? Siswa::STATUS_AKTIF,
+                'keterangan' => $siswa->keterangan ?? Siswa::KETERANGAN_SISWA_BARU
             ];
         }
     }
@@ -162,7 +180,9 @@ class ClassManagement extends Component
                     'jk' => $this->editForm['jk'],
                     'nisn' => $this->editForm['nisn'],
                     'nis' => $this->editForm['nis'],
-                    'tahun_pelajaran_id' => $this->editForm['tahun_pelajaran_id']
+                    'tahun_pelajaran_id' => $this->editForm['tahun_pelajaran_id'],
+                    'status' => $this->editForm['status'],
+                    'keterangan' => $this->editForm['keterangan']
                 ]);
 
                 // Update KelasSiswa record for the active academic year
@@ -230,7 +250,9 @@ class ClassManagement extends Component
             'nis' => '',
             'kelas_id' => '',
             'tahun_pelajaran_id' => '',
-            'perpustakaan_terpenuhi' => false
+            'perpustakaan_terpenuhi' => false,
+            'status' => '',
+            'keterangan' => ''
         ];
     }
 
@@ -246,7 +268,9 @@ class ClassManagement extends Component
             'nis' => '',
             'kelas_id' => '',
             'tahun_pelajaran_id' => $activeTahunPelajaran ? $activeTahunPelajaran->id : '',
-            'perpustakaan_terpenuhi' => false
+            'perpustakaan_terpenuhi' => false,
+            'status' => Siswa::STATUS_AKTIF,
+            'keterangan' => Siswa::KETERANGAN_SISWA_BARU
         ];
     }
 
@@ -260,7 +284,9 @@ class ClassManagement extends Component
             'nis' => '',
             'kelas_id' => '',
             'tahun_pelajaran_id' => '',
-            'perpustakaan_terpenuhi' => false
+            'perpustakaan_terpenuhi' => false,
+            'status' => Siswa::STATUS_AKTIF,
+            'keterangan' => Siswa::KETERANGAN_SISWA_BARU
         ];
         $this->resetErrorBag();
     }
@@ -284,7 +310,9 @@ class ClassManagement extends Component
                     'jk' => $this->createForm['jk'],
                     'nisn' => $this->createForm['nisn'],
                     'nis' => $this->createForm['nis'],
-                    'tahun_pelajaran_id' => $this->createForm['tahun_pelajaran_id']
+                    'tahun_pelajaran_id' => $this->createForm['tahun_pelajaran_id'],
+                    'status' => $this->createForm['status'],
+                    'keterangan' => $this->createForm['keterangan']
                 ]);
 
                 // Create KelasSiswa record
@@ -387,6 +415,12 @@ class ClassManagement extends Component
                           $subQ->where('terpenuhi', false);
                       });
                 }
+            })
+            ->when($this->filterStatus, function ($q) {
+                $q->where('status', $this->filterStatus);
+            })
+            ->when($this->filterKeterangan, function ($q) {
+                $q->where('keterangan', $this->filterKeterangan);
             });
 
         $siswaList = $query->paginate(10);

@@ -89,7 +89,9 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation, WithBatchI
                 'jk' => strtoupper(trim($row['jk'])),
                 'nisn' => (string) trim($row['nisn']),
                 'nis' => (string) trim($row['nis']),
-                'tahun_pelajaran_id' => $tahunPelajaran->id
+                'tahun_pelajaran_id' => $tahunPelajaran->id,
+                'status' => Siswa::STATUS_AKTIF, // Default status aktif untuk import
+                'keterangan' => Siswa::KETERANGAN_SISWA_BARU // Default keterangan siswa baru untuk import
             ]);
             
             // Pastikan kelas berhasil dibuat dan memiliki ID
