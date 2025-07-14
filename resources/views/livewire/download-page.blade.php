@@ -27,7 +27,7 @@
                                 @foreach($kelas as $k)
                                     <option value="{{ $k->id }}">
                                         {{ $k->nama_kelas }} - {{ $k->guru->nama_guru ?? 'Belum ada wali kelas' }} 
-                                        ({{ $k->tahunPelajaran->nama_tahun ?? 'N/A' }})
+                                
                                     </option>
                                 @endforeach
                             </select>
@@ -88,7 +88,7 @@
                                 @foreach($kelas as $k)
                                     <option value="{{ $k->id }}">
                                         {{ $k->nama_kelas }} - {{ $k->guru->nama_guru ?? 'Belum ada wali kelas' }} 
-                                        ({{ $k->tahunPelajaran->nama_tahun ?? 'N/A' }})
+                    
                                     </option>
                                 @endforeach
                             </select>

@@ -171,7 +171,7 @@
             </td>
             <td style="width: 20%; text-align: left; border: none; font-size: 8px; padding: 10px; vertical-align: top;">
                 <div>Cipanas,</div>
-                <div>Wali Kelas</div>
+                <div>Guru Mata Pelajaran</div>
                 <div style="height: 40px;"></div>
                 <div style="border-bottom: 0px solid #000; margin-bottom: 3px;"></div>
                 <div><strong>{{ strtoupper($kelas->guru->nama_guru ?? '') }}</strong></div>
