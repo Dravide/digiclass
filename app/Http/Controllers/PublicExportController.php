@@ -15,12 +15,17 @@ class PublicExportController extends Controller
     public function exportDaftarHadir(Request $request)
     {
         $kelasId = $request->get('kelas_id');
-        $bulan = $request->get('bulan', date('n')); // Default bulan sekarang
-        $tahun = $request->get('tahun', date('Y')); // Default tahun sekarang
+        $bulan = (int) $request->get('bulan', date('n')); // Default bulan sekarang, convert to integer
+        $tahun = (int) $request->get('tahun', date('Y')); // Default tahun sekarang, convert to integer
         
         // Validasi input
         if (!$kelasId) {
             return response()->json(['error' => 'Kelas harus dipilih'], 400);
+        }
+        
+        // Validasi bulan (1-12)
+        if ($bulan < 1 || $bulan > 12) {
+            return response()->json(['error' => 'Bulan tidak valid. Harus antara 1-12'], 400);
         }
         
         // Ambil data kelas

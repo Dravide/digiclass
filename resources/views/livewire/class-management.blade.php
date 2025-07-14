@@ -551,172 +551,153 @@
         }
     </style>
 
-    <!-- Modal Tambah Siswa -->
+    <!-- Modal Tambah Siswa - Clean & Simple -->
     @if($showCreateModal)
-    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
                         <i class="ri-user-add-line me-2"></i>Tambah Siswa Baru
                     </h5>
-                    <button type="button" class="btn-close" wire:click="closeCreateModal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" wire:click="closeCreateModal"></button>
                 </div>
+                
                 <div class="modal-body">
+                    <!-- Success/Error Messages -->
+                    @if (session()->has('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="ri-check-circle-line me-2"></i>{{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+                    
+                    @if (session()->has('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <form wire:submit.prevent="createSiswa">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createNamaSiswa" class="form-label">Nama Siswa <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('createForm.nama_siswa') is-invalid @enderror" 
-                                           id="createNamaSiswa" wire:model="createForm.nama_siswa" 
-                                           placeholder="Masukkan nama lengkap siswa">
-                                    @error('createForm.nama_siswa')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                        <!-- Basic Information -->
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('createForm.nama_siswa') is-invalid @enderror" 
+                                       wire:model="createForm.nama_siswa" placeholder="Masukkan nama lengkap siswa">
+                                @error('createForm.nama_siswa')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createJk" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('createForm.jk') is-invalid @enderror" 
-                                            id="createJk" wire:model="createForm.jk">
-                                        <option value="">Pilih Jenis Kelamin</option>
-                                        <option value="L">Laki-laki</option>
-                                        <option value="P">Perempuan</option>
-                                    </select>
-                                    @error('createForm.jk')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                            
+                            <div class="col-md-4">
+                                <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                                <select class="form-select @error('createForm.jk') is-invalid @enderror" wire:model="createForm.jk">
+                                    <option value="">Pilih</option>
+                                    <option value="L">Laki-laki</option>
+                                    <option value="P">Perempuan</option>
+                                </select>
+                                @error('createForm.jk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         
-                        <div class="row">
+                        <!-- Student IDs -->
+                        <div class="row g-3 mt-2">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createNisn" class="form-label">NISN <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('createForm.nisn') is-invalid @enderror" 
-                                           id="createNisn" wire:model="createForm.nisn" 
-                                           placeholder="Masukkan NISN">
-                                    @error('createForm.nisn')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">NISN <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('createForm.nisn') is-invalid @enderror" 
+                                       wire:model="createForm.nisn" placeholder="Nomor Induk Siswa Nasional">
+                                @error('createForm.nisn')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
+                            
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createNis" class="form-label">NIS <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('createForm.nis') is-invalid @enderror" 
-                                           id="createNis" wire:model="createForm.nis" 
-                                           placeholder="Masukkan NIS">
-                                    @error('createForm.nis')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">NIS <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('createForm.nis') is-invalid @enderror" 
+                                       wire:model="createForm.nis" placeholder="Nomor Induk Siswa">
+                                @error('createForm.nis')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         
-                        <div class="row">
+                        <!-- Class & Academic Year -->
+                        <div class="row g-3 mt-2">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createKelas" class="form-label">Kelas <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('createForm.kelas_id') is-invalid @enderror" 
-                                            id="createKelas" wire:model="createForm.kelas_id">
-                                        <option value="">Pilih Kelas</option>
-                                        @foreach($allKelasList as $kelas)
-                                            <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('createForm.kelas_id')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">Kelas <span class="text-danger">*</span></label>
+                                <select class="form-select @error('createForm.kelas_id') is-invalid @enderror" wire:model="createForm.kelas_id">
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach($allKelasList as $kelas)
+                                        <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
+                                    @endforeach
+                                </select>
+                                @error('createForm.kelas_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
+                            
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createTahunPelajaran" class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('createForm.tahun_pelajaran_id') is-invalid @enderror" 
-                                            id="createTahunPelajaran" wire:model="createForm.tahun_pelajaran_id">
-                                        <option value="">Pilih Tahun Pelajaran</option>
-                                        @foreach($tahunPelajaranOptions as $tahun)
-                                            <option value="{{ $tahun->id }}">{{ $tahun->nama_tahun_pelajaran }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('createForm.tahun_pelajaran_id')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
+                                <select class="form-select @error('createForm.tahun_pelajaran_id') is-invalid @enderror" wire:model="createForm.tahun_pelajaran_id">
+                                    <option value="">Pilih Tahun Pelajaran</option>
+                                    @foreach($tahunPelajaranOptions as $tahun)
+                                        <option value="{{ $tahun->id }}" {{ $tahun->is_active ? 'selected' : '' }}>
+                                            {{ $tahun->nama_tahun_pelajaran }} {{ $tahun->is_active ? '(Aktif)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('createForm.tahun_pelajaran_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         
-                        <div class="row">
+                        <!-- Status & Notes -->
+                        <div class="row g-3 mt-2">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('createForm.status') is-invalid @enderror" 
-                                            id="createStatus" wire:model="createForm.status">
-                                        <option value="">Pilih Status</option>
-                                        <option value="aktif">Aktif</option>
-                                        <option value="tidak_aktif">Tidak Aktif</option>
-                                    </select>
-                                    @error('createForm.status')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select @error('createForm.status') is-invalid @enderror" wire:model="createForm.status">
+                                    <option value="aktif">Aktif</option>
+                                    <option value="tidak_aktif">Tidak Aktif</option>
+                                </select>
+                                @error('createForm.status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
+                            
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="createKeterangan" class="form-label">Keterangan <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('createForm.keterangan') is-invalid @enderror" 
-                                            id="createKeterangan" wire:model="createForm.keterangan">
-                                        <option value="">Pilih Keterangan</option>
-                                        <option value="siswa_baru">Siswa Baru</option>
-                                        <option value="pindahan">Pindahan</option>
-                                        <option value="mengundurkan_diri">Mengundurkan Diri</option>
-                                        <option value="keluar">Keluar</option>
-                                        <option value="meninggal_dunia">Meninggal Dunia</option>
-                                        <option value="alumni">Alumni</option>
-                                    </select>
-                                    @error('createForm.keterangan')
-                                        <div class="invalid-feedback">
-                                            <i class="ri-error-warning-line me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                                <label class="form-label">Keterangan <span class="text-danger">*</span></label>
+                                <select class="form-select @error('createForm.keterangan') is-invalid @enderror" wire:model="createForm.keterangan">
+                                    <option value="siswa_baru">Siswa Baru</option>
+                                    <option value="pindahan">Pindahan</option>
+                                    <option value="mengundurkan_diri">Mengundurkan Diri</option>
+                                    <option value="keluar">Keluar</option>
+                                    <option value="meninggal_dunia">Meninggal Dunia</option>
+                                    <option value="alumni">Alumni</option>
+                                </select>
+                                @error('createForm.keterangan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" 
-                                               id="createPerpustakaan" wire:model="createForm.perpustakaan_terpenuhi">
-                                        <label class="form-check-label" for="createPerpustakaan">
-                                            <i class="ri-book-line me-1"></i>Status Perpustakaan Terpenuhi
-                                        </label>
-                                    </div>
-                                    <small class="text-muted">Centang jika siswa telah memenuhi persyaratan perpustakaan</small>
-                                </div>
+                        <!-- Library Status -->
+                        <div class="mt-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" wire:model="createForm.perpustakaan_terpenuhi">
+                                <label class="form-check-label">
+                                    <i class="ri-book-line me-1"></i>Status Perpustakaan Terpenuhi
+                                </label>
                             </div>
+                            <small class="text-muted">Centang jika siswa telah memenuhi persyaratan perpustakaan</small>
                         </div>
                     </form>
                 </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" wire:click="closeCreateModal">
                         <i class="ri-close-line me-1"></i>Batal
@@ -726,7 +707,7 @@
                             <i class="ri-save-line me-1"></i>Simpan Data
                         </span>
                         <span wire:loading wire:target="createSiswa">
-                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span class="spinner-border spinner-border-sm me-1"></span>
                             Menyimpan...
                         </span>
                     </button>
@@ -1051,15 +1032,20 @@
          }
          
          function setupFieldValidation() {
+              // Edit form validation
               const nisnField = ClassManagementUtils.safeQuerySelector('input[wire\\:model="editForm.nisn"]');
               const nisField = ClassManagementUtils.safeQuerySelector('input[wire\\:model="editForm.nis"]');
+              
+              // Create form validation
+              const createNisnField = ClassManagementUtils.safeQuerySelector('input[wire\\:model="createForm.nisn"]');
+              const createNisField = ClassManagementUtils.safeQuerySelector('input[wire\\:model="createForm.nis"]');
               
               if (nisnField && !nisnField.hasAttribute('data-validation-setup')) {
                   nisnField.setAttribute('data-validation-setup', 'true');
                   
                   const debouncedNisnValidation = ClassManagementUtils.debounce(() => {
                       ClassManagementUtils.removeLoadingState(nisnField);
-                      @this.validateOnly('editForm.nisn');
+                      @this.call('updatedEditFormNisn');
                   }, 800);
                   
                   nisnField.addEventListener('input', function() {
@@ -1073,12 +1059,38 @@
                   
                   const debouncedNisValidation = ClassManagementUtils.debounce(() => {
                       ClassManagementUtils.removeLoadingState(nisField);
-                      @this.validateOnly('editForm.nis');
+                      @this.call('updatedEditFormNis');
                   }, 800);
                   
                   nisField.addEventListener('input', function() {
                       ClassManagementUtils.addLoadingState(this);
                       debouncedNisValidation();
+                  });
+              }
+              
+              // Create form NISN validation - using automatic Livewire lifecycle
+              if (createNisnField && !createNisnField.hasAttribute('data-validation-setup')) {
+                  createNisnField.setAttribute('data-validation-setup', 'true');
+                  
+                  createNisnField.addEventListener('input', function() {
+                      ClassManagementUtils.addLoadingState(this);
+                      // Livewire will automatically call updatedCreateForm when the field changes
+                      setTimeout(() => {
+                          ClassManagementUtils.removeLoadingState(this);
+                      }, 800);
+                  });
+              }
+              
+              // Create form NIS validation - using automatic Livewire lifecycle
+              if (createNisField && !createNisField.hasAttribute('data-validation-setup')) {
+                  createNisField.setAttribute('data-validation-setup', 'true');
+                  
+                  createNisField.addEventListener('input', function() {
+                      ClassManagementUtils.addLoadingState(this);
+                      // Livewire will automatically call updatedCreateForm when the field changes
+                      setTimeout(() => {
+                          ClassManagementUtils.removeLoadingState(this);
+                      }, 800);
                   });
               }
           }
@@ -1133,26 +1145,7 @@
               }
           });
           
-          // Event listeners untuk create modal
-          Livewire.on('siswa-created', (message) => {
-              Swal.fire({
-                  title: 'Berhasil!',
-                  text: message,
-                  icon: 'success',
-                  confirmButtonText: 'OK',
-                  confirmButtonColor: '#3085d6'
-              });
-          });
-          
-          Livewire.on('create-error', (message) => {
-              Swal.fire({
-                  title: 'Error!',
-                  text: message,
-                  icon: 'error',
-                  confirmButtonText: 'OK',
-                  confirmButtonColor: '#d33'
-              });
-          });
+          // Removed complex event listeners for cleaner code
           
           // Function untuk export daftar nilai
           function exportDaftarNilai() {

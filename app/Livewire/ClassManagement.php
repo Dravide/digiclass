@@ -59,7 +59,9 @@ class ClassManagement extends Component
             'editForm.nisn' => 'required|string|unique:siswa,nisn,' . $this->editingSiswa,
             'editForm.nis' => 'required|string|unique:siswa,nis,' . $this->editingSiswa,
             'editForm.kelas_id' => 'required|exists:kelas,id',
-            'editForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id'
+            'editForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id',
+            'editForm.status' => 'required|in:aktif,tidak_aktif',
+            'editForm.keterangan' => 'required|in:siswa_baru,pindahan,mengundurkan_diri,keluar,meninggal_dunia,alumni'
         ];
 
         // Add create form rules
@@ -69,7 +71,9 @@ class ClassManagement extends Component
             'createForm.nisn' => 'required|string|unique:siswa,nisn',
             'createForm.nis' => 'required|string|unique:siswa,nis',
             'createForm.kelas_id' => 'required|exists:kelas,id',
-            'createForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id'
+            'createForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id',
+            'createForm.status' => 'required|in:aktif,tidak_aktif',
+            'createForm.keterangan' => 'required|in:siswa_baru,pindahan,mengundurkan_diri,keluar,meninggal_dunia,alumni'
         ]);
 
         return $rules;
@@ -101,7 +105,17 @@ class ClassManagement extends Component
         'createForm.kelas_id.required' => 'Kelas wajib dipilih.',
         'createForm.kelas_id.exists' => 'Kelas yang dipilih tidak valid.',
         'createForm.tahun_pelajaran_id.required' => 'Tahun pelajaran wajib dipilih.',
-        'createForm.tahun_pelajaran_id.exists' => 'Tahun pelajaran yang dipilih tidak valid.'
+        'createForm.tahun_pelajaran_id.exists' => 'Tahun pelajaran yang dipilih tidak valid.',
+        'createForm.status.required' => 'Status wajib dipilih.',
+        'createForm.status.in' => 'Status harus aktif atau tidak aktif.',
+        'createForm.keterangan.required' => 'Keterangan wajib dipilih.',
+        'createForm.keterangan.in' => 'Keterangan yang dipilih tidak valid.',
+        
+        // Edit form status and keterangan messages
+        'editForm.status.required' => 'Status wajib dipilih.',
+        'editForm.status.in' => 'Status harus aktif atau tidak aktif.',
+        'editForm.keterangan.required' => 'Keterangan wajib dipilih.',
+        'editForm.keterangan.in' => 'Keterangan yang dipilih tidak valid.'
     ];
 
     public function mount()
@@ -222,7 +236,9 @@ class ClassManagement extends Component
     public function updatedEditFormNisn()
     {
         try {
-            $this->validateOnly('editForm.nisn');
+            $this->validate([
+                'editForm.nisn' => 'required|string|unique:siswa,nisn,' . $this->editingSiswa
+            ]);
             $this->dispatch('validation-success', 'editForm.nisn');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', 'editForm.nisn');
@@ -233,7 +249,9 @@ class ClassManagement extends Component
     public function updatedEditFormNis()
     {
         try {
-            $this->validateOnly('editForm.nis');
+            $this->validate([
+                'editForm.nis' => 'required|string|unique:siswa,nis,' . $this->editingSiswa
+            ]);
             $this->dispatch('validation-success', 'editForm.nis');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', 'editForm.nis');
@@ -256,27 +274,22 @@ class ClassManagement extends Component
         ];
     }
 
-    // Methods untuk create modal
+    // === STUDENT CREATION - SIMPLIFIED APPROACH ===
+    
     public function openCreateModal()
     {
         $this->showCreateModal = true;
-        $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
-        $this->createForm = [
-            'nama_siswa' => '',
-            'jk' => '',
-            'nisn' => '',
-            'nis' => '',
-            'kelas_id' => '',
-            'tahun_pelajaran_id' => $activeTahunPelajaran ? $activeTahunPelajaran->id : '',
-            'perpustakaan_terpenuhi' => false,
-            'status' => Siswa::STATUS_AKTIF,
-            'keterangan' => Siswa::KETERANGAN_SISWA_BARU
-        ];
+        $this->resetCreateForm();
     }
 
     public function closeCreateModal()
     {
         $this->showCreateModal = false;
+        $this->resetCreateForm();
+    }
+
+    public function resetCreateForm()
+    {
         $this->createForm = [
             'nama_siswa' => '',
             'jk' => '',
@@ -285,26 +298,31 @@ class ClassManagement extends Component
             'kelas_id' => '',
             'tahun_pelajaran_id' => '',
             'perpustakaan_terpenuhi' => false,
-            'status' => Siswa::STATUS_AKTIF,
-            'keterangan' => Siswa::KETERANGAN_SISWA_BARU
+            'status' => 'aktif',
+            'keterangan' => 'siswa_baru'
         ];
+        
         $this->resetErrorBag();
+        $this->resetValidation();
     }
 
     public function createSiswa()
     {
-        try {
-            $this->validate([
-                'createForm.nama_siswa' => 'required|string|max:255',
-                'createForm.jk' => 'required|in:L,P',
-                'createForm.nisn' => 'required|string|unique:siswa,nisn',
-                'createForm.nis' => 'required|string|unique:siswa,nis',
-                'createForm.kelas_id' => 'required|exists:kelas,id',
-                'createForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id'
-            ]);
+        // Simple validation rules
+        $validatedData = $this->validate([
+            'createForm.nama_siswa' => 'required|string|max:255',
+            'createForm.jk' => 'required|in:L,P',
+            'createForm.nisn' => 'required|string|unique:siswa,nisn',
+            'createForm.nis' => 'required|string|unique:siswa,nis',
+            'createForm.kelas_id' => 'required|exists:kelas,id',
+            'createForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id',
+            'createForm.status' => 'required|in:aktif,tidak_aktif',
+            'createForm.keterangan' => 'required|in:siswa_baru,pindahan,mengundurkan_diri,keluar,meninggal_dunia,alumni'
+        ]);
 
+        try {
             DB::transaction(function () {
-                // Create new student
+                // Create student
                 $siswa = Siswa::create([
                     'nama_siswa' => $this->createForm['nama_siswa'],
                     'jk' => $this->createForm['jk'],
@@ -315,53 +333,31 @@ class ClassManagement extends Component
                     'keterangan' => $this->createForm['keterangan']
                 ]);
 
-                // Create KelasSiswa record
+                // Create class assignment
                 KelasSiswa::create([
                     'siswa_id' => $siswa->id,
                     'kelas_id' => $this->createForm['kelas_id'],
                     'tahun_pelajaran_id' => $this->createForm['tahun_pelajaran_id']
                 ]);
 
-                // Create Perpustakaan record
+                // Create library record
                 Perpustakaan::create([
                     'siswa_id' => $siswa->id,
                     'terpenuhi' => $this->createForm['perpustakaan_terpenuhi']
                 ]);
             });
 
-            $this->dispatch('siswa-created', 'Data siswa berhasil ditambahkan!');
+            // Success notification
+            session()->flash('success', 'Data siswa berhasil ditambahkan!');
             $this->closeCreateModal();
             $this->resetPage();
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $errors = $e->validator->errors()->all();
-            $this->dispatch('create-error', 'Validasi gagal: ' . implode(', ', $errors));
         } catch (\Exception $e) {
-            $this->dispatch('create-error', $e->getMessage());
+            session()->flash('error', 'Gagal menambahkan data siswa: ' . $e->getMessage());
         }
     }
 
-    // Method untuk validasi real-time field NISN pada create form
-    public function updatedCreateFormNisn()
-    {
-        try {
-            $this->validateOnly('createForm.nisn');
-            $this->dispatch('validation-success', 'createForm.nisn');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('validation-error', 'createForm.nisn');
-        }
-    }
 
-    // Method untuk validasi real-time field NIS pada create form
-    public function updatedCreateFormNis()
-    {
-        try {
-            $this->validateOnly('createForm.nis');
-            $this->dispatch('validation-success', 'createForm.nis');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('validation-error', 'createForm.nis');
-        }
-    }
 
     public function deleteSiswa($siswaId)
     {
