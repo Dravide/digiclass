@@ -168,8 +168,8 @@
                 <div>Guru Mata Pelajaran</div>
                 <div style="height: 40px;"></div>
                 <div style="border-bottom: 0px solid #000; margin-bottom: 3px;"></div>
-                <div><strong>{{ strtoupper($kelas->guru->nama_guru ?? 'NAMA GURU') }}</strong></div>
-                <div>NIP {{ $kelas->guru->nip ?? 'NIP GURU' }}</div>
+                <div><strong>______________________</strong></div>
+                <div>NIP.</div>
             </td>
         </tr>
     </table>
