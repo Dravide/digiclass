@@ -189,9 +189,18 @@ class GuruManagement extends Component
             $guru = Guru::findOrFail($guruId);
             
             // Check if guru has associated siswa (if they are wali kelas)
-            if ($guru->is_wali_kelas && $guru->siswa()->count() > 0) {
-                $this->dispatch('guru-error', 'Tidak dapat menghapus guru yang masih menjadi wali kelas dan memiliki siswa yang dibimbing!');
-                return;
+            if ($guru->is_wali_kelas) {
+                $siswaCount = \DB::table('kelas_siswa')
+                    ->join('kelas', 'kelas.id', '=', 'kelas_siswa.kelas_id')
+                    ->join('tahun_pelajarans', 'tahun_pelajarans.id', '=', 'kelas_siswa.tahun_pelajaran_id')
+                    ->where('kelas.guru_id', $guru->id)
+                    ->where('tahun_pelajarans.is_active', true)
+                    ->count();
+                    
+                if ($siswaCount > 0) {
+                    $this->dispatch('guru-error', 'Tidak dapat menghapus guru yang masih menjadi wali kelas dan memiliki siswa yang dibimbing!');
+                    return;
+                }
             }
             
             $guru->delete();
@@ -302,7 +311,6 @@ class GuruManagement extends Component
     public function render()
     {
         $query = Guru::with('mataPelajaran')
-            ->withCount('siswa')
             ->when($this->search, function ($query) {
                 $query->where('nama_guru', 'like', '%' . $this->search . '%')
                       ->orWhere('nip', 'like', '%' . $this->search . '%')
@@ -318,7 +326,21 @@ class GuruManagement extends Component
 
         $gurus = $query->paginate($this->perPage);
 
-     
+        // Manually calculate siswa count for each guru
+        foreach ($gurus as $guru) {
+            if ($guru->is_wali_kelas) {
+                // Count siswa through kelas_siswa for active academic year
+                $siswaCount = \DB::table('kelas_siswa')
+                    ->join('kelas', 'kelas.id', '=', 'kelas_siswa.kelas_id')
+                    ->join('tahun_pelajarans', 'tahun_pelajarans.id', '=', 'kelas_siswa.tahun_pelajaran_id')
+                    ->where('kelas.guru_id', $guru->id)
+                    ->where('tahun_pelajarans.is_active', true)
+                    ->count();
+                $guru->siswa_count = $siswaCount;
+            } else {
+                $guru->siswa_count = 0;
+            }
+        }
         
         // Get active mata pelajaran for dropdown
         $mataPelajaranList = MataPelajaran::active()->orderBy('nama_mapel')->get();
