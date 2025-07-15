@@ -778,6 +778,21 @@
         document.addEventListener('livewire:init', () => {
 
             
+            Livewire.on('siswa-created', (message) => {
+                // Close any existing SweetAlert (loading modal)
+                Swal.close();
+                
+                // Clear all validation states using utility function
+                ClassManagementUtils.clearValidationStates();
+                
+                // Show success notification for student creation
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Data siswa berhasil ditambahkan!',
+                    text: message
+                });
+            });
+            
             Livewire.on('siswa-updated', (message) => {
                 // Close any existing SweetAlert (loading modal)
                 Swal.close();
@@ -799,6 +814,34 @@
                     title: 'Data siswa berhasil dihapus!',
                     text: message
                 });
+            });
+            
+            Livewire.on('create-error', (message) => {
+                // Close any existing SweetAlert (loading modal)
+                Swal.close();
+                
+                // Check if it's a validation error
+                if (message.includes('Validasi gagal:')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Data Gagal!',
+                        html: message.replace('Validasi gagal: ', '').replace(/,/g, '<br>• '),
+                        confirmButtonText: 'Perbaiki Data',
+                        confirmButtonColor: '#dc3545',
+                        showClass: {
+                            popup: 'animate__animated animate__shakeX'
+                        },
+                        customClass: {
+                            htmlContainer: 'text-start'
+                        }
+                    });
+                } else {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Gagal menambahkan data siswa!',
+                        text: message
+                    });
+                }
             });
             
             Livewire.on('update-error', (message) => {

@@ -290,13 +290,14 @@ class ClassManagement extends Component
 
     public function resetCreateForm()
     {
+        $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
         $this->createForm = [
             'nama_siswa' => '',
             'jk' => '',
             'nisn' => '',
             'nis' => '',
             'kelas_id' => '',
-            'tahun_pelajaran_id' => '',
+            'tahun_pelajaran_id' => $activeTahunPelajaran ? $activeTahunPelajaran->id : '',
             'perpustakaan_terpenuhi' => false,
             'status' => 'aktif',
             'keterangan' => 'siswa_baru'
@@ -348,12 +349,12 @@ class ClassManagement extends Component
             });
 
             // Success notification
-            session()->flash('success', 'Data siswa berhasil ditambahkan!');
+            $this->dispatch('siswa-created', 'Data siswa berhasil ditambahkan!');
             $this->closeCreateModal();
             $this->resetPage();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal menambahkan data siswa: ' . $e->getMessage());
+            $this->dispatch('create-error', 'Gagal menambahkan data siswa: ' . $e->getMessage());
         }
     }
 
