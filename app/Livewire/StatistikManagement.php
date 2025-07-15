@@ -29,16 +29,16 @@ class StatistikManagement extends Component
     
     public function getStatistikKeseluruhan()
     {
-        $query = $this->selectedTahunPelajaran ? 
+        $baseQuery = $this->selectedTahunPelajaran ? 
             KelasSiswa::where('tahun_pelajaran_id', $this->selectedTahunPelajaran) :
             KelasSiswa::query();
             
         return [
-            'total_siswa' => $query->count(),
-            'total_siswa_laki' => $query->whereHas('siswa', function($q) {
+            'total_siswa' => (clone $baseQuery)->count(),
+            'total_siswa_laki' => (clone $baseQuery)->whereHas('siswa', function($q) {
                 $q->where('jk', 'L');
             })->count(),
-            'total_siswa_perempuan' => $query->whereHas('siswa', function($q) {
+            'total_siswa_perempuan' => (clone $baseQuery)->whereHas('siswa', function($q) {
                 $q->where('jk', 'P');
             })->count(),
             'total_kelas' => $this->selectedTahunPelajaran ? 
