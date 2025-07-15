@@ -9,6 +9,7 @@ use App\Livewire\PerpustakaanManagement;
 use App\Livewire\TahunPelajaranManagement;
 use App\Livewire\MataPelajaranManagement;
 use App\Livewire\ImportManagement;
+use App\Livewire\StatistikManagement;
 use App\Livewire\Auth\Login;
 use App\Livewire\AnnouncementPage;
 use App\Http\Controllers\ExportController;
@@ -52,6 +53,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/tahun-pelajaran-management', TahunPelajaranManagement::class)->name('tahun-pelajaran-management');
     Route::get('/mata-pelajaran-management', MataPelajaranManagement::class)->name('mata-pelajaran-management');
     Route::get('/import-management', ImportManagement::class)->name('import-management');
+    Route::get('/statistik-management', StatistikManagement::class)->name('statistik-management');
     
     // Export routes
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');

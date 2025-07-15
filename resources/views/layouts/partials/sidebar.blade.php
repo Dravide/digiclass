@@ -74,6 +74,13 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('statistik-management') }}" class="waves-effect">
+                        <i class="ri-bar-chart-line"></i>
+                        <span>Statistik Sekolah</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="ri-pie-chart-line"></i>
                         <span>Laporan</span>
