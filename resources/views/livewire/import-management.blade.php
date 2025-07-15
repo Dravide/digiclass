@@ -1,65 +1,60 @@
-@section('title', 'Import Data Excel')
+@section('title', 'Import Data Siswa per Kelas')
 
 <div>
 
-    <!-- Statistics Cards -->
-    @if($this->tahun_pelajaran_id && !empty($statistics))
+    <!-- Class Information Card -->
+    @if($this->kelas_id && !empty($statistics))
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6">
+        <div class="col-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="d-flex">
-                        <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-14 mb-2">Total Siswa</p>
-                            <h4 class="mb-0">{{ number_format($statistics['total_siswa']) }}</h4>
-                        </div>
-                        <div class="text-primary">
-                            <i class="ri-user-3-line font-size-24"></i>
-                        </div>
-                    </div>
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Informasi Kelas: {{ $statistics['nama_kelas'] }}</h4>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
                 <div class="card-body">
-                    <div class="d-flex">
-                        <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-14 mb-2">Total Kelas</p>
-                            <h4 class="mb-0">{{ number_format($statistics['total_kelas']) }}</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm rounded-circle bg-primary d-flex align-items-center justify-content-center me-3">
+                                    <i class="ri-building-line font-size-16 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1">Tingkat</p>
+                                    <h5 class="mb-0">{{ $statistics['tingkat'] }}</h5>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-success">
-                            <i class="ri-building-line font-size-24"></i>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm rounded-circle bg-success d-flex align-items-center justify-content-center me-3">
+                                    <i class="ri-user-3-line font-size-16 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1">Siswa di Kelas</p>
+                                    <h5 class="mb-0">{{ number_format($statistics['siswa_di_kelas']) }}</h5>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex">
-                        <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-14 mb-2">Perpustakaan Aktif</p>
-                            <h4 class="mb-0">{{ number_format($statistics['siswa_perpustakaan_aktif']) }}</h4>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm rounded-circle bg-info d-flex align-items-center justify-content-center me-3">
+                                    <i class="ri-book-line font-size-16 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1">Perpustakaan Aktif</p>
+                                    <h5 class="mb-0">{{ number_format($statistics['siswa_perpustakaan_aktif']) }}</h5>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-info">
-                            <i class="ri-book-line font-size-24"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex">
-                        <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-14 mb-2">Terdaftar di Kelas</p>
-                            <h4 class="mb-0">{{ number_format($statistics['siswa_terdaftar_kelas']) }}</h4>
-                        </div>
-                        <div class="text-warning">
-                            <i class="ri-group-line font-size-24"></i>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm rounded-circle bg-warning d-flex align-items-center justify-content-center me-3">
+                                    <i class="ri-user-star-line font-size-16 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1">Wali Kelas</p>
+                                    <h6 class="mb-0 text-truncate">{{ $statistics['wali_kelas'] }}</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -73,25 +68,35 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Import Data Siswa</h4>
+                    <h4 class="card-title mb-0">Import Data Siswa ke Kelas</h4>
+                    @if($activeTahunPelajaran)
+                        <p class="text-muted mb-0">Tahun Pelajaran: {{ $activeTahunPelajaran->nama_tahun_pelajaran }}</p>
+                    @endif
                 </div>
                 <div class="card-body">
                     <form wire:submit.prevent="importExcel">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="tahun_pelajaran_id" class="form-label">Tahun Pelajaran <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('tahun_pelajaran_id') is-invalid @enderror" 
-                                            id="tahun_pelajaran_id" wire:model.live="tahun_pelajaran_id">
-                                        <option value="">Pilih Tahun Pelajaran</option>
-                                        @foreach($tahunPelajaranOptions as $tahun)
-                                            <option value="{{ $tahun->id }}">{{ $tahun->nama_tahun_pelajaran }}</option>
+                                    <label for="kelas_id" class="form-label">Pilih Kelas <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('kelas_id') is-invalid @enderror" 
+                                            id="kelas_id" wire:model.live="kelas_id">
+                                        <option value="">Pilih Kelas</option>
+                                        @foreach($kelasOptions as $kelas)
+                                            <option value="{{ $kelas->id }}">
+                                                {{ $kelas->nama_kelas }} 
+                                                @if($kelas->guru)
+                                                    - {{ $kelas->guru->nama_guru }}
+                                                @else
+                                                    - Belum ada wali kelas
+                                                @endif
+                                            </option>
                                         @endforeach
                                     </select>
-                                    @error('tahun_pelajaran_id')
+                                    @error('kelas_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <div class="form-text">Pilih tahun pelajaran untuk data yang akan diimport</div>
+                                    <div class="form-text">Pilih kelas tujuan untuk import data siswa</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -150,7 +155,7 @@
                     <h4 class="card-title mb-0">Template Excel</h4>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Download template Excel untuk memastikan format data yang benar.</p>
+                    <p class="text-muted">Download template Excel untuk import data siswa ke kelas.</p>
                     <button type="button" class="btn btn-outline-success w-100" wire:click="downloadTemplate">
                         <i class="ri-download-line align-middle me-1"></i>
                         Download Template
@@ -165,34 +170,29 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="font-size-14 mb-2">Data Siswa (Wajib):</h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Siswa</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Jenis Kelamin (L/P)</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NISN (numerik/string, harus unik)</li>
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NIS (numerik/string, harus unik)</li>
-                        </ul>
+                        <h6 class="font-size-14 mb-2">Kolom Excel (Berurutan):</h6>
+                        <ol class="list-unstyled mb-0">
+                            <li class="py-1"><span class="badge bg-primary me-2">1</span>Nama Siswa (Wajib)</li>
+                            <li class="py-1"><span class="badge bg-primary me-2">2</span>Jenis Kelamin (L/P) (Wajib)</li>
+                            <li class="py-1"><span class="badge bg-primary me-2">3</span>NISN (Wajib, harus unik)</li>
+                            <li class="py-1"><span class="badge bg-primary me-2">4</span>NIS (Wajib, harus unik)</li>
+                            <li class="py-1"><span class="badge bg-secondary me-2">5</span>Status Perpustakaan (Opsional)</li>
+                        </ol>
                     </div>
                     <div class="mb-3">
-                        <h6 class="font-size-14 mb-2">Data Kelas:</h6>
+                        <h6 class="font-size-14 mb-2">Ketentuan Data:</h6>
                         <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Kelas (numerik/string, contoh: 7A, 8B, 9IPA1)</li>
-                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Kelas akan dibuat otomatis jika belum ada</li>
-                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Tingkat diekstrak dari nama kelas</li>
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="font-size-14 mb-2">Data Guru (Opsional):</h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Nama Guru (wali kelas)</li>
-                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Guru harus sudah terdaftar di sistem</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>NISN dan NIS harus unik dalam sistem</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Jenis Kelamin: L (Laki-laki) atau P (Perempuan)</li>
+                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Status Perpustakaan: Ya/Aktif/True/1 untuk terpenuhi</li>
                         </ul>
                     </div>
                     <div class="mb-0">
-                        <h6 class="font-size-14 mb-2">Data Perpustakaan (Opsional):</h6>
+                        <h6 class="font-size-14 mb-2">Proses Import:</h6>
                         <ul class="list-unstyled mb-0">
-                            <li class="py-1"><i class="ri-check-line text-success me-2"></i>Status: Ya/Tidak/Aktif/True/1</li>
-                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Default: Tidak terpenuhi jika kosong</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Siswa akan ditambahkan ke kelas yang dipilih</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Relasi KelasSiswa dibuat otomatis</li>
+                            <li class="py-1"><i class="ri-info-line text-info me-2"></i>Data Perpustakaan dibuat untuk setiap siswa</li>
                         </ul>
                     </div>
                 </div>
