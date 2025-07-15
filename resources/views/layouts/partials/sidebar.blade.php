@@ -39,6 +39,8 @@
                     </a>
                 </li>
 
+                <li class="menu-title">Pengaturan Dasar</li>
+
                 <li>
                     <a href="{{ route('tahun-pelajaran-management') }}" class="waves-effect">
                         <i class="ri-calendar-line"></i>
@@ -53,18 +55,37 @@
                     </a>
                 </li>
 
+                <li class="menu-title">Manajemen Data</li>
+
                 <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="ri-medal-fill"></i>
-                        <span>Manajemen Kelas</span>
+                    <a href="{{ route('guru-management') }}" class="waves-effect">
+                        <i class="ri-user-3-line"></i>
+                        <span>Data Guru</span>
                     </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="{{ route('class-management') }}">Data Siswa</a></li>
-                        <li><a href="{{ route('kelas-management') }}">Kelas</a></li>
-                        <li><a href="{{ route('guru-management') }}">Guru</a></li>
-                        <li><a href="{{ route('perpustakaan-management') }}">Perpustakaan</a></li>
-                    </ul>
                 </li>
+
+                <li>
+                    <a href="{{ route('kelas-management') }}" class="waves-effect">
+                        <i class="ri-building-line"></i>
+                        <span>Data Kelas</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('class-management') }}" class="waves-effect">
+                        <i class="ri-group-line"></i>
+                        <span>Data Siswa</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('perpustakaan-management') }}" class="waves-effect">
+                        <i class="ri-book-open-line"></i>
+                        <span>Data Perpustakaan</span>
+                    </a>
+                </li>
+
+                <li class="menu-title">Operasional</li>
 
                 <li>
                     <a href="{{ route('import-management') }}" class="waves-effect">
