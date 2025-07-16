@@ -80,20 +80,217 @@
             min-width: 200px;
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
+            /* Layout adjustments */
+            .row {
+                margin: 0;
+            }
+            
+            .col-lg-5, .col-lg-7 {
+                padding: 0 10px;
+                margin-bottom: 20px;
+            }
+            
+            /* Card adjustments */
+            .card {
+                margin-bottom: 15px;
+                border-radius: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            /* QR Scanner responsive */
+            .qr-scanner-container {
+                max-width: 100%;
+                height: 250px;
+            }
+            
+            #qr-video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            /* Button adjustments */
+            .btn {
+                margin-bottom: 5px;
+            }
+            
+            /* Presensi list mobile */
+            .presensi-item {
+                padding: 15px 0;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .presensi-item:last-child {
+                border-bottom: none;
+            }
+            
+            /* Avatar adjustments */
+            .avatar {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .avatar-initial {
+                font-size: 16px;
+                line-height: 40px;
+            }
+            
+            /* Text adjustments */
+            .presensi-item h6 {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            
+            .presensi-item .small {
+                font-size: 12px;
+            }
+            
+            /* Badge adjustments */
+            .badge {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            
+            /* Radio button controls mobile */
             .presensi-controls {
                 min-width: 100%;
                 margin-top: 10px;
+                text-align: center;
             }
             
             .btn-group {
                 width: 100%;
+                display: flex;
             }
             
             .btn-group .btn {
                 flex: 1;
+                font-size: 10px;
+                padding: 6px 4px;
+                white-space: nowrap;
+            }
+            
+            .btn-group .btn i {
+                font-size: 12px;
+            }
+            
+            /* Statistics cards mobile */
+            .col-md-3 {
+                margin-bottom: 10px;
+            }
+            
+            .card-body h4 {
+                font-size: 1.5rem;
+            }
+            
+            /* Form controls mobile */
+            .form-control, .form-select {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            /* Alert mobile */
+            .alert {
+                font-size: 13px;
+                padding: 10px;
+            }
+            
+            .alert ul {
+                margin-bottom: 0;
+                padding-left: 20px;
+            }
+            
+            /* Header mobile */
+            .card-header h5 {
+                font-size: 16px;
+            }
+            
+            .card-header small {
+                font-size: 11px;
             }
         }
+        
+        /* Extra small devices (phones, less than 576px) */
+         @media (max-width: 575.98px) {
+             .container-fluid {
+                 padding: 10px;
+             }
+             
+             .card-body {
+                 padding: 10px;
+             }
+             
+             .btn-group .btn {
+                 font-size: 9px;
+                 padding: 4px 2px;
+             }
+             
+             /* Mobile layout for presensi items */
+             .presensi-item-wrapper {
+                 flex-direction: column;
+                 align-items: flex-start !important;
+             }
+             
+             .presensi-content {
+                 flex-direction: column;
+                 align-items: flex-start !important;
+                 width: 100%;
+             }
+             
+             .presensi-info {
+                 width: 100%;
+                 margin-bottom: 10px;
+             }
+             
+             .presensi-controls {
+                 width: 100%;
+                 margin-top: 15px;
+                 text-align: left;
+             }
+             
+             .text-end {
+                 text-align: left !important;
+                 width: 100%;
+             }
+             
+             /* Avatar positioning for mobile */
+             .flex-shrink-0 {
+                 margin-bottom: 10px;
+             }
+             
+             .flex-grow-1 {
+                 width: 100%;
+             }
+         }
+         
+         /* Additional mobile optimizations */
+         @media (max-width: 480px) {
+             .btn-group .btn {
+                 font-size: 8px;
+                 padding: 3px 1px;
+             }
+             
+             .btn-group .btn i {
+                 font-size: 10px;
+             }
+             
+             .card-header {
+                 padding: 10px 15px;
+             }
+             
+             .statistics-cards .col-md-3 {
+                 margin-bottom: 8px;
+             }
+             
+             .qr-scanner-container {
+                 height: 200px;
+             }
+         }
     </style>
     @endpush
 
@@ -125,7 +322,7 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4 statistics-cards">
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card stats-card border-0 shadow-sm">
                 <div class="card-body">
@@ -307,7 +504,7 @@
                         <div class="list-group list-group-flush">
                             @foreach($presensiList as $presensi)
                                 <div class="list-group-item presensi-item status-{{ $presensi->status }} border-0 px-0">
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-start presensi-item-wrapper">
                                         <div class="flex-shrink-0">
                                             <div class="avatar avatar-sm">
                                                 <div class="avatar-initial bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }} rounded-circle">
@@ -316,8 +513,8 @@
                                             </div>
                                         </div>
                                         <div class="flex-grow-1 ms-3">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
+                                            <div class="d-flex justify-content-between align-items-start presensi-content">
+                                                <div class="presensi-info">
                                                     <h6 class="mb-1">{{ $presensi->siswa->nama_siswa }}</h6>
                                                     <p class="text-muted mb-1 small">
                                                         {{ $presensi->jadwal->mataPelajaran->nama_mapel }} - {{ $presensi->jadwal->kelas->nama_kelas }}
@@ -329,9 +526,9 @@
                                                         @else
                                                             Belum presensi
                                                         @endif
-                                                    </p>
-                                                </div>
-                                                <div class="text-end presensi-controls">
+                                                     </p>
+                                                 </div>
+                                                 <div class="text-end presensi-controls">
                                     <span class="badge bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }} mb-2">
                                         {{ ucfirst($presensi->status) }}
                                     </span>
