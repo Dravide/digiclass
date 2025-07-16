@@ -268,7 +268,7 @@
                                     <div class="d-flex align-items-center">
                                         <div class="flex-shrink-0">
                                             <div class="avatar avatar-sm">
-                                                <div class="avatar-initial bg-{{ $presensi->status_badge_class }} rounded-circle">
+                                                <div class="avatar-initial bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }} rounded-circle">
                                                     {{ substr($presensi->siswa->nama_siswa, 0, 1) }}
                                                 </div>
                                             </div>
@@ -281,15 +281,17 @@
                                                         {{ $presensi->jadwal->mataPelajaran->nama_mapel }} - {{ $presensi->jadwal->kelas->nama_kelas }}
                                                     </p>
                                                     <p class="text-muted mb-0 small">
-                                                <i class="mdi mdi-clock-outline me-1"></i>
-                                                @if($presensi->jam_masuk)
-                                                    Masuk: {{ $presensi->jam_masuk->format('H:i') }}
-                                                @endif
-                                            </p>
+                                                        <i class="mdi mdi-clock-outline me-1"></i>
+                                                        @if($presensi->jam_masuk)
+                                                            Masuk: {{ $presensi->jam_masuk }}
+                                                        @else
+                                                            Belum presensi
+                                                        @endif
+                                                    </p>
                                                 </div>
                                                 <div class="text-end">
-                                                    <span class="badge {{ $presensi->status_badge_class }}">
-                                                        {{ $presensi->status_label }}
+                                                    <span class="badge bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }}">
+                                                        {{ ucfirst($presensi->status) }}
                                                     </span>
                                                     @if($presensi->keterangan)
                                                         <p class="text-muted mb-0 small mt-1">{{ $presensi->keterangan }}</p>
@@ -305,7 +307,7 @@
                         <div class="text-center py-5">
                             <i class="mdi mdi-account-off text-muted" style="font-size: 3rem;"></i>
                             <h5 class="text-muted mt-3">Belum ada presensi</h5>
-                            <p class="text-muted">Pilih jadwal dan generate QR code untuk memulai presensi</p>
+                            <p class="text-muted">Pilih jadwal dan inisialisasi presensi untuk memulai</p>
                         </div>
                     @endif
                 </div>
@@ -321,27 +323,18 @@
         let context = canvas.getContext('2d');
         let scanning = false;
         let stream = null;
-        let autoRestartEnabled = true;
         let lastScannedCode = null;
         let lastScanTime = 0;
-        let scanCooldown = 3000; // 3 seconds cooldown
-        let isProcessing = false;
-        let cameraHealthCheck = null;
-        let retryAttempts = 0;
-        let maxRetryAttempts = 3;
-        let isRecovering = false;
+        let scanCooldown = 3000; // 3 detik cooldown
 
         document.getElementById('start-scanner').addEventListener('click', startScanner);
         document.getElementById('stop-scanner').addEventListener('click', stopScanner);
 
         async function startScanner() {
             try {
-                // Reset scanner state
+                // Reset state
                 lastScannedCode = null;
                 lastScanTime = 0;
-                isProcessing = false;
-                retryAttempts = 0;
-                isRecovering = false;
                 
                 // Stop existing stream if any
                 if (stream) {
@@ -360,60 +353,40 @@
                 await video.play();
                 
                 scanning = true;
-                autoRestartEnabled = true;
-                
-                // Start camera health monitoring
-                startCameraHealthCheck();
-                
                 requestAnimationFrame(scanQR);
                 
                 document.getElementById('start-scanner').disabled = true;
                 document.getElementById('stop-scanner').disabled = false;
                 
-                console.log('Scanner started successfully');
+                console.log('Scanner dimulai');
             } catch (err) {
-                console.error('Error accessing camera:', err);
+                console.error('Error mengakses kamera:', err);
                 alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera.');
-                handleCameraError(err);
             }
         }
 
         function stopScanner() {
             scanning = false;
-            autoRestartEnabled = false;
-            isProcessing = false;
-            isRecovering = false;
-            
-            // Stop camera health monitoring
-            if (cameraHealthCheck) {
-                clearInterval(cameraHealthCheck);
-                cameraHealthCheck = null;
-            }
             
             if (stream) {
-                stream.getTracks().forEach(track => {
-                    track.stop();
-                    track.enabled = false;
-                });
+                stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
             
             video.srcObject = null;
-            video.load(); // Force video element reset
             
-            // Reset scanner state
+            // Reset state
             lastScannedCode = null;
             lastScanTime = 0;
-            retryAttempts = 0;
             
             document.getElementById('start-scanner').disabled = false;
             document.getElementById('stop-scanner').disabled = true;
             
-            console.log('Scanner stopped');
+            console.log('Scanner dihentikan');
         }
 
         function scanQR() {
-            if (!scanning || isProcessing) return;
+            if (!scanning) return;
             
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 canvas.height = video.videoHeight;
@@ -426,37 +399,25 @@
                 if (code) {
                     const currentTime = Date.now();
                     
-                    // Check if this is the same code scanned recently
+                    // Cek apakah ini kode yang sama dalam waktu cooldown
                     if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
-                        // Skip processing, continue scanning
                         requestAnimationFrame(scanQR);
                         return;
                     }
                     
-                    console.log('QR Code detected:', code.data);
+                    console.log('QR Code terdeteksi:', code.data);
                     
-                    // Set processing state
-                    isProcessing = true;
+                    // Update state
                     lastScannedCode = code.data;
                     lastScanTime = currentTime;
                     
-                    // Process the QR code
+                    // Proses QR code
                     @this.call('processQrScan', code.data);
                     
-                    // Pause scanning temporarily
-                    scanning = false;
-                    
+                    // Pause sebentar sebelum melanjutkan scan
                     setTimeout(() => {
-                        isProcessing = false;
-                        if (autoRestartEnabled && !isRecovering) {
-                            // Check camera health before resuming
-                            if (isCameraHealthy()) {
-                                scanning = true;
-                                requestAnimationFrame(scanQR);
-                            } else {
-                                console.warn('Camera unhealthy, attempting recovery');
-                                attemptCameraRecovery();
-                            }
+                        if (scanning) {
+                            requestAnimationFrame(scanQR);
                         }
                     }, 2000);
                     return;
@@ -466,172 +427,13 @@
             requestAnimationFrame(scanQR);
         }
 
-        // Auto hide alert
+        // Auto hide alert setelah 5 detik
         document.addEventListener('livewire:init', () => {
             Livewire.on('hide-alert', () => {
                 setTimeout(() => {
                     @this.call('hideAlert');
                 }, 5000);
             });
-            
-            // Listen for Livewire updates to auto-restart scanner
-            Livewire.on('presensi-updated', () => {
-                if (autoRestartEnabled && !scanning && !isProcessing && !isRecovering) {
-                    setTimeout(() => {
-                        if (autoRestartEnabled && !isProcessing && !isRecovering) {
-                            // Check camera health before resuming
-                            if (isCameraHealthy()) {
-                                scanning = true;
-                                requestAnimationFrame(scanQR);
-                            } else {
-                                console.warn('Camera unhealthy after Livewire update, attempting recovery');
-                                attemptCameraRecovery();
-                            }
-                        }
-                    }, 1500);
-                }
-            });
-        });
-
-        // Camera health monitoring functions
-        function startCameraHealthCheck() {
-            if (cameraHealthCheck) {
-                clearInterval(cameraHealthCheck);
-            }
-            
-            cameraHealthCheck = setInterval(() => {
-                if (scanning && !isCameraHealthy()) {
-                    console.warn('Camera health check failed, attempting recovery');
-                    attemptCameraRecovery();
-                }
-            }, 5000); // Check every 5 seconds
-        }
-        
-        function isCameraHealthy() {
-            if (!stream || !video) return false;
-            
-            // Check if stream tracks are active
-            const videoTracks = stream.getVideoTracks();
-            if (videoTracks.length === 0) return false;
-            
-            const track = videoTracks[0];
-            if (track.readyState !== 'live' || !track.enabled) return false;
-            
-            // Check video element state
-            if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return false;
-            
-            return true;
-        }
-        
-        async function attemptCameraRecovery() {
-            if (isRecovering || retryAttempts >= maxRetryAttempts) {
-                console.error('Max recovery attempts reached or already recovering');
-                return;
-            }
-            
-            isRecovering = true;
-            retryAttempts++;
-            
-            console.log(`Attempting camera recovery (attempt ${retryAttempts}/${maxRetryAttempts})`);
-            
-            try {
-                // Stop current stream
-                if (stream) {
-                    stream.getTracks().forEach(track => {
-                        track.stop();
-                        track.enabled = false;
-                    });
-                }
-                
-                video.srcObject = null;
-                video.load();
-                
-                // Wait a moment before restarting
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Restart camera
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
-                });
-                
-                video.srcObject = stream;
-                await video.play();
-                
-                console.log('Camera recovery successful');
-                
-                // Resume scanning if it was active
-                if (autoRestartEnabled) {
-                    scanning = true;
-                    requestAnimationFrame(scanQR);
-                }
-                
-                retryAttempts = 0; // Reset on success
-            } catch (err) {
-                console.error('Camera recovery failed:', err);
-                
-                if (retryAttempts >= maxRetryAttempts) {
-                    alert('Kamera mengalami masalah dan tidak dapat dipulihkan. Silakan refresh halaman.');
-                    stopScanner();
-                }
-            } finally {
-                isRecovering = false;
-            }
-        }
-        
-        function handleCameraError(error) {
-            console.error('Camera error:', error);
-            
-            if (autoRestartEnabled && retryAttempts < maxRetryAttempts) {
-                setTimeout(() => {
-                    attemptCameraRecovery();
-                }, 2000);
-            }
-        }
-        
-        // Error event listeners
-        video.addEventListener('error', (e) => {
-            console.error('Video element error:', e);
-            handleCameraError(e);
-        });
-        
-        video.addEventListener('abort', (e) => {
-            console.warn('Video playback aborted:', e);
-            if (scanning && autoRestartEnabled) {
-                attemptCameraRecovery();
-            }
-        });
-        
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            stopScanner();
-        });
-        
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // Page is hidden, pause scanning but keep camera active
-                if (scanning) {
-                    scanning = false;
-                    console.log('Page hidden, pausing scanner');
-                }
-            } else {
-                // Page is visible again, resume scanning if auto-restart is enabled
-                if (autoRestartEnabled && !scanning && !isProcessing && !isRecovering) {
-                    setTimeout(() => {
-                        if (isCameraHealthy()) {
-                            scanning = true;
-                            requestAnimationFrame(scanQR);
-                            console.log('Page visible, resuming scanner');
-                        } else {
-                            attemptCameraRecovery();
-                        }
-                    }, 500);
-                }
-            }
         });
     </script>
     @endpush

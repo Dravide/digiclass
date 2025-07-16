@@ -15,14 +15,13 @@ class PresensiPage extends Component
     public $presensiList = [];
     public $jadwalList = [];
     public $selectedJadwal = null;
-    public $qrResult = '';
     public $showAlert = false;
     public $alertType = 'success';
     public $alertMessage = '';
 
     public function mount()
     {
-        $this->selectedDate = now()->format('Y-m-d');
+        $this->selectedDate = Carbon::now('Asia/Jakarta')->format('Y-m-d');
         $this->loadJadwalToday();
         $this->loadPresensiToday();
     }
@@ -130,11 +129,10 @@ class PresensiPage extends Component
                     'tanggal' => $this->selectedDate,
                     'jam_masuk' => Carbon::now('Asia/Jakarta')->format('H:i'),
                     'status' => $this->determineStatus($jadwal),
-                    'qr_code' => $siswa->nis // Simpan NIS sebagai QR code
+                    'qr_code' => $siswa->nis
                 ]);
                 
                 $this->showAlertMessage('success', 'Presensi berhasil! Siswa: ' . $siswa->nama_siswa . ' (' . $siswa->nis . ')');
-                $this->dispatch('presensi-updated');
             } else {
                 // Cek apakah sudah presensi hari ini
                 if ($presensi->jam_masuk) {
@@ -147,7 +145,6 @@ class PresensiPage extends Component
                     ]);
                     
                     $this->showAlertMessage('success', 'Presensi berhasil! Siswa: ' . $siswa->nama_siswa . ' (' . $siswa->nis . ')');
-                    $this->dispatch('presensi-updated');
                 }
             }
 
@@ -197,8 +194,8 @@ class PresensiPage extends Component
                         'siswa_id' => $siswa->id,
                         'jadwal_id' => $jadwalId,
                         'tanggal' => $this->selectedDate,
-                        'status' => 'alpha', // Default status
-                        'qr_code' => $siswa->nis // Simpan NIS sebagai QR code
+                        'status' => 'alpha',
+                        'qr_code' => $siswa->nis
                     ]);
                     $initialized++;
                 }
@@ -217,9 +214,6 @@ class PresensiPage extends Component
         $this->alertType = $type;
         $this->alertMessage = $message;
         $this->showAlert = true;
-        
-        // Auto hide after 5 seconds
-        $this->dispatch('hide-alert');
     }
 
     public function hideAlert()
