@@ -326,6 +326,10 @@
         let lastScanTime = 0;
         let scanCooldown = 3000; // 3 seconds cooldown
         let isProcessing = false;
+        let cameraHealthCheck = null;
+        let retryAttempts = 0;
+        let maxRetryAttempts = 3;
+        let isRecovering = false;
 
         document.getElementById('start-scanner').addEventListener('click', startScanner);
         document.getElementById('stop-scanner').addEventListener('click', stopScanner);
@@ -336,14 +340,31 @@
                 lastScannedCode = null;
                 lastScanTime = 0;
                 isProcessing = false;
+                retryAttempts = 0;
+                isRecovering = false;
+                
+                // Stop existing stream if any
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
                 
                 stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
                 });
+                
                 video.srcObject = stream;
-                video.play();
+                await video.play();
+                
                 scanning = true;
                 autoRestartEnabled = true;
+                
+                // Start camera health monitoring
+                startCameraHealthCheck();
+                
                 requestAnimationFrame(scanQR);
                 
                 document.getElementById('start-scanner').disabled = true;
@@ -353,6 +374,7 @@
             } catch (err) {
                 console.error('Error accessing camera:', err);
                 alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera.');
+                handleCameraError(err);
             }
         }
 
@@ -360,15 +382,29 @@
             scanning = false;
             autoRestartEnabled = false;
             isProcessing = false;
+            isRecovering = false;
+            
+            // Stop camera health monitoring
+            if (cameraHealthCheck) {
+                clearInterval(cameraHealthCheck);
+                cameraHealthCheck = null;
+            }
             
             if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    track.enabled = false;
+                });
+                stream = null;
             }
+            
             video.srcObject = null;
+            video.load(); // Force video element reset
             
             // Reset scanner state
             lastScannedCode = null;
             lastScanTime = 0;
+            retryAttempts = 0;
             
             document.getElementById('start-scanner').disabled = false;
             document.getElementById('stop-scanner').disabled = true;
@@ -412,9 +448,15 @@
                     
                     setTimeout(() => {
                         isProcessing = false;
-                        if (autoRestartEnabled) {
-                            scanning = true;
-                            requestAnimationFrame(scanQR);
+                        if (autoRestartEnabled && !isRecovering) {
+                            // Check camera health before resuming
+                            if (isCameraHealthy()) {
+                                scanning = true;
+                                requestAnimationFrame(scanQR);
+                            } else {
+                                console.warn('Camera unhealthy, attempting recovery');
+                                attemptCameraRecovery();
+                            }
                         }
                     }, 2000);
                     return;
@@ -434,20 +476,162 @@
             
             // Listen for Livewire updates to auto-restart scanner
             Livewire.on('presensi-updated', () => {
-                if (autoRestartEnabled && !scanning && !isProcessing) {
+                if (autoRestartEnabled && !scanning && !isProcessing && !isRecovering) {
                     setTimeout(() => {
-                        if (autoRestartEnabled && !isProcessing) {
-                            scanning = true;
-                            requestAnimationFrame(scanQR);
+                        if (autoRestartEnabled && !isProcessing && !isRecovering) {
+                            // Check camera health before resuming
+                            if (isCameraHealthy()) {
+                                scanning = true;
+                                requestAnimationFrame(scanQR);
+                            } else {
+                                console.warn('Camera unhealthy after Livewire update, attempting recovery');
+                                attemptCameraRecovery();
+                            }
                         }
                     }, 1500);
                 }
             });
         });
 
+        // Camera health monitoring functions
+        function startCameraHealthCheck() {
+            if (cameraHealthCheck) {
+                clearInterval(cameraHealthCheck);
+            }
+            
+            cameraHealthCheck = setInterval(() => {
+                if (scanning && !isCameraHealthy()) {
+                    console.warn('Camera health check failed, attempting recovery');
+                    attemptCameraRecovery();
+                }
+            }, 5000); // Check every 5 seconds
+        }
+        
+        function isCameraHealthy() {
+            if (!stream || !video) return false;
+            
+            // Check if stream tracks are active
+            const videoTracks = stream.getVideoTracks();
+            if (videoTracks.length === 0) return false;
+            
+            const track = videoTracks[0];
+            if (track.readyState !== 'live' || !track.enabled) return false;
+            
+            // Check video element state
+            if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return false;
+            
+            return true;
+        }
+        
+        async function attemptCameraRecovery() {
+            if (isRecovering || retryAttempts >= maxRetryAttempts) {
+                console.error('Max recovery attempts reached or already recovering');
+                return;
+            }
+            
+            isRecovering = true;
+            retryAttempts++;
+            
+            console.log(`Attempting camera recovery (attempt ${retryAttempts}/${maxRetryAttempts})`);
+            
+            try {
+                // Stop current stream
+                if (stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                        track.enabled = false;
+                    });
+                }
+                
+                video.srcObject = null;
+                video.load();
+                
+                // Wait a moment before restarting
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Restart camera
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                video.srcObject = stream;
+                await video.play();
+                
+                console.log('Camera recovery successful');
+                
+                // Resume scanning if it was active
+                if (autoRestartEnabled) {
+                    scanning = true;
+                    requestAnimationFrame(scanQR);
+                }
+                
+                retryAttempts = 0; // Reset on success
+            } catch (err) {
+                console.error('Camera recovery failed:', err);
+                
+                if (retryAttempts >= maxRetryAttempts) {
+                    alert('Kamera mengalami masalah dan tidak dapat dipulihkan. Silakan refresh halaman.');
+                    stopScanner();
+                }
+            } finally {
+                isRecovering = false;
+            }
+        }
+        
+        function handleCameraError(error) {
+            console.error('Camera error:', error);
+            
+            if (autoRestartEnabled && retryAttempts < maxRetryAttempts) {
+                setTimeout(() => {
+                    attemptCameraRecovery();
+                }, 2000);
+            }
+        }
+        
+        // Error event listeners
+        video.addEventListener('error', (e) => {
+            console.error('Video element error:', e);
+            handleCameraError(e);
+        });
+        
+        video.addEventListener('abort', (e) => {
+            console.warn('Video playback aborted:', e);
+            if (scanning && autoRestartEnabled) {
+                attemptCameraRecovery();
+            }
+        });
+        
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             stopScanner();
+        });
+        
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden, pause scanning but keep camera active
+                if (scanning) {
+                    scanning = false;
+                    console.log('Page hidden, pausing scanner');
+                }
+            } else {
+                // Page is visible again, resume scanning if auto-restart is enabled
+                if (autoRestartEnabled && !scanning && !isProcessing && !isRecovering) {
+                    setTimeout(() => {
+                        if (isCameraHealthy()) {
+                            scanning = true;
+                            requestAnimationFrame(scanQR);
+                            console.log('Page visible, resuming scanner');
+                        } else {
+                            attemptCameraRecovery();
+                        }
+                    }, 500);
+                }
+            }
         });
     </script>
     @endpush
