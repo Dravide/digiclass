@@ -318,14 +318,14 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
-        let video = document.getElementById('qr-video');
-        let canvas = document.createElement('canvas');
-        let context = canvas.getContext('2d');
         let scanning = false;
-        let stream = null;
         let lastScannedCode = null;
         let lastScanTime = 0;
         let scanCooldown = 3000; // 3 detik cooldown
+        let video = null;
+        let canvas = null;
+        let context = null;
+        let stream = null;
 
         document.getElementById('start-scanner').addEventListener('click', startScanner);
         document.getElementById('stop-scanner').addEventListener('click', stopScanner);
@@ -335,25 +335,39 @@
                 // Reset state
                 lastScannedCode = null;
                 lastScanTime = 0;
+                scanning = true;
                 
-                // Stop existing stream if any
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
+                // Get video element
+                video = document.getElementById('qr-video');
+                
+                // Create canvas for QR detection
+                if (!canvas) {
+                    canvas = document.createElement('canvas');
+                    context = canvas.getContext('2d');
                 }
                 
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
+                // Request camera access
+                const constraints = {
+                    video: {
+                        facingMode: 'environment', // Use back camera if available
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                
+                // Wait for video to load
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
                 });
                 
-                video.srcObject = stream;
-                await video.play();
-                
-                scanning = true;
-                requestAnimationFrame(scanQR);
+                // Start scanning
+                scanQR();
                 
                 document.getElementById('start-scanner').disabled = true;
                 document.getElementById('stop-scanner').disabled = false;
@@ -361,19 +375,24 @@
                 console.log('Scanner dimulai');
             } catch (err) {
                 console.error('Error mengakses kamera:', err);
-                alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera.');
+                alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera dan menggunakan HTTPS.');
+                scanning = false;
             }
         }
 
         function stopScanner() {
             scanning = false;
             
+            // Stop video stream
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
             
-            video.srcObject = null;
+            // Clear video
+            if (video) {
+                video.srcObject = null;
+            }
             
             // Reset state
             lastScannedCode = null;
@@ -386,46 +405,53 @@
         }
 
         function scanQR() {
-            if (!scanning) return;
+            if (!scanning || !video || video.readyState !== video.HAVE_ENOUGH_DATA) {
+                if (scanning) {
+                    requestAnimationFrame(scanQR);
+                }
+                return;
+            }
             
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Set canvas size to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get image data
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Scan for QR code
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (code) {
+                const currentTime = Date.now();
                 
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                
-                if (code) {
-                    const currentTime = Date.now();
-                    
-                    // Cek apakah ini kode yang sama dalam waktu cooldown
-                    if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
-                        // Lanjutkan scanning tanpa memproses
-                        requestAnimationFrame(scanQR);
-                        return;
-                    }
-                    
-                    console.log('QR Code terdeteksi:', code.data);
-                    
-                    // Update state sebelum memproses
-                    lastScannedCode = code.data;
-                    lastScanTime = currentTime;
-                    
-                    // Proses QR code tanpa menghentikan scanning
-                    @this.call('processQrScan', code.data).then(() => {
-                        console.log('QR Code berhasil diproses');
-                    }).catch((error) => {
-                        console.error('Error processing QR:', error);
-                    });
-                    
-                    // Lanjutkan scanning dengan cooldown yang sudah diatur
+                // Cek apakah ini kode yang sama dalam waktu cooldown
+                if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
                     requestAnimationFrame(scanQR);
                     return;
                 }
+                
+                console.log('QR Code terdeteksi:', code.data);
+                
+                // Update state
+                lastScannedCode = code.data;
+                lastScanTime = currentTime;
+                
+                // Proses QR code
+                @this.call('processQrScan', code.data).then(() => {
+                    console.log('QR Code berhasil diproses');
+                }).catch((error) => {
+                    console.error('Error processing QR:', error);
+                });
             }
             
-            requestAnimationFrame(scanQR);
+            // Continue scanning
+            if (scanning) {
+                requestAnimationFrame(scanQR);
+            }
         }
 
         // Auto hide alert setelah 5 detik
@@ -435,6 +461,11 @@
                     @this.call('hideAlert');
                 }, 5000);
             });
+        });
+
+        // Cleanup when page unloads
+        window.addEventListener('beforeunload', function() {
+            stopScanner();
         });
     </script>
     @endpush
