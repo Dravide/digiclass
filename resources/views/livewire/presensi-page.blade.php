@@ -408,33 +408,19 @@
                     
                     console.log('QR Code terdeteksi:', code.data);
                     
-                    // Update state
+                    // Update state sebelum memproses
                     lastScannedCode = code.data;
                     lastScanTime = currentTime;
                     
-                    // Hentikan scanning sementara untuk memproses
-                    scanning = false;
-                    
-                    // Proses QR code
+                    // Proses QR code tanpa menghentikan scanning
                     @this.call('processQrScan', code.data).then(() => {
-                        // Restart scanning setelah proses selesai
-                        setTimeout(() => {
-                            if (stream && video.srcObject) {
-                                scanning = true;
-                                requestAnimationFrame(scanQR);
-                            }
-                        }, 1500);
+                        console.log('QR Code berhasil diproses');
                     }).catch((error) => {
                         console.error('Error processing QR:', error);
-                        // Restart scanning meskipun ada error
-                        setTimeout(() => {
-                            if (stream && video.srcObject) {
-                                scanning = true;
-                                requestAnimationFrame(scanQR);
-                            }
-                        }, 1500);
                     });
                     
+                    // Lanjutkan scanning dengan cooldown yang sudah diatur
+                    requestAnimationFrame(scanQR);
                     return;
                 }
             }
