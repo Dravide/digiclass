@@ -10,14 +10,17 @@ use App\Livewire\TahunPelajaranManagement;
 use App\Livewire\MataPelajaranManagement;
 use App\Livewire\ImportManagement;
 use App\Livewire\StatistikManagement;
+use App\Livewire\JadwalManagement;
 use App\Livewire\Auth\Login;
 use App\Livewire\AnnouncementPage;
 use App\Http\Controllers\ExportController;
 use App\Livewire\MainPage;
+use App\Livewire\PresensiPage;
 use Illuminate\Support\Facades\Auth;
 
 // Public pages (accessible to everyone)
 Route::get('/main', MainPage::class)->name('main-page');
+Route::get('/presensi', PresensiPage::class)->name('presensi');
 Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Keep for backward compatibility
 
 // Public Export routes
@@ -53,6 +56,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/tahun-pelajaran-management', TahunPelajaranManagement::class)->name('tahun-pelajaran-management');
     Route::get('/mata-pelajaran-management', MataPelajaranManagement::class)->name('mata-pelajaran-management');
     Route::get('/import-management', ImportManagement::class)->name('import-management');
+    Route::get('/jadwal-management', JadwalManagement::class)->name('jadwal-management');
     Route::get('/statistik-management', StatistikManagement::class)->name('statistik-management');
     
     // Export routes

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator QR Code NIS Siswa</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #qrcode {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .success {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #007bff; margin-bottom: 10px;">🎓 Generator QR Code NIS</h1>
+        <p style="color: #666; margin-bottom: 30px;">Untuk Sistem Presensi SMPN 1 Cipanas</p>
+        
+        <div class="info">
+            <strong>ℹ️ Informasi:</strong><br>
+            Masukkan NIS siswa untuk membuat QR Code yang dapat di-scan pada sistem presensi DigiClass.
+        </div>
+
+        <div class="form-group">
+            <label for="nisInput">NIS Siswa:</label>
+            <input type="text" id="nisInput" placeholder="Contoh: 12345678" maxlength="20">
+        </div>
+
+        <div class="form-group">
+            <label for="namaInput">Nama Siswa (opsional):</label>
+            <input type="text" id="namaInput" placeholder="Contoh: Ahmad Budi Santoso">
+        </div>
+
+        <button onclick="generateQR()">🔄 Generate QR Code</button>
+        <button onclick="downloadQR()" id="downloadBtn" style="display: none; background-color: #28a745;">📥 Download QR Code</button>
+        <button onclick="printQR()" id="printBtn" style="display: none; background-color: #6c757d;">🖨️ Print QR Code</button>
+
+        <div class="success" id="successMsg">
+            <strong>✅ QR Code berhasil dibuat!</strong><br>
+            Siswa dapat scan QR Code ini pada sistem presensi.
+        </div>
+
+        <div id="qrcode"></div>
+
+        <div id="qrInfo" style="display: none; margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <h4 style="margin-top: 0; color: #333;">📋 Detail QR Code:</h4>
+            <p><strong>NIS:</strong> <span id="displayNIS"></span></p>
+            <p><strong>Nama:</strong> <span id="displayNama"></span></p>
+            <p style="font-size: 12px; color: #666; margin-bottom: 0;">QR Code ini berisi NIS siswa yang akan dibaca oleh sistem presensi.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentQRCanvas = null;
+        
+        function generateQR() {
+            const nis = document.getElementById('nisInput').value.trim();
+            const nama = document.getElementById('namaInput').value.trim();
+            
+            if (!nis) {
+                alert('⚠️ Mohon masukkan NIS siswa!');
+                return;
+            }
+            
+            if (!/^[0-9]+$/.test(nis)) {
+                alert('⚠️ NIS harus berupa angka!');
+                return;
+            }
+            
+            // Clear previous QR code
+            document.getElementById('qrcode').innerHTML = '';
+            
+            // Generate QR code
+            QRCode.toCanvas(nis, {
+                width: 256,
+                height: 256,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error, canvas) {
+                if (error) {
+                    alert('❌ Error generating QR code: ' + error);
+                    return;
+                }
+                
+                currentQRCanvas = canvas;
+                document.getElementById('qrcode').appendChild(canvas);
+                
+                // Show success message and buttons
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+                document.getElementById('printBtn').style.display = 'inline-block';
+                
+                // Show QR info
+                document.getElementById('displayNIS').textContent = nis;
+                document.getElementById('displayNama').textContent = nama || 'Tidak diisi';
+                document.getElementById('qrInfo').style.display = 'block';
+            });
+        }
+        
+        function downloadQR() {
+            if (!currentQRCanvas) {
+                alert('⚠️ Mohon generate QR code terlebih dahulu!');
+                return;
+            }
+            
+            const nis = document.getElementById('nisInput').value.trim();
+            const nama = document.getElementById('namaInput').value.trim();
+            
+            const link = document.createElement('a');
+            link.download = `QR_NIS_${nis}${nama ? '_' + nama.replace(/\s+/g, '_') : ''}.png`;
+            link.href = currentQRCanvas.toDataURL();
+            link.click();
+        }
+        
+        function printQR() {
+            if (!currentQRCanvas) {
+                alert('⚠️ Mohon generate QR code terlebih dahulu!');
+                return;
+            }
+            
+            const nis = document.getElementById('nisInput').value.trim();
+            const nama = document.getElementById('namaInput').value.trim();
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>QR Code NIS ${nis}</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 20px;
+                            }
+                            .qr-container {
+                                border: 2px solid #333;
+                                padding: 20px;
+                                margin: 20px auto;
+                                width: fit-content;
+                                border-radius: 10px;
+                            }
+                            h1 { color: #007bff; }
+                            .info { margin: 10px 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>🎓 QR Code Presensi Siswa</h1>
+                        <h2>SMPN 1 Cipanas</h2>
+                        <div class="qr-container">
+                            <img src="${currentQRCanvas.toDataURL()}" alt="QR Code NIS ${nis}">
+                            <div class="info">
+                                <strong>NIS:</strong> ${nis}<br>
+                                ${nama ? `<strong>Nama:</strong> ${nama}<br>` : ''}
+                                <small>Scan QR Code ini pada sistem presensi</small>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Allow Enter key to generate QR
+        document.getElementById('nisInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+        
+        document.getElementById('namaInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+</html>

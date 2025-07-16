@@ -85,6 +85,13 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('jadwal-management') }}" class="waves-effect">
+                        <i class="ri-calendar-2-line"></i>
+                        <span>Jadwal Guru</span>
+                    </a>
+                </li>
+
                 <li class="menu-title">Operasional</li>
 
                 <li>

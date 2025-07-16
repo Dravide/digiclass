@@ -79,16 +79,16 @@
             </div>
         </div>
 
-        <!-- Absensi Online -->
+        <!-- Presensi Siswa -->
         <div class="col-xl-3 col-lg-4 col-md-6">
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-calendar-check text-warning" style="font-size: 4rem;"></i>
+                        <i class="mdi mdi-qrcode-scan text-warning" style="font-size: 4rem;"></i>
                     </div>
-                    <h5 class="card-title fw-bold">Absensi Online</h5>
-                    <p class="card-text text-muted mb-4">Sistem absensi digital untuk siswa</p>
-                    <button class="btn btn-secondary px-4" disabled>Segera Hadir</button>
+                    <h5 class="card-title fw-bold">Presensi Siswa</h5>
+                    <p class="card-text text-muted mb-4">Sistem presensi dengan QR Code Scanner</p>
+                    <a href="{{ route('presensi') }}" class="btn btn-warning px-4">Akses</a>
                 </div>
             </div>
         </div>
