@@ -69,6 +69,31 @@
         .status-alpha { border-left-color: #dc3545 !important; }
         .status-izin { border-left-color: #17a2b8 !important; }
         .status-sakit { border-left-color: #6c757d !important; }
+        
+        /* Radio Button Styling */
+        .btn-group-sm .btn {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .presensi-controls {
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .presensi-controls {
+                min-width: 100%;
+                margin-top: 10px;
+            }
+            
+            .btn-group {
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
     </style>
     @endpush
 
@@ -240,8 +265,25 @@
                             </button>
                             <p class="text-muted small mt-2 mb-0">
                                 <i class="mdi mdi-information me-1"></i>
-                                Siswa scan QR code yang berisi <strong>NIS mereka</strong>
+                                Siswa dapat scan QR code <strong>NIS mereka</strong> atau guru dapat mengubah status secara manual
                             </p>
+                        </div>
+                    @endif
+
+                    <!-- Manual Attendance Info -->
+                    @if(count($presensiList) > 0)
+                        <hr>
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-information me-2"></i>
+                                <div>
+                                    <strong>Cara Menggunakan:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li>Siswa dapat scan QR code NIS mereka untuk presensi otomatis</li>
+                                        <li>Atau gunakan tombol radio di sebelah kanan untuk mengubah status secara manual</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -289,14 +331,41 @@
                                                         @endif
                                                     </p>
                                                 </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }}">
-                                                        {{ ucfirst($presensi->status) }}
-                                                    </span>
-                                                    @if($presensi->keterangan)
-                                                        <p class="text-muted mb-0 small mt-1">{{ $presensi->keterangan }}</p>
-                                                    @endif
-                                                </div>
+                                                <div class="text-end presensi-controls">
+                                    <span class="badge bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }} mb-2">
+                                        {{ ucfirst($presensi->status) }}
+                                    </span>
+                                    @if($presensi->keterangan)
+                                        <p class="text-muted mb-2 small">{{ $presensi->keterangan }}</p>
+                                    @endif
+                                    
+                                    <!-- Radio Button untuk Presensi Manual -->
+                                    <div class="mt-2">
+                                        <small class="text-muted d-block mb-1">Ubah Status:</small>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="hadir_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'hadir')" 
+                                                   {{ $presensi->status == 'hadir' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-success btn-sm" for="hadir_{{ $presensi->id }}">
+                                                <i class="mdi mdi-check"></i> Hadir
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="terlambat_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'terlambat')" 
+                                                   {{ $presensi->status == 'terlambat' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-warning btn-sm" for="terlambat_{{ $presensi->id }}">
+                                                <i class="mdi mdi-clock-alert"></i> Terlambat
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="alpha_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'alpha')" 
+                                                   {{ $presensi->status == 'alpha' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-danger btn-sm" for="alpha_{{ $presensi->id }}">
+                                                <i class="mdi mdi-close"></i> Alpha
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                                             </div>
                                         </div>
                                     </div>

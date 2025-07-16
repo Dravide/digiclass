@@ -221,6 +221,36 @@ class PresensiPage extends Component
         $this->showAlert = false;
     }
 
+    public function updatePresensiManual($presensiId, $status)
+    {
+        try {
+            $presensi = Presensi::find($presensiId);
+            
+            if (!$presensi) {
+                $this->showAlertMessage('error', 'Data presensi tidak ditemukan!');
+                return;
+            }
+
+            // Update status presensi
+            $presensi->update([
+                'status' => $status,
+                'jam_masuk' => $status !== 'alpha' ? ($presensi->jam_masuk ?: Carbon::now('Asia/Jakarta')->format('H:i')) : null
+            ]);
+
+            $statusText = [
+                'hadir' => 'Hadir',
+                'terlambat' => 'Terlambat', 
+                'alpha' => 'Tidak Hadir'
+            ];
+
+            $this->showAlertMessage('success', 'Status presensi ' . $presensi->siswa->nama_siswa . ' berhasil diubah menjadi ' . $statusText[$status]);
+            $this->loadPresensiByDate();
+            
+        } catch (\Exception $e) {
+            $this->showAlertMessage('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         return view('livewire.presensi-page', [
