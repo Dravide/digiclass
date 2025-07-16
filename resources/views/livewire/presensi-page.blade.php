@@ -401,6 +401,7 @@
                     
                     // Cek apakah ini kode yang sama dalam waktu cooldown
                     if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
+                        // Lanjutkan scanning tanpa memproses
                         requestAnimationFrame(scanQR);
                         return;
                     }
@@ -411,15 +412,29 @@
                     lastScannedCode = code.data;
                     lastScanTime = currentTime;
                     
-                    // Proses QR code
-                    @this.call('processQrScan', code.data);
+                    // Hentikan scanning sementara untuk memproses
+                    scanning = false;
                     
-                    // Pause sebentar sebelum melanjutkan scan
-                    setTimeout(() => {
-                        if (scanning) {
-                            requestAnimationFrame(scanQR);
-                        }
-                    }, 2000);
+                    // Proses QR code
+                    @this.call('processQrScan', code.data).then(() => {
+                        // Restart scanning setelah proses selesai
+                        setTimeout(() => {
+                            if (stream && video.srcObject) {
+                                scanning = true;
+                                requestAnimationFrame(scanQR);
+                            }
+                        }, 1500);
+                    }).catch((error) => {
+                        console.error('Error processing QR:', error);
+                        // Restart scanning meskipun ada error
+                        setTimeout(() => {
+                            if (stream && video.srcObject) {
+                                scanning = true;
+                                requestAnimationFrame(scanQR);
+                            }
+                        }, 1500);
+                    });
+                    
                     return;
                 }
             }
