@@ -319,6 +319,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
         let scanning = false;
+        let processing = false; // Flag untuk mencegah multiple processing
         let lastScannedCode = null;
         let lastScanTime = 0;
         let scanCooldown = 3000; // 3 detik cooldown
@@ -342,6 +343,7 @@
                 }
                 
                 // Reset state
+                processing = false;
                 lastScannedCode = null;
                 lastScanTime = 0;
                 scanning = true;
@@ -443,6 +445,7 @@
             }
             
             // Reset state
+            processing = false;
             lastScannedCode = null;
             lastScanTime = 0;
             
@@ -476,24 +479,29 @@
             if (code) {
                 const currentTime = Date.now();
                 
-                // Cek apakah ini kode yang sama dalam waktu cooldown
-                if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
-                    requestAnimationFrame(scanQR);
+                // Cek apakah sedang processing atau dalam cooldown
+                if (processing || (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown)) {
+                    // Skip processing tapi tetap lanjutkan scanning
+                    if (scanning) {
+                        requestAnimationFrame(scanQR);
+                    }
                     return;
                 }
                 
                 console.log('QR Code terdeteksi:', code.data);
                 
-                // Update state
+                // Set flag processing dan update state
+                processing = true;
                 lastScannedCode = code.data;
                 lastScanTime = currentTime;
                 
                 // Proses QR code dengan handling yang lebih baik
                 @this.call('processQrScan', code.data).then(() => {
                     console.log('QR Code berhasil diproses:', code.data);
-                    // Tidak menghentikan scanner, biarkan terus berjalan
+                    processing = false; // Reset flag processing
                 }).catch((error) => {
                     console.error('Error processing QR:', error);
+                    processing = false; // Reset flag processing
                     // Jika ada error, reset cooldown untuk mencoba lagi
                     lastScannedCode = null;
                     lastScanTime = 0;
