@@ -322,12 +322,21 @@
         let scanning = false;
         let stream = null;
         let autoRestartEnabled = true;
+        let lastScannedCode = null;
+        let lastScanTime = 0;
+        let scanCooldown = 3000; // 3 seconds cooldown
+        let isProcessing = false;
 
         document.getElementById('start-scanner').addEventListener('click', startScanner);
         document.getElementById('stop-scanner').addEventListener('click', stopScanner);
 
         async function startScanner() {
             try {
+                // Reset scanner state
+                lastScannedCode = null;
+                lastScanTime = 0;
+                isProcessing = false;
+                
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment' } 
                 });
@@ -339,6 +348,8 @@
                 
                 document.getElementById('start-scanner').disabled = true;
                 document.getElementById('stop-scanner').disabled = false;
+                
+                console.log('Scanner started successfully');
             } catch (err) {
                 console.error('Error accessing camera:', err);
                 alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera.');
@@ -348,17 +359,25 @@
         function stopScanner() {
             scanning = false;
             autoRestartEnabled = false;
+            isProcessing = false;
+            
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
             video.srcObject = null;
             
+            // Reset scanner state
+            lastScannedCode = null;
+            lastScanTime = 0;
+            
             document.getElementById('start-scanner').disabled = false;
             document.getElementById('stop-scanner').disabled = true;
+            
+            console.log('Scanner stopped');
         }
 
         function scanQR() {
-            if (!scanning) return;
+            if (!scanning || isProcessing) return;
             
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 canvas.height = video.videoHeight;
@@ -369,11 +388,30 @@
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                 
                 if (code) {
+                    const currentTime = Date.now();
+                    
+                    // Check if this is the same code scanned recently
+                    if (lastScannedCode === code.data && (currentTime - lastScanTime) < scanCooldown) {
+                        // Skip processing, continue scanning
+                        requestAnimationFrame(scanQR);
+                        return;
+                    }
+                    
                     console.log('QR Code detected:', code.data);
+                    
+                    // Set processing state
+                    isProcessing = true;
+                    lastScannedCode = code.data;
+                    lastScanTime = currentTime;
+                    
+                    // Process the QR code
                     @this.call('processQrScan', code.data);
-                    // Brief pause before continuing scan
+                    
+                    // Pause scanning temporarily
                     scanning = false;
+                    
                     setTimeout(() => {
+                        isProcessing = false;
                         if (autoRestartEnabled) {
                             scanning = true;
                             requestAnimationFrame(scanQR);
@@ -396,13 +434,13 @@
             
             // Listen for Livewire updates to auto-restart scanner
             Livewire.on('presensi-updated', () => {
-                if (autoRestartEnabled && !scanning) {
+                if (autoRestartEnabled && !scanning && !isProcessing) {
                     setTimeout(() => {
-                        if (autoRestartEnabled) {
+                        if (autoRestartEnabled && !isProcessing) {
                             scanning = true;
                             requestAnimationFrame(scanQR);
                         }
-                    }, 1000);
+                    }, 1500);
                 }
             });
         });
