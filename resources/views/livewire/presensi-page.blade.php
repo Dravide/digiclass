@@ -316,7 +316,7 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
         let scanning = false;
         let processing = false; // Flag untuk mencegah multiple processing
@@ -327,6 +327,9 @@
         let canvas = null;
         let context = null;
         let stream = null;
+        let streamKeepAlive = null; // Keep-alive untuk VPS
+        let isVPS = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        let scanInterval = isVPS ? 100 : 50; // Slower scanning di VPS
 
         document.getElementById('start-scanner').addEventListener('click', startScanner);
         document.getElementById('stop-scanner').addEventListener('click', stopScanner);
@@ -410,6 +413,14 @@
                 // Start scanning
                 scanQR();
                 
+                // Setup enhanced event listeners untuk VPS
+                setupVideoEventListeners();
+                
+                // Start keep-alive untuk VPS
+                if (isVPS) {
+                    startStreamKeepAlive();
+                }
+                
                 document.getElementById('start-scanner').disabled = true;
                 document.getElementById('stop-scanner').disabled = false;
                 
@@ -449,6 +460,12 @@
             lastScannedCode = null;
             lastScanTime = 0;
             
+            // Stop keep-alive
+            if (streamKeepAlive) {
+                clearInterval(streamKeepAlive);
+                streamKeepAlive = null;
+            }
+            
             document.getElementById('start-scanner').disabled = false;
             document.getElementById('stop-scanner').disabled = true;
             
@@ -473,8 +490,11 @@
             // Get image data
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             
-            // Scan for QR code
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            // Scan for QR code dengan options untuk VPS
+            const options = {
+                inversionAttempts: isVPS ? 'dontInvert' : 'attemptBoth' // Optimasi untuk VPS
+            };
+            const code = jsQR(imageData.data, imageData.width, imageData.height, options);
             
             if (code) {
                 const currentTime = Date.now();
@@ -508,9 +528,15 @@
                 });
             }
             
-            // Continue scanning
+            // Continue scanning dengan interval yang disesuaikan
             if (scanning) {
-                requestAnimationFrame(scanQR);
+                if (isVPS) {
+                    setTimeout(() => {
+                        if (scanning) requestAnimationFrame(scanQR);
+                    }, scanInterval);
+                } else {
+                    requestAnimationFrame(scanQR);
+                }
             }
         }
 
@@ -550,6 +576,77 @@
                 console.log('Window focused, scanner ready to restart');
             }
         });
+
+        // Keep-alive function untuk menjaga stream tetap aktif di VPS
+        function startStreamKeepAlive() {
+            streamKeepAlive = setInterval(() => {
+                if (video && video.srcObject && scanning) {
+                    // Trigger small canvas draw untuk keep stream active
+                    const tempCanvas = document.createElement('canvas');
+                    const tempContext = tempCanvas.getContext('2d');
+                    tempCanvas.width = 1;
+                    tempCanvas.height = 1;
+                    try {
+                        tempContext.drawImage(video, 0, 0, 1, 1);
+                    } catch (e) {
+                        console.warn('Keep-alive draw failed:', e);
+                    }
+                }
+            }, isVPS ? 500 : 1000); // More frequent di VPS
+        }
+
+        // Enhanced stream health check
+        function checkStreamHealth() {
+            if (scanning && video && (!video.srcObject || video.srcObject.getTracks().length === 0)) {
+                console.warn('Stream lost, attempting recovery...');
+                restartScanner();
+            }
+        }
+
+        // Auto-restart scanner function
+        function restartScanner() {
+            console.log('Restarting scanner...');
+            stopScanner();
+            setTimeout(() => {
+                if (!scanning) { // Only restart if not already scanning
+                    startScanner();
+                }
+            }, 1000);
+        }
+
+        // Enhanced video event listeners untuk VPS
+        function setupVideoEventListeners() {
+            if (video) {
+                video.addEventListener('suspend', () => {
+                    console.warn('Video suspended, checking stream health...');
+                    if (scanning) {
+                        setTimeout(checkStreamHealth, 1000);
+                    }
+                });
+
+                video.addEventListener('abort', () => {
+                    console.warn('Video aborted, restarting scanner...');
+                    if (scanning) {
+                        restartScanner();
+                    }
+                });
+
+                video.addEventListener('error', (e) => {
+                    console.error('Video error:', e);
+                    if (scanning) {
+                        restartScanner();
+                    }
+                });
+
+                video.addEventListener('ended', () => {
+                    console.warn('Video ended, restarting scanner...');
+                    if (scanning) {
+                        restartScanner();
+                    }
+                });
+            }
+        }
+
     </script>
     @endpush
 </div>
