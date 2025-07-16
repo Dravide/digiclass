@@ -332,6 +332,15 @@
 
         async function startScanner() {
             try {
+                // Stop any existing stream first
+                if (stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                        console.log('Stopping existing track:', track.kind);
+                    });
+                    stream = null;
+                }
+                
                 // Reset state
                 lastScannedCode = null;
                 lastScanTime = 0;
@@ -340,29 +349,59 @@
                 // Get video element
                 video = document.getElementById('qr-video');
                 
+                // Clear any existing video source
+                if (video.srcObject) {
+                    video.srcObject = null;
+                }
+                
                 // Create canvas for QR detection
                 if (!canvas) {
                     canvas = document.createElement('canvas');
                     context = canvas.getContext('2d');
                 }
                 
-                // Request camera access
-                const constraints = {
+                // Request camera access with fallback constraints
+                let constraints = {
                     video: {
-                        facingMode: 'environment', // Use back camera if available
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
+                        facingMode: 'environment',
+                        width: { ideal: 640, min: 320 },
+                        height: { ideal: 480, min: 240 }
                     }
                 };
                 
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                } catch (envError) {
+                    console.warn('Environment camera failed, trying any camera:', envError);
+                    // Fallback to any available camera
+                    constraints = {
+                        video: {
+                            width: { ideal: 640, min: 320 },
+                            height: { ideal: 480, min: 240 }
+                        }
+                    };
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                }
+                
                 video.srcObject = stream;
                 
-                // Wait for video to load
-                await new Promise((resolve) => {
+                // Wait for video to load with timeout
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Video load timeout'));
+                    }, 10000); // 10 second timeout
+                    
                     video.onloadedmetadata = () => {
-                        video.play();
-                        resolve();
+                        clearTimeout(timeout);
+                        video.play().then(() => {
+                            console.log('Video started playing');
+                            resolve();
+                        }).catch(reject);
+                    };
+                    
+                    video.onerror = (err) => {
+                        clearTimeout(timeout);
+                        reject(err);
                     };
                 });
                 
@@ -372,26 +411,35 @@
                 document.getElementById('start-scanner').disabled = true;
                 document.getElementById('stop-scanner').disabled = false;
                 
-                console.log('Scanner dimulai');
+                console.log('Scanner dimulai dengan stream:', stream.getTracks().map(t => t.kind));
             } catch (err) {
                 console.error('Error mengakses kamera:', err);
-                alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera dan menggunakan HTTPS.');
+                alert('Tidak dapat mengakses kamera. Pastikan browser memiliki izin kamera dan menggunakan HTTPS. Error: ' + err.message);
                 scanning = false;
+                
+                // Reset UI state on error
+                document.getElementById('start-scanner').disabled = false;
+                document.getElementById('stop-scanner').disabled = true;
             }
         }
 
         function stopScanner() {
             scanning = false;
             
-            // Stop video stream
+            // Stop video stream with proper cleanup
             if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log('Stopped track:', track.kind, 'State:', track.readyState);
+                });
                 stream = null;
             }
             
-            // Clear video
+            // Clear video with proper cleanup
             if (video) {
+                video.pause();
                 video.srcObject = null;
+                video.load(); // Reset video element
             }
             
             // Reset state
@@ -401,7 +449,7 @@
             document.getElementById('start-scanner').disabled = false;
             document.getElementById('stop-scanner').disabled = true;
             
-            console.log('Scanner dihentikan');
+            console.log('Scanner dihentikan dan resources dibersihkan');
         }
 
         function scanQR() {
@@ -440,11 +488,15 @@
                 lastScannedCode = code.data;
                 lastScanTime = currentTime;
                 
-                // Proses QR code
+                // Proses QR code dengan handling yang lebih baik
                 @this.call('processQrScan', code.data).then(() => {
-                    console.log('QR Code berhasil diproses');
+                    console.log('QR Code berhasil diproses:', code.data);
+                    // Tidak menghentikan scanner, biarkan terus berjalan
                 }).catch((error) => {
                     console.error('Error processing QR:', error);
+                    // Jika ada error, reset cooldown untuk mencoba lagi
+                    lastScannedCode = null;
+                    lastScanTime = 0;
                 });
             }
             
@@ -463,9 +515,32 @@
             });
         });
 
-        // Cleanup when page unloads
+        // Enhanced cleanup for various scenarios
         window.addEventListener('beforeunload', function() {
             stopScanner();
+        });
+        
+        // Cleanup when page becomes hidden (mobile browsers)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && scanning) {
+                console.log('Page hidden, stopping scanner');
+                stopScanner();
+            }
+        });
+        
+        // Cleanup on page focus loss
+        window.addEventListener('blur', function() {
+            if (scanning) {
+                console.log('Window lost focus, stopping scanner');
+                stopScanner();
+            }
+        });
+        
+        // Auto-restart when page becomes visible again
+        window.addEventListener('focus', function() {
+            if (!scanning && document.getElementById('start-scanner').disabled === false) {
+                console.log('Window focused, scanner ready to restart');
+            }
         });
     </script>
     @endpush
