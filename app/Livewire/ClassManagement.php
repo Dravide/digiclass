@@ -164,31 +164,66 @@ class ClassManagement extends Component
 
     public function editSiswa($siswaId)
     {
-        $siswa = Siswa::with('perpustakaan')->find($siswaId);
+        $siswa = Siswa::with(['perpustakaan', 'kelasSiswa'])->find($siswaId);
         
         if ($siswa) {
             $this->editingSiswa = $siswaId;
+            
+            // Get current kelas_id from KelasSiswa record for the student's tahun_pelajaran_id
+            $currentKelasSiswa = $siswa->kelasSiswa
+                ->where('tahun_pelajaran_id', $siswa->tahun_pelajaran_id)
+                ->first();
+            $currentKelasId = $currentKelasSiswa ? $currentKelasSiswa->kelas_id : null;
+            
             $this->editForm = [
                 'nama_siswa' => $siswa->nama_siswa,
                 'jk' => $siswa->jk,
                 'nisn' => $siswa->nisn,
                 'nis' => $siswa->nis,
-                'kelas_id' => $siswa->current_kelas_id,
+                'kelas_id' => $currentKelasId,
                 'tahun_pelajaran_id' => $siswa->tahun_pelajaran_id,
-                'perpustakaan_terpenuhi' => $siswa->perpustakaan ? $siswa->perpustakaan->terpenuhi : false,
-                'status' => $siswa->status ?? Siswa::STATUS_AKTIF,
-                'keterangan' => $siswa->keterangan ?? Siswa::KETERANGAN_SISWA_BARU
+                'status' => $siswa->status,
+                'keterangan' => $siswa->keterangan
             ];
+            
+            // Reset validation errors
+            $this->resetErrorBag();
+            $this->resetValidation();
         }
     }
 
     public function updateSiswa()
     {
         try {
-            $this->validate();
+            // Validate only the edit form fields
+            $validatedData = $this->validate([
+                'editForm.nama_siswa' => 'required|string|max:255',
+                'editForm.jk' => 'required|in:L,P',
+                'editForm.nisn' => 'required|string|unique:siswa,nisn,' . $this->editingSiswa,
+                'editForm.nis' => 'required|string|unique:siswa,nis,' . $this->editingSiswa,
+                'editForm.kelas_id' => 'required|exists:kelas,id',
+                'editForm.tahun_pelajaran_id' => 'required|exists:tahun_pelajarans,id',
+                'editForm.status' => 'required|in:aktif,tidak_aktif',
+                'editForm.keterangan' => 'required|in:siswa_baru,pindahan,mengundurkan_diri,keluar,meninggal_dunia,alumni'
+            ], [
+                'editForm.nama_siswa.required' => 'Nama siswa wajib diisi.',
+                'editForm.jk.required' => 'Jenis kelamin wajib dipilih.',
+                'editForm.nisn.required' => 'NISN wajib diisi.',
+                'editForm.nis.required' => 'NIS wajib diisi.',
+                'editForm.kelas_id.required' => 'Kelas wajib dipilih.',
+                'editForm.tahun_pelajaran_id.required' => 'Tahun pelajaran wajib dipilih.',
+                'editForm.status.required' => 'Status wajib dipilih.',
+                'editForm.keterangan.required' => 'Keterangan wajib dipilih.',
+            ]);
 
             DB::transaction(function () {
                 $siswa = Siswa::find($this->editingSiswa);
+                
+                if (!$siswa) {
+                    throw new \Exception('Data siswa tidak ditemukan.');
+                }
+                
+                // Update siswa data
                 $siswa->update([
                     'nama_siswa' => $this->editForm['nama_siswa'],
                     'jk' => $this->editForm['jk'],
@@ -199,36 +234,30 @@ class ClassManagement extends Component
                     'keterangan' => $this->editForm['keterangan']
                 ]);
 
-                // Update KelasSiswa record for the active academic year
-                $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
-                if ($activeTahunPelajaran) {
+                // Update KelasSiswa record for the selected academic year
+                if ($this->editForm['kelas_id']) {
                     $siswa->kelasSiswa()->updateOrCreate(
                         [
                             'siswa_id' => $siswa->id,
-                            'tahun_pelajaran_id' => $activeTahunPelajaran->id
+                            'tahun_pelajaran_id' => $this->editForm['tahun_pelajaran_id']
                         ],
                         [
                             'kelas_id' => $this->editForm['kelas_id']
                         ]
                     );
                 }
-
-                // Update atau buat record perpustakaan
-                $siswa->perpustakaan()->updateOrCreate(
-                    ['siswa_id' => $siswa->id],
-                    ['terpenuhi' => $this->editForm['perpustakaan_terpenuhi']]
-                );
             });
 
-            $this->dispatch('siswa-updated', 'Data siswa berhasil diupdate!');
+            $this->dispatch('siswa-updated', 'Data siswa berhasil diperbarui!');
             $this->cancelEdit();
+            $this->resetPage(); // Refresh the page data
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Handle validation errors specifically
             $errors = $e->validator->errors()->all();
             $this->dispatch('update-error', 'Validasi gagal: ' . implode(', ', $errors));
         } catch (\Exception $e) {
-            $this->dispatch('update-error', $e->getMessage());
+            $this->dispatch('update-error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -272,6 +301,10 @@ class ClassManagement extends Component
             'status' => '',
             'keterangan' => ''
         ];
+        
+        // Reset validation errors
+        $this->resetErrorBag();
+        $this->resetValidation();
     }
 
     // === STUDENT CREATION - SIMPLIFIED APPROACH ===

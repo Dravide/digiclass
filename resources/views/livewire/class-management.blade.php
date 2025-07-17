@@ -191,6 +191,7 @@
                                     <th>Tahun Pelajaran</th>
                                     <th>Status</th>
                                     <th>Keterangan</th>
+                                    <th>Perpustakaan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -328,6 +329,13 @@
                                                 </span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if($siswa->perpustakaan && $siswa->perpustakaan->terpenuhi)
+                                                <span class="badge bg-success">Terpenuhi</span>
+                                            @else
+                                                <span class="badge bg-warning">Belum Terpenuhi</span>
+                                            @endif
+                                        </td>
 
                                         <td>
                                             @if($editingSiswa === $siswa->id)
@@ -359,7 +367,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="11" class="text-center py-4">
+                                        <td colspan="12" class="text-center py-4">
                                             <div class="text-muted">
                                                 <i class="ri-inbox-line font-size-48 d-block mb-2"></i>
                                                 Tidak ada data siswa
