@@ -239,7 +239,10 @@ class PresensiPage extends Component
 
             $statusText = [
                 'hadir' => 'Hadir',
-                'terlambat' => 'Terlambat', 
+                'terlambat' => 'Terlambat',
+                'izin' => 'Izin',
+                'sakit' => 'Sakit',
+                'dispensasi' => 'Dispensasi',
                 'alpha' => 'Tidak Hadir'
             ];
 
@@ -257,6 +260,9 @@ class PresensiPage extends Component
             'totalPresensi' => count($this->presensiList),
             'totalHadir' => collect($this->presensiList)->where('status', 'hadir')->count(),
             'totalTerlambat' => collect($this->presensiList)->where('status', 'terlambat')->count(),
+            'totalIzin' => collect($this->presensiList)->where('status', 'izin')->count(),
+            'totalSakit' => collect($this->presensiList)->where('status', 'sakit')->count(),
+            'totalDispensasi' => collect($this->presensiList)->where('status', 'dispensasi')->count(),
             'totalAlpha' => collect($this->presensiList)->where('status', 'alpha')->count(),
         ])->layout('layouts.main');
     }

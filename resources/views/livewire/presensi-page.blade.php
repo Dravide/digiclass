@@ -69,6 +69,7 @@
         .status-alpha { border-left-color: #dc3545 !important; }
         .status-izin { border-left-color: #17a2b8 !important; }
         .status-sakit { border-left-color: #6c757d !important; }
+        .status-dispensasi { border-left-color: #007bff !important; }
         
         /* Radio Button Styling */
         .btn-group-sm .btn {
@@ -323,7 +324,7 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4 statistics-cards">
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
             <div class="card stats-card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -336,14 +337,14 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h5 class="mb-1">{{ $totalPresensi }}</h5>
-                            <p class="text-muted mb-0">Total Presensi</p>
+                            <p class="text-muted mb-0">Total</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
             <div class="card stats-card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -363,7 +364,7 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
             <div class="card stats-card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -383,7 +384,67 @@
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 mb-3">
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+            <div class="card stats-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-info bg-soft">
+                                <span class="avatar-title rounded-circle bg-info">
+                                    <i class="mdi mdi-information text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">{{ $totalIzin }}</h5>
+                            <p class="text-muted mb-0">Izin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+            <div class="card stats-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-secondary bg-soft">
+                                <span class="avatar-title rounded-circle bg-secondary">
+                                    <i class="mdi mdi-medical-bag text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">{{ $totalSakit }}</h5>
+                            <p class="text-muted mb-0">Sakit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+            <div class="card stats-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-primary bg-soft">
+                                <span class="avatar-title rounded-circle bg-primary">
+                                    <i class="mdi mdi-file-document text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">{{ $totalDispensasi }}</h5>
+                            <p class="text-muted mb-0">Dispensasi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
             <div class="card stats-card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -507,7 +568,7 @@
                                     <div class="d-flex align-items-start presensi-item-wrapper">
                                         <div class="flex-shrink-0">
                                             <div class="avatar avatar-sm">
-                                                <div class="avatar-initial bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : 'danger') }} rounded-circle">
+                                                <div class="avatar-initial bg-{{ $presensi->status == 'hadir' ? 'success' : ($presensi->status == 'terlambat' ? 'warning' : ($presensi->status == 'izin' ? 'info' : ($presensi->status == 'sakit' ? 'secondary' : ($presensi->status == 'dispensasi' ? 'primary' : 'danger')))) }} rounded-circle">
                                                     {{ substr($presensi->siswa->nama_siswa, 0, 1) }}
                                                 </div>
                                             </div>
@@ -539,7 +600,7 @@
                                     <!-- Radio Button untuk Presensi Manual -->
                                     <div class="mt-2">
                                         <small class="text-muted d-block mb-1">Ubah Status:</small>
-                                        <div class="btn-group btn-group-sm" role="group">
+                                        <div class="btn-group btn-group-sm mb-2" role="group">
                                             <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="hadir_{{ $presensi->id }}" 
                                                    wire:click="updatePresensiManual({{ $presensi->id }}, 'hadir')" 
                                                    {{ $presensi->status == 'hadir' ? 'checked' : '' }}>
@@ -559,6 +620,29 @@
                                                    {{ $presensi->status == 'alpha' ? 'checked' : '' }}>
                                             <label class="btn btn-outline-danger btn-sm" for="alpha_{{ $presensi->id }}">
                                                 <i class="mdi mdi-close"></i> Alpha
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="izin_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'izin')" 
+                                                   {{ $presensi->status == 'izin' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-info btn-sm" for="izin_{{ $presensi->id }}">
+                                                <i class="mdi mdi-information"></i> Izin
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="sakit_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'sakit')" 
+                                                   {{ $presensi->status == 'sakit' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-secondary btn-sm" for="sakit_{{ $presensi->id }}">
+                                                <i class="mdi mdi-medical-bag"></i> Sakit
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="dispensasi_{{ $presensi->id }}" 
+                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'dispensasi')" 
+                                                   {{ $presensi->status == 'dispensasi' ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-primary btn-sm" for="dispensasi_{{ $presensi->id }}">
+                                                <i class="mdi mdi-file-document"></i> Dispensasi
                                             </label>
                                         </div>
                                     </div>

@@ -95,6 +95,20 @@
                 <li class="menu-title">Operasional</li>
 
                 <li>
+                    <a href="{{ route('presensi') }}" class="waves-effect">
+                        <i class="ri-user-check-line"></i>
+                        <span>Presensi Siswa</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('rekap-presensi') }}" class="waves-effect">
+                        <i class="ri-file-list-3-line"></i>
+                        <span>Rekap Presensi</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('import-management') }}" class="waves-effect">
                         <i class="ri-file-upload-line"></i>
                         <span>Import Data Excel</span>
@@ -117,6 +131,7 @@
                         <li><a href="#">Laporan Siswa</a></li>
                         <li><a href="#">Laporan Perpustakaan</a></li>
                         <li><a href="#">Laporan Kelas</a></li>
+                        <li><a href="{{ route('rekap-presensi') }}">Laporan Presensi</a></li>
                     </ul>
                 </li>
 

@@ -40,11 +40,12 @@ class ExportController extends Controller
             return back()->with('error', 'Tahun Pelajaran tidak ditemukan');
         }
         
-        // Ambil data siswa berdasarkan kelas dan tahun pelajaran
+        // Ambil data siswa berdasarkan kelas dan tahun pelajaran (hanya siswa aktif)
         $siswaList = Siswa::whereHas('kelasSiswa', function($query) use ($kelasId, $tahunPelajaranId) {
             $query->where('kelas_id', $kelasId)
                   ->where('tahun_pelajaran_id', $tahunPelajaranId);
         })
+        ->where('status', Siswa::STATUS_AKTIF)
         ->with(['kelasSiswa' => function($query) use ($kelasId, $tahunPelajaranId) {
             $query->where('kelas_id', $kelasId)
                   ->where('tahun_pelajaran_id', $tahunPelajaranId);
@@ -113,13 +114,15 @@ class ExportController extends Controller
         // Ambil mata pelajaran
         $mataPelajaran = MataPelajaran::findOrFail($request->mata_pelajaran_id);
         
-        // Ambil daftar siswa dalam kelas
+        // Ambil daftar siswa dalam kelas (hanya siswa aktif)
         $siswaList = Siswa::whereHas('kelasSiswa', function($query) use ($kelasId) {
             $query->where('kelas_id', $kelasId)
                   ->whereHas('tahunPelajaran', function($subQuery) {
                       $subQuery->where('is_active', true);
                   });
-        })->orderBy('nama_siswa')->get();
+        })
+        ->where('status', Siswa::STATUS_AKTIF)
+        ->orderBy('nama_siswa')->get();
         
         $data = [
             'kelas' => $kelas,

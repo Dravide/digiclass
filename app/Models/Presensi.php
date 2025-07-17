@@ -76,6 +76,7 @@ class Presensi extends Model
             'terlambat' => 'bg-warning',
             'izin' => 'bg-info',
             'sakit' => 'bg-secondary',
+            'dispensasi' => 'bg-primary',
             'alpha' => 'bg-danger',
             default => 'bg-secondary'
         };
@@ -89,6 +90,7 @@ class Presensi extends Model
             'terlambat' => 'Terlambat',
             'izin' => 'Izin',
             'sakit' => 'Sakit',
+            'dispensasi' => 'Dispensasi',
             'alpha' => 'Alpha',
             default => 'Tidak Diketahui'
         };
