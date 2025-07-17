@@ -180,6 +180,88 @@ class PerpustakaanManagement extends Component
         }
     }
 
+    public function bulkImportSiswa()
+    {
+        try {
+            // Determine tahun pelajaran filter
+            $tahunPelajaranFilter = $this->filterTahunPelajaran;
+            if (!$tahunPelajaranFilter) {
+                $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
+                $tahunPelajaranFilter = $activeTahunPelajaran ? $activeTahunPelajaran->id : null;
+            }
+
+            if (!$tahunPelajaranFilter) {
+                $this->dispatch('perpustakaan-error', 'Tidak ada tahun pelajaran yang dipilih!');
+                return;
+            }
+
+            // Get siswa yang belum ada di perpustakaan untuk tahun pelajaran yang dipilih
+            $siswaIds = Siswa::where('tahun_pelajaran_id', $tahunPelajaranFilter)
+                ->whereNotIn('id', Perpustakaan::pluck('siswa_id'))
+                ->pluck('id');
+
+            if ($siswaIds->isEmpty()) {
+                $this->dispatch('perpustakaan-error', 'Semua siswa sudah memiliki data perpustakaan!');
+                return;
+            }
+
+            // Bulk insert perpustakaan data
+            $perpustakaanData = [];
+            foreach ($siswaIds as $siswaId) {
+                $perpustakaanData[] = [
+                    'siswa_id' => $siswaId,
+                    'terpenuhi' => false,
+                    'keterangan' => null,
+                    'tanggal_pemenuhan' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            Perpustakaan::insert($perpustakaanData);
+            
+            $this->dispatch('perpustakaan-created', 'Berhasil menambahkan ' . count($perpustakaanData) . ' data perpustakaan siswa!');
+        } catch (\Exception $e) {
+            $this->dispatch('perpustakaan-error', 'Gagal melakukan bulk import: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkMarkTerpenuhi()
+    {
+        try {
+            // Determine tahun pelajaran filter
+            $tahunPelajaranFilter = $this->filterTahunPelajaran;
+            if (!$tahunPelajaranFilter) {
+                $activeTahunPelajaran = TahunPelajaran::where('is_active', true)->first();
+                $tahunPelajaranFilter = $activeTahunPelajaran ? $activeTahunPelajaran->id : null;
+            }
+
+            if (!$tahunPelajaranFilter) {
+                $this->dispatch('perpustakaan-error', 'Tidak ada tahun pelajaran yang dipilih!');
+                return;
+            }
+
+            // Update semua data perpustakaan untuk tahun pelajaran yang dipilih menjadi terpenuhi
+            $updated = Perpustakaan::whereHas('siswa', function ($q) use ($tahunPelajaranFilter) {
+                $q->where('tahun_pelajaran_id', $tahunPelajaranFilter);
+            })
+            ->where('terpenuhi', false)
+            ->update([
+                'terpenuhi' => true,
+                'tanggal_pemenuhan' => now()->format('Y-m-d'),
+                'updated_at' => now(),
+            ]);
+
+            if ($updated > 0) {
+                $this->dispatch('perpustakaan-updated', 'Berhasil menandai ' . $updated . ' data perpustakaan sebagai terpenuhi!');
+            } else {
+                $this->dispatch('perpustakaan-error', 'Tidak ada data perpustakaan yang perlu diperbarui!');
+            }
+        } catch (\Exception $e) {
+            $this->dispatch('perpustakaan-error', 'Gagal melakukan bulk update: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         // Determine tahun pelajaran filter
@@ -228,10 +310,18 @@ class PerpustakaanManagement extends Component
         // Get tahun pelajaran options
         $tahunPelajaranOptions = TahunPelajaran::orderBy('nama_tahun_pelajaran', 'desc')->get();
 
+        // Get count of siswa without perpustakaan data for current filter
+        $siswaWithoutPerpustakaan = Siswa::when($tahunPelajaranFilter, function ($query) use ($tahunPelajaranFilter) {
+                $query->where('tahun_pelajaran_id', $tahunPelajaranFilter);
+            })
+            ->whereNotIn('id', Perpustakaan::pluck('siswa_id'))
+            ->count();
+
         return view('livewire.perpustakaan-management', [
             'perpustakaan' => $perpustakaan,
             'siswaOptions' => $siswaOptions,
             'tahunPelajaranOptions' => $tahunPelajaranOptions,
+            'siswaWithoutPerpustakaan' => $siswaWithoutPerpustakaan,
         ])->layout('layouts.app');
     }
 }

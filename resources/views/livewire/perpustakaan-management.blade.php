@@ -73,6 +73,57 @@
         </div>
     </div>
 
+    <!-- Additional Statistics Row -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-14 mb-2">Siswa Tanpa Data Perpustakaan</p>
+                            <h4 class="mb-0">{{ $siswaWithoutPerpustakaan }}</h4>
+                        </div>
+                        <div class="text-danger">
+                            <i class="ri-user-unfollow-line font-size-24"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-9 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-1">
+                            <p class="text-muted mb-2">Aksi Cepat</p>
+                            <div class="d-flex gap-2">
+                                @if($siswaWithoutPerpustakaan > 0)
+                                    <button type="button" class="btn btn-sm btn-success" 
+                                            onclick="confirmBulkImportSiswa({{ $siswaWithoutPerpustakaan }})"
+                                            data-bs-toggle="tooltip" 
+                                            title="Import {{ $siswaWithoutPerpustakaan }} siswa yang belum memiliki data perpustakaan">
+                                        <i class="ri-download-line me-1"></i> Import {{ $siswaWithoutPerpustakaan }} Siswa
+                                    </button>
+                                @endif
+                                @if($perpustakaan->where('terpenuhi', false)->count() > 0)
+                                    <button type="button" class="btn btn-sm btn-warning" 
+                                            onclick="confirmBulkMarkTerpenuhi()"
+                                            data-bs-toggle="tooltip" 
+                                            title="Tandai {{ $perpustakaan->where('terpenuhi', false)->count() }} data sebagai terpenuhi">
+                                        <i class="ri-check-double-line me-1"></i> Tandai {{ $perpustakaan->where('terpenuhi', false)->count() }} Terpenuhi
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="text-primary">
+                            <i class="ri-flashlight-line font-size-24"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="row">
         <div class="col-12">
@@ -83,9 +134,25 @@
                             <h4 class="card-title mb-0">Data Perpustakaan Siswa</h4>
                         </div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#perpustakaanModal">
-                                <i class="ri-add-line align-middle me-1"></i> Tambah Data
-                            </button>
+                            <div class="d-flex gap-2">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success" 
+                                            onclick="confirmBulkImportSiswa()"
+                                            data-bs-toggle="tooltip" 
+                                            title="Import semua siswa yang belum memiliki data perpustakaan">
+                                        <i class="ri-download-line align-middle me-1"></i> Import Siswa
+                                    </button>
+                                    <button type="button" class="btn btn-warning" 
+                                            onclick="confirmBulkMarkTerpenuhi()"
+                                            data-bs-toggle="tooltip" 
+                                            title="Tandai semua data perpustakaan sebagai terpenuhi">
+                                        <i class="ri-check-double-line align-middle me-1"></i> Tandai Semua Terpenuhi
+                                    </button>
+                                </div>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#perpustakaanModal">
+                                    <i class="ri-add-line align-middle me-1"></i> Tambah Data
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -407,6 +474,7 @@
         }
     </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize tooltips
@@ -504,5 +572,43 @@
                 }
             });
         }
+
+        function confirmBulkMarkTerpenuhi() {
+             Swal.fire({
+                 title: 'Konfirmasi Tandai Semua',
+                 text: 'Apakah Anda yakin ingin menandai semua data perpustakaan sebagai terpenuhi?',
+                 icon: 'question',
+                 showCancelButton: true,
+                 confirmButtonColor: '#ffc107',
+                 cancelButtonColor: '#6c757d',
+                 confirmButtonText: 'Ya, Tandai Semua!',
+                 cancelButtonText: 'Batal'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     @this.call('bulkMarkTerpenuhi');
+                 }
+             });
+         }
+
+         function confirmBulkImportSiswa(count = null) {
+             let text = count ? 
+                 `Apakah Anda yakin ingin mengimpor ${count} siswa yang belum memiliki data perpustakaan?` :
+                 'Apakah Anda yakin ingin mengimpor semua siswa yang belum memiliki data perpustakaan?';
+             
+             Swal.fire({
+                 title: 'Konfirmasi Import Siswa',
+                 text: text,
+                 icon: 'info',
+                 showCancelButton: true,
+                 confirmButtonColor: '#198754',
+                 cancelButtonColor: '#6c757d',
+                 confirmButtonText: 'Ya, Import!',
+                 cancelButtonText: 'Batal'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     @this.call('bulkImportSiswa');
+                 }
+             });
+         }
     </script>
 </div>
