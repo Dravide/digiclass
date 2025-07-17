@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\TahunPelajaran;
+use App\Models\Siswa;
 
 class DownloadPage extends Component
 {
@@ -53,6 +54,14 @@ class DownloadPage extends Component
     {
         $kelas = Kelas::with(['tahunPelajaran', 'guru'])->get();
         $mataPelajaran = MataPelajaran::active()->get();
+        
+        // Ambil 5 siswa terbaru dengan keterangan pindahan
+        $latestStudents = Siswa::with(['tahunPelajaran', 'kelas'])
+            ->where('keterangan', 'Pindahan')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        
         $months = [
             '01' => 'Januari',
             '02' => 'Februari', 
@@ -73,6 +82,7 @@ class DownloadPage extends Component
         return view('livewire.download-page', [
             'kelas' => $kelas,
             'mataPelajaran' => $mataPelajaran,
+            'latestStudents' => $latestStudents,
             'months' => $months,
             'years' => $years
         ])->layout('layouts.main', ['title' => 'Download Dokumen - DigiClass']);
