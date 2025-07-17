@@ -599,51 +599,73 @@
                                     
                                     <!-- Radio Button untuk Presensi Manual -->
                                     <div class="mt-2">
-                                        <small class="text-muted d-block mb-1">Ubah Status:</small>
-                                        <div class="btn-group btn-group-sm mb-2" role="group">
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="hadir_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'hadir')" 
-                                                   {{ $presensi->status == 'hadir' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-success btn-sm" for="hadir_{{ $presensi->id }}">
-                                                <i class="mdi mdi-check"></i> Hadir
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="terlambat_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'terlambat')" 
-                                                   {{ $presensi->status == 'terlambat' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-warning btn-sm" for="terlambat_{{ $presensi->id }}">
-                                                <i class="mdi mdi-clock-alert"></i> Terlambat
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="alpha_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'alpha')" 
-                                                   {{ $presensi->status == 'alpha' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-danger btn-sm" for="alpha_{{ $presensi->id }}">
-                                                <i class="mdi mdi-close"></i> Alpha
-                                            </label>
-                                        </div>
-                                        
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="izin_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'izin')" 
-                                                   {{ $presensi->status == 'izin' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-info btn-sm" for="izin_{{ $presensi->id }}">
-                                                <i class="mdi mdi-information"></i> Izin
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="sakit_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'sakit')" 
-                                                   {{ $presensi->status == 'sakit' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-secondary btn-sm" for="sakit_{{ $presensi->id }}">
-                                                <i class="mdi mdi-medical-bag"></i> Sakit
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="dispensasi_{{ $presensi->id }}" 
-                                                   wire:click="updatePresensiManual({{ $presensi->id }}, 'dispensasi')" 
-                                                   {{ $presensi->status == 'dispensasi' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-primary btn-sm" for="dispensasi_{{ $presensi->id }}">
-                                                <i class="mdi mdi-file-document"></i> Dispensasi
-                                            </label>
+                                        <small class="text-muted d-block mb-2">Ubah Status:</small>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <!-- Hadir -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="hadir_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'hadir')" 
+                                                       {{ $presensi->status == 'hadir' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-success btn-sm px-2 py-1" for="hadir_{{ $presensi->id }}" title="Hadir">
+                                                    <i class="mdi mdi-check"></i>
+                                                    <span class="d-none d-md-inline ms-1">Hadir</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Terlambat -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="terlambat_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'terlambat')" 
+                                                       {{ $presensi->status == 'terlambat' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-warning btn-sm px-2 py-1" for="terlambat_{{ $presensi->id }}" title="Terlambat">
+                                                    <i class="mdi mdi-clock-alert"></i>
+                                                    <span class="d-none d-md-inline ms-1">Terlambat</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Alpha -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="alpha_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'alpha')" 
+                                                       {{ $presensi->status == 'alpha' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-danger btn-sm px-2 py-1" for="alpha_{{ $presensi->id }}" title="Alpha">
+                                                    <i class="mdi mdi-close"></i>
+                                                    <span class="d-none d-md-inline ms-1">Alpha</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Izin -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="izin_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'izin')" 
+                                                       {{ $presensi->status == 'izin' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-info btn-sm px-2 py-1" for="izin_{{ $presensi->id }}" title="Izin">
+                                                    <i class="mdi mdi-information"></i>
+                                                    <span class="d-none d-md-inline ms-1">Izin</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Sakit -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="sakit_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'sakit')" 
+                                                       {{ $presensi->status == 'sakit' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-secondary btn-sm px-2 py-1" for="sakit_{{ $presensi->id }}" title="Sakit">
+                                                    <i class="mdi mdi-medical-bag"></i>
+                                                    <span class="d-none d-md-inline ms-1">Sakit</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Dispensasi -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <input type="radio" class="btn-check" name="presensi_{{ $presensi->id }}" id="dispensasi_{{ $presensi->id }}" 
+                                                       wire:click="updatePresensiManual({{ $presensi->id }}, 'dispensasi')" 
+                                                       {{ $presensi->status == 'dispensasi' ? 'checked' : '' }}>
+                                                <label class="btn btn-outline-primary btn-sm px-2 py-1" for="dispensasi_{{ $presensi->id }}" title="Dispensasi">
+                                                    <i class="mdi mdi-file-document"></i>
+                                                    <span class="d-none d-md-inline ms-1">Dispensasi</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Auth;
 
 // Public pages (accessible to everyone)
 Route::get('/main', MainPage::class)->name('main-page');
-Route::get('/presensi', PresensiPage::class)->name('presensi');
 Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Keep for backward compatibility
 
 // Public Export routes
@@ -64,6 +63,11 @@ Route::middleware('auth.custom')->group(function () {
     // Export routes
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
     Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
+});
+
+// Admin only routes
+Route::middleware(['admin'])->group(function () {
+    Route::get('/presensi', PresensiPage::class)->name('presensi');
 });
 
 // Redirect root to main page
