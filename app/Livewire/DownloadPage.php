@@ -56,7 +56,7 @@ class DownloadPage extends Component
         $mataPelajaran = MataPelajaran::active()->get();
         
         // Ambil 5 siswa terbaru dengan keterangan pindahan
-        $latestStudents = Siswa::with(['tahunPelajaran', 'kelas'])
+        $siswa_terbaru = Siswa::with(['tahunPelajaran', 'kelasSiswa.kelas'])
             ->where('keterangan', 'Pindahan')
             ->orderBy('created_at', 'desc')
             ->limit(5)
@@ -82,7 +82,7 @@ class DownloadPage extends Component
         return view('livewire.download-page', [
             'kelas' => $kelas,
             'mataPelajaran' => $mataPelajaran,
-            'latestStudents' => $latestStudents,
+            'latestStudents' => $siswa_terbaru,
             'months' => $months,
             'years' => $years
         ])->layout('layouts.main', ['title' => 'Download Dokumen - DigiClass']);

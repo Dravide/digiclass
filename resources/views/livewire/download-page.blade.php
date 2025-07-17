@@ -137,6 +137,7 @@
                                         <th>Nama Siswa</th>
                                         <th>NISN</th>
                                         <th>NIS</th>
+                                        <th>Kelas</th>
                                         <th>Tahun Pelajaran</th>
                                         <th>Tanggal Ditambahkan</th>
                                     </tr>
@@ -164,12 +165,21 @@
                                                 <span class="badge badge-soft-secondary">{{ $student->nis ?: '-' }}</span>
                                             </td>
                                             <td>
+                                                    @if($student->kelasSiswa->isNotEmpty())
+                                                        @foreach($student->kelasSiswa as $kelasSiswa)
+                                                            <span class="badge badge-soft-secondary me-1">{{ $kelasSiswa->kelas->nama_kelas }}</span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                            <td>
                                                 <span class="badge badge-soft-primary">{{ $student->tahunPelajaran->nama_tahun_pelajaran ?? '-' }}</span>
                                             </td>
                                             <td>
-                                                <span class="text-muted">{{ $student->created_at->format('d/m/Y H:i') }}</span>
+                                                <span class="text-muted">{{ $student->created_at->locale('id')->isoFormat('dddd, D MMMM YYYY HH:mm [WIB]') }}</span>
                                                 <br>
-                                                <small class="text-muted">{{ $student->created_at->diffForHumans() }}</small>
+                                                <small class="text-muted">{{ $student->created_at->locale('id')->diffForHumans() }}</small>
                                             </td>
                                         </tr>
                                     @endforeach
