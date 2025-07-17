@@ -233,3 +233,122 @@
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    /* Custom Select2 Styling */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 6px 12px;
+        background-color: #fff;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #212529;
+        line-height: 24px;
+        padding-left: 0;
+        padding-right: 20px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+        right: 10px;
+    }
+    
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 6px 12px;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #e9ecef;
+        color: #212529;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .select2-container {
+            width: 100% !important;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="{{ asset('assets/libs/select2/js/i18n/id.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSelect2();
+    });
+    
+    document.addEventListener('livewire:updated', function() {
+        initializeSelect2();
+    });
+    
+    function initializeSelect2() {
+        // Initialize Select2 for all select elements
+        $('.form-select').each(function() {
+            if (!$(this).hasClass('select2-hidden-accessible')) {
+                var $select = $(this);
+                var placeholder = $select.find('option:first').text();
+                
+                $select.select2({
+                    width: '100%',
+                    placeholder: placeholder,
+                    allowClear: false,
+                    language: 'id',
+                    dropdownParent: $select.closest('.card-body'),
+                    minimumResultsForSearch: 5, // Show search box only if more than 5 options
+                    escapeMarkup: function(markup) {
+                        return markup;
+                    }
+                });
+                
+                // Handle Livewire model binding
+                $select.on('change', function() {
+                    var livewireModel = $(this).attr('wire:model');
+                    if (livewireModel) {
+                        @this.set(livewireModel, $(this).val());
+                    }
+                });
+            }
+        });
+    }
+    
+    // Handle Livewire updates to sync Select2 values
+    window.addEventListener('livewire:updated', function() {
+        setTimeout(function() {
+            $('.form-select').each(function() {
+                var livewireModel = $(this).attr('wire:model');
+                if (livewireModel) {
+                    var currentValue = @this.get(livewireModel);
+                    if ($(this).val() !== currentValue) {
+                        $(this).val(currentValue).trigger('change.select2');
+                    }
+                }
+            });
+        }, 100);
+    });
+</script>
+@endpush

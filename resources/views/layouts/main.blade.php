@@ -20,6 +20,8 @@
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
     
     @stack('styles')
     @livewireStyles
@@ -84,6 +86,8 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 
     @stack('scripts')
     @livewireScripts
