@@ -123,6 +123,13 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('rekap-nilai') }}" class="waves-effect">
+                        <i class="ri-file-chart-line"></i>
+                        <span>Rekap Nilai Siswa</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('import-management') }}" class="waves-effect">
                         <i class="ri-file-upload-line"></i>
                         <span>Import Data Excel</span>

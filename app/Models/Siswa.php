@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use App\Models\Nilai;
 
 class Siswa extends Model
 {
@@ -107,6 +108,12 @@ class Siswa extends Model
     public function kelasSiswa(): HasMany
     {
         return $this->hasMany(KelasSiswa::class);
+    }
+
+    // Relationship dengan nilai
+    public function nilai(): HasMany
+    {
+        return $this->hasMany(Nilai::class);
     }
 
     // Accessor untuk dapat mengakses link WA berdasarkan status perpustakaan dan ketersediaan grup kelas
