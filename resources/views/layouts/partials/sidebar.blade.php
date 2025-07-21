@@ -109,6 +109,20 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('tugas-management') }}" class="waves-effect">
+                        <i class="ri-task-line"></i>
+                        <span>Manajemen Tugas</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('nilai-management') }}" class="waves-effect">
+                        <i class="ri-award-line"></i>
+                        <span>Manajemen Nilai</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('import-management') }}" class="waves-effect">
                         <i class="ri-file-upload-line"></i>
                         <span>Import Data Excel</span>

@@ -17,6 +17,8 @@ use App\Http\Controllers\ExportController;
 use App\Livewire\MainPage;
 use App\Livewire\PresensiPage;
 use App\Livewire\RekapPresensi;
+use App\Livewire\TugasManagement;
+use App\Livewire\NilaiManagement;
 use Illuminate\Support\Facades\Auth;
 
 // Public pages (accessible to everyone)
@@ -59,6 +61,8 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/jadwal-management', JadwalManagement::class)->name('jadwal-management');
     Route::get('/statistik-management', StatistikManagement::class)->name('statistik-management');
     Route::get('/rekap-presensi', RekapPresensi::class)->name('rekap-presensi');
+    Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
+    Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
     
     // Export routes
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
