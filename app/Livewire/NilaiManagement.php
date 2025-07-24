@@ -76,7 +76,8 @@ class NilaiManagement extends Component
                 $tugas = $query->paginate($this->perPage);
                 // Load nilai count for each tugas
                 $tugas->getCollection()->transform(function ($task) {
-                    $task->nilai_count = $task->nilai()->count();
+                    // Count only nilai that have actual scores (not null/empty)
+                    $task->nilai_count = $task->nilai()->whereNotNull('nilai')->where('nilai', '!=', '')->count();
                     $task->siswa_count = $task->kelas->kelasSiswa()->count();
                     $task->completion_percentage = $task->siswa_count > 0 ? 
                         round(($task->nilai_count / $task->siswa_count) * 100, 1) : 0;
