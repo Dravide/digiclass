@@ -123,6 +123,13 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('jurnal-mengajar') }}" class="waves-effect">
+                        <i class="ri-file-text-line"></i>
+                        <span>Jurnal Mengajar</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('rekap-nilai') }}" class="waves-effect">
                         <i class="ri-file-chart-line"></i>
                         <span>Rekap Nilai Siswa</span>
