@@ -51,6 +51,10 @@ class JurnalMengajarManagement extends Component
     public $filterBulan = '';
     public $filterTahun = '';
 
+    // Properties untuk sorting
+    public $sortField = 'tanggal';
+    public $sortDirection = 'desc';
+
     // Properties untuk data
     public $selectedJadwal;
     public $availableJadwal = [];
@@ -117,8 +121,7 @@ class JurnalMengajarManagement extends Component
             ->when($this->filterTahun, function($q) {
                 $q->whereYear('tanggal', $this->filterTahun);
             })
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('jam_mulai', 'desc');
+            ->orderBy($this->sortField, $this->sortDirection);
 
         $jurnal = $query->paginate($this->perPage);
 
@@ -126,7 +129,7 @@ class JurnalMengajarManagement extends Component
         $guru = Guru::orderBy('nama_guru')->get();
         $kelas = Kelas::orderBy('nama_kelas')->get();
         $mataPelajaran = MataPelajaran::orderBy('nama_mapel')->get();
-        $tahunPelajaran = TahunPelajaran::orderBy('tahun_mulai', 'desc')->get();
+        $tahunPelajaran = TahunPelajaran::orderBy('tanggal_mulai', 'desc')->get();
 
         // Statistics untuk dashboard
         $statistics = $this->getStatistics();
@@ -308,6 +311,17 @@ class JurnalMengajarManagement extends Component
 
     public function updatingFilterTahun()
     {
+        $this->resetPage();
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+        $this->sortField = $field;
         $this->resetPage();
     }
 

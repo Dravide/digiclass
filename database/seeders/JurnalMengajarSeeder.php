@@ -74,9 +74,9 @@ class JurnalMengajarSeeder extends Seeder
                  
                  if (!$tahunPelajaran) {
                      $tahunPelajaran = \App\Models\TahunPelajaran::create([
-                         'tahun_mulai' => 2024,
-                         'tahun_selesai' => 2025,
-                         'semester' => 1,
+                         'nama_tahun_pelajaran' => '2024/2025',
+                         'tanggal_mulai' => '2024-07-01',
+                         'tanggal_selesai' => '2025-06-30',
                          'is_active' => true
                      ]);
                  }

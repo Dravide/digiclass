@@ -91,11 +91,7 @@ class JurnalMengajar extends Model
         });
     }
 
-    // Scope untuk filter berdasarkan status
-    public function scopeByStatus($query, $status)
-    {
-        return $query->where('status', $status);
-    }
+
 
     // Accessor untuk status badge class
     public function getStatusBadgeClassAttribute(): string
