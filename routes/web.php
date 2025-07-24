@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Auth;
 // Public pages (accessible to everyone)
 Route::get('/main', MainPage::class)->name('main-page');
 Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Keep for backward compatibility
+Route::get('/cek-data-siswa', \App\Livewire\StudentCheckPage::class)->name('student-check');
 
 // Public Export routes
 Route::get('/download', \App\Livewire\DownloadPage::class)->name('download');

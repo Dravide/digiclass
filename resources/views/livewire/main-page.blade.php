@@ -93,6 +93,20 @@
             </div>
         </div>
 
+        <!-- Cek Data Siswa -->
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <i class="mdi mdi-account-search text-info" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Cek Data Siswa</h5>
+                    <p class="card-text text-muted mb-4">Cek kehadiran dan nilai dengan NIS & NISN</p>
+                    <a href="{{ route('student-check') }}" class="btn btn-info px-4">Cek Data</a>
+                </div>
+            </div>
+        </div>
+
         <!-- Nilai & Rapor -->
         <div class="col-xl-3 col-lg-4 col-md-6">
             <div class="card h-100 shadow-sm border-0 hover-card">
