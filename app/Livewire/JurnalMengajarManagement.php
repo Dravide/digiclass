@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\JurnalMengajar;
 use App\Models\Jadwal;
 use App\Models\Guru;
@@ -13,10 +14,11 @@ use App\Models\MataPelajaran;
 use App\Models\Presensi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class JurnalMengajarManagement extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Properties untuk form
     public $jurnalId;
@@ -33,6 +35,7 @@ class JurnalMengajarManagement extends Component
     public $kendala;
     public $solusi;
     public $catatan;
+    public $foto_bukti;
     public $status = 'draft';
 
     // Properties untuk UI
@@ -72,7 +75,8 @@ class JurnalMengajarManagement extends Component
         'jumlah_siswa_tidak_hadir' => 'required|integer|min:0',
         'kendala' => 'nullable|string',
         'solusi' => 'nullable|string',
-        'catatan' => 'nullable|string'
+        'catatan' => 'nullable|string',
+        'foto_bukti' => 'nullable|image|max:2048'
     ];
 
     public function mount()
@@ -197,8 +201,19 @@ class JurnalMengajarManagement extends Component
             'status' => $this->status
         ];
 
+        // Handle foto upload
+        if ($this->foto_bukti) {
+            $data['foto_bukti'] = $this->foto_bukti->store('jurnal-mengajar', 'public');
+        }
+
         if ($this->editMode) {
             $jurnal = JurnalMengajar::findOrFail($this->jurnalId);
+            
+            // Delete old photo if new one is uploaded
+            if ($this->foto_bukti && $jurnal->foto_bukti) {
+                \Storage::disk('public')->delete($jurnal->foto_bukti);
+            }
+            
             $jurnal->update($data);
             session()->flash('success', 'Jurnal mengajar berhasil diperbarui!');
         } else {
@@ -213,6 +228,12 @@ class JurnalMengajarManagement extends Component
     public function delete($id)
     {
         $jurnal = JurnalMengajar::findOrFail($id);
+        
+        // Delete photo if exists
+        if ($jurnal->foto_bukti) {
+            Storage::disk('public')->delete($jurnal->foto_bukti);
+        }
+        
         $jurnal->delete();
         session()->flash('success', 'Jurnal mengajar berhasil dihapus!');
     }
@@ -341,6 +362,7 @@ class JurnalMengajarManagement extends Component
         $this->kendala = '';
         $this->solusi = '';
         $this->catatan = '';
+        $this->foto_bukti = null;
         $this->status = 'draft';
         $this->selectedJadwal = null;
         $this->availableJadwal = [];

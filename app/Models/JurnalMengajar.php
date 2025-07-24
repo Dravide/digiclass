@@ -25,6 +25,7 @@ class JurnalMengajar extends Model
         'kendala',
         'solusi',
         'catatan',
+        'foto_bukti',
         'status',
         'submitted_at',
         'approved_at',

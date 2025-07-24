@@ -1,5 +1,9 @@
 @section('title', 'Jurnal Mengajar')
 
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
 <div>
 
     <!-- Flash Messages -->
@@ -190,6 +194,7 @@
                                         <th>Kelas</th>
                                         <th>Materi Ajar</th>
                                         <th>Presensi</th>
+                                        <th>Foto Bukti</th>
                                         <th wire:click="sortBy('status')" style="cursor: pointer;">
                                             Status
                                             @if($sortField === 'status')
@@ -233,6 +238,15 @@
                                                     <span class="text-danger">{{ $j->jumlah_siswa_tidak_hadir }}</span> tidak hadir<br>
                                                     <small class="text-muted">{{ $j->attendance_percentage }}% kehadiran</small>
                                                 </div>
+                                            </td>
+                                            <td>
+                                                @if($j->foto_bukti)
+                                                    <img src="{{ Storage::url($j->foto_bukti) }}" alt="Foto Bukti" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;" 
+                                                         onclick="window.open('{{ Storage::url($j->foto_bukti) }}', '_blank')" 
+                                                         title="Klik untuk melihat foto ukuran penuh">
+                                                @else
+                                                    <span class="text-muted font-size-12">Tidak ada foto</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 @if($j->status === 'draft')
@@ -282,7 +296,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center py-4">
+                                            <td colspan="8" class="text-center py-4">
                                                 <div class="text-muted">
                                                     <i class="ri-book-line font-size-48 mb-3 d-block"></i>
                                                     <h5>Belum ada jurnal mengajar</h5>
@@ -431,6 +445,26 @@
                                     <label class="form-label">Catatan</label>
                                     <textarea wire:model="catatan" rows="2" placeholder="Catatan tambahan" class="form-control"></textarea>
                                     @error('catatan') <div class="text-danger small">{{ $message }}</div> @enderror
+                                </div>
+
+                                <!-- Foto Bukti -->
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Foto Bukti Fisik</label>
+                                    <input wire:model="foto_bukti" type="file" accept="image/*" class="form-control">
+                                    @error('foto_bukti') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    
+                                    @if($foto_bukti)
+                                        <div class="mt-2">
+                                            <small class="text-muted">Preview:</small>
+                                            <div class="mt-1">
+                                                @if(is_string($foto_bukti))
+                                                    <img src="{{ Storage::url($foto_bukti) }}" alt="Foto Bukti" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                                @else
+                                                    <img src="{{ $foto_bukti->temporaryUrl() }}" alt="Foto Bukti" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <!-- Status -->
