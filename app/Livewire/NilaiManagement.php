@@ -17,8 +17,9 @@ class NilaiManagement extends Component
     public $search = '';
     public $filterKelas = '';
     public $filterMataPelajaran = '';
-    public $filterTugas = '';
     public $filterStatus = '';
+    public $viewMode = 'tugas'; // 'tugas' or 'nilai'
+    public $perPage = 10;
 
     // Form properties
     public $showModal = false;
@@ -51,54 +52,90 @@ class NilaiManagement extends Component
 
     public function render()
     {
-        $query = Nilai::with(['tugas.mataPelajaran', 'tugas.kelas', 'siswa'])
-            ->when($this->search, function($q) {
-                $q->whereHas('siswa', function($q) {
-                    $q->where('nama_siswa', 'like', '%' . $this->search . '%')
-                      ->orWhere('nis', 'like', '%' . $this->search . '%');
+        if ($this->viewMode === 'tugas') {
+            // Task-centric view - more efficient
+            $query = Tugas::with(['mataPelajaran', 'kelas', 'guru'])
+                ->when($this->search, function($q) {
+                    $q->where('judul', 'like', '%' . $this->search . '%')
+                      ->orWhereHas('mataPelajaran', function($q) {
+                          $q->where('nama_mapel', 'like', '%' . $this->search . '%');
+                      })
+                      ->orWhereHas('kelas', function($q) {
+                          $q->where('nama_kelas', 'like', '%' . $this->search . '%');
+                      });
                 })
-                ->orWhereHas('tugas', function($q) {
-                    $q->where('judul', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->when($this->filterKelas, function($q) {
-                $q->whereHas('tugas', function($q) {
+                ->when($this->filterKelas, function($q) {
                     $q->where('kelas_id', $this->filterKelas);
-                });
-            })
-            ->when($this->filterMataPelajaran, function($q) {
-                $q->whereHas('tugas', function($q) {
+                })
+                ->when($this->filterMataPelajaran, function($q) {
                     $q->where('mata_pelajaran_id', $this->filterMataPelajaran);
-                });
-            })
-            ->when($this->filterTugas, function($q) {
-                $q->where('tugas_id', $this->filterTugas);
-            })
-            ->when($this->filterStatus, function($q) {
-                $q->where('status_pengumpulan', $this->filterStatus);
-            })
-            ->orderBy('created_at', 'desc');
+                })
+                ->orderBy('created_at', 'desc');
 
-        try {
-            $nilai = $query->paginate(15);
-        } catch (\Exception $e) {
-            // If pagination fails, return empty collection
-            $nilai = collect();
-            \Log::error('Nilai pagination error: ' . $e->getMessage());
+            try {
+                $tugas = $query->paginate($this->perPage);
+                // Load nilai count for each tugas
+                $tugas->getCollection()->transform(function ($task) {
+                    $task->nilai_count = $task->nilai()->count();
+                    $task->siswa_count = $task->kelas->kelasSiswa()->count();
+                    $task->completion_percentage = $task->siswa_count > 0 ? 
+                        round(($task->nilai_count / $task->siswa_count) * 100, 1) : 0;
+                    return $task;
+                });
+            } catch (\Exception $e) {
+                $tugas = collect();
+                \Log::error('Tugas pagination error: ' . $e->getMessage());
+            }
+            
+            $data = ['tugas' => $tugas ?? collect()];
+        } else {
+            // Original nilai view - only when specifically requested
+            $query = Nilai::with(['tugas.mataPelajaran', 'tugas.kelas', 'siswa'])
+                ->when($this->search, function($q) {
+                    $q->whereHas('siswa', function($q) {
+                        $q->where('nama_siswa', 'like', '%' . $this->search . '%')
+                          ->orWhere('nis', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhereHas('tugas', function($q) {
+                        $q->where('judul', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->when($this->filterKelas, function($q) {
+                    $q->whereHas('tugas', function($q) {
+                        $q->where('kelas_id', $this->filterKelas);
+                    });
+                })
+                ->when($this->filterMataPelajaran, function($q) {
+                    $q->whereHas('tugas', function($q) {
+                        $q->where('mata_pelajaran_id', $this->filterMataPelajaran);
+                    });
+                })
+                ->when($this->filterStatus, function($q) {
+                    $q->where('status_pengumpulan', $this->filterStatus);
+                })
+                ->orderBy('created_at', 'desc');
+
+            try {
+                $nilai = $query->paginate($this->perPage);
+            } catch (\Exception $e) {
+                $nilai = collect();
+                \Log::error('Nilai pagination error: ' . $e->getMessage());
+            }
+            
+            $data = ['nilai' => $nilai ?? collect()];
         }
         
         $kelas = Kelas::orderBy('nama_kelas')->get();
         $mataPelajaran = MataPelajaran::orderBy('nama_mapel')->get();
-        $tugas = Tugas::with(['mataPelajaran', 'kelas'])->orderBy('created_at', 'desc')->get();
-        $siswa = Siswa::orderBy('nama_siswa')->get();
+        
+        // Only load siswa when needed (for modals)
+        $siswa = $this->showModal ? Siswa::orderBy('nama_siswa')->get() : collect();
 
-        return view('livewire.nilai-management', [
-            'nilai' => $nilai ?? collect(),
+        return view('livewire.nilai-management', array_merge($data, [
             'kelas' => $kelas ?? collect(),
             'mataPelajaran' => $mataPelajaran ?? collect(),
-            'tugas' => $tugas ?? collect(),
-            'siswa' => $siswa ?? collect()
-        ])->layout('layouts.app');
+            'siswa' => $siswa
+        ]))->layout('layouts.app');
     }
 
     public function create()
@@ -252,7 +289,13 @@ class NilaiManagement extends Component
         $this->resetPage();
     }
 
-    public function updatingFilterTugas()
+    public function switchViewMode($mode)
+    {
+        $this->viewMode = $mode;
+        $this->resetPage();
+    }
+    
+    public function updatingPerPage()
     {
         $this->resetPage();
     }

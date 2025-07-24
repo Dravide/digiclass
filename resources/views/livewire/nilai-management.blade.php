@@ -43,10 +43,28 @@
                                 </div>
                             </div>
 
+                            <!-- View Mode Toggle -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn {{ $viewMode === 'tugas' ? 'btn-primary' : 'btn-outline-primary' }}" 
+                                                wire:click="switchViewMode('tugas')">
+                                            <i class="mdi mdi-clipboard-list"></i> Tampilan Tugas
+                                        </button>
+                                        <button type="button" class="btn {{ $viewMode === 'nilai' ? 'btn-primary' : 'btn-outline-primary' }}" 
+                                                wire:click="switchViewMode('nilai')">
+                                            <i class="mdi mdi-format-list-bulleted"></i> Tampilan Detail Nilai
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Filter dan Search -->
                             <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <input type="text" class="form-control" placeholder="Cari siswa/tugas..." wire:model.live="search">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" 
+                                           placeholder="{{ $viewMode === 'tugas' ? 'Cari tugas, mapel, kelas...' : 'Cari siswa/tugas...' }}" 
+                                           wire:model.live="search">
                                 </div>
                                 <div class="col-md-2">
                                     <select class="form-select" wire:model.live="filterKelas">
@@ -64,14 +82,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <select class="form-select" wire:model.live="filterTugas">
-                                        <option value="">Semua Tugas</option>
-                                        @foreach($tugas ?? [] as $t)
-                                            <option value="{{ $t->id }}">{{ $t->judul }} ({{ $t->kelas->nama_kelas }})</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                @if($viewMode === 'nilai')
                                 <div class="col-md-2">
                                     <select class="form-select" wire:model.live="filterStatus">
                                         <option value="">Semua Status</option>
@@ -80,27 +91,99 @@
                                         <option value="terlambat">Terlambat</option>
                                     </select>
                                 </div>
-                            </div>
-
-                            <!-- Quick Actions -->
-                            <div class="row mb-3">
-                                <div class="col-12">
-                                    <div class="alert alert-info">
-                                        <h6 class="mb-2"><i class="mdi mdi-information"></i> Input Nilai Cepat</h6>
-                                        <p class="mb-2">Pilih tugas untuk input nilai secara batch:</p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            @foreach(($tugas ?? collect())->take(5) as $t)
-                                                <button type="button" class="btn btn-outline-primary btn-sm" 
-                                                        wire:click="openBulkInput({{ $t->id }})">
-                                                    {{ $t->judul }} ({{ $t->kelas->nama_kelas }})
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                    </div>
+                                @endif
+                                <div class="col-md-2">
+                                    <select class="form-select" wire:model.live="perPage">
+                                        <option value="5">5 per halaman</option>
+                                        <option value="10">10 per halaman</option>
+                                        <option value="25">25 per halaman</option>
+                                        <option value="50">50 per halaman</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <!-- Tabel Nilai -->
+                            @if($viewMode === 'tugas')
+                            <!-- Info Alert for Task View -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <h6 class="mb-1"><i class="mdi mdi-information"></i> Tampilan Tugas</h6>
+                                        <p class="mb-0">Klik "Input Nilai" untuk mengelola nilai siswa per tugas secara efisien.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            @if($viewMode === 'tugas')
+                            <!-- Tabel Tugas -->
+                            <div class="table-responsive">
+                                <table class="table table-hover table-nowrap align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th width="5%">#</th>
+                                            <th width="25%">Tugas</th>
+                                            <th width="15%">Mata Pelajaran</th>
+                                            <th width="10%">Kelas</th>
+                                            <th width="10%">Deadline</th>
+                                            <th width="15%">Progress Nilai</th>
+                                            <th width="10%">Jenis</th>
+                                            <th width="10%">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse(($tugas ?? []) as $index => $t)
+                                            <tr>
+                                                <td>{{ ($tugas->currentPage() - 1) * $tugas->perPage() + $index + 1 }}</td>
+                                                <td>
+                                                    <div>
+                                                        <h6 class="mb-1">{{ $t->judul }}</h6>
+                                                        <p class="text-muted mb-0 small">{{ Str::limit($t->deskripsi, 50) }}</p>
+                                                    </div>
+                                                </td>
+                                                <td>{{ $t->mataPelajaran->nama_mapel }}</td>
+                                                <td>{{ $t->kelas->nama_kelas }}</td>
+                                                <td>
+                                                    <small class="text-muted">{{ $t->tanggal_deadline->format('d/m/Y') }}</small>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-grow-1">
+                                                            <div class="progress" style="height: 6px;">
+                                                                <div class="progress-bar" role="progressbar" 
+                                                                     style="width: {{ $t->completion_percentage }}%" 
+                                                                     aria-valuenow="{{ $t->completion_percentage }}" 
+                                                                     aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </div>
+                                                        <small class="ms-2 text-muted">{{ $t->nilai_count }}/{{ $t->siswa_count }}</small>
+                                                    </div>
+                                                    <small class="text-muted">{{ $t->completion_percentage }}% selesai</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge {{ $t->jenis_badge_class }}">{{ $t->jenis_label }}</span>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary btn-sm" 
+                                                            wire:click="openBulkInput({{ $t->id }})">
+                                                        <i class="mdi mdi-pencil"></i> Input Nilai
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4">
+                                                    <div class="text-muted">
+                                                        <i class="mdi mdi-clipboard-list font-size-48 d-block mb-2"></i>
+                                                        Belum ada tugas
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                            @else
+                            <!-- Tabel Nilai (Original) -->
                             <div class="table-responsive">
                                 <table class="table table-hover table-nowrap align-middle mb-0">
                                     <thead class="bg-light">
@@ -131,7 +214,7 @@
                                                     </div>
                                                 </td>
                                                 <td>{{ $n->tugas->mataPelajaran->nama_mapel }}</td>
-                                <td>{{ $n->tugas->kelas->nama_kelas }}</td>
+                                                <td>{{ $n->tugas->kelas->nama_kelas }}</td>
                                                 <td>
                                                     <div class="text-center">
                                                         @if($n->nilai)
@@ -173,10 +256,13 @@
                                     </tbody>
                                 </table>
                             </div>
+                            @endif
 
                             <!-- Pagination -->
                             <div class="mt-3">
-                                @if($nilai && method_exists($nilai, 'links'))
+                                @if($viewMode === 'tugas' && isset($tugas) && method_exists($tugas, 'links'))
+                                    {{ $tugas->links() }}
+                                @elseif($viewMode === 'nilai' && isset($nilai) && method_exists($nilai, 'links'))
                                     {{ $nilai->links() }}
                                 @endif
                             </div>
@@ -202,9 +288,14 @@
                                 <label class="form-label">Tugas <span class="text-danger">*</span></label>
                                 <select class="form-select @error('tugas_id') is-invalid @enderror" wire:model="tugas_id">
                                     <option value="">Pilih Tugas</option>
-                                    @foreach($tugas ?? [] as $t)
-                                         <option value="{{ $t->id }}">{{ $t->judul }} ({{ $t->kelas->nama_kelas }} - {{ $t->mataPelajaran->nama_mapel }})</option>
-                                     @endforeach
+                                    @if($showModal)
+                                        @php
+                                            $tugasList = \App\Models\Tugas::with(['mataPelajaran', 'kelas'])->orderBy('created_at', 'desc')->get();
+                                        @endphp
+                                        @foreach($tugasList as $t)
+                                             <option value="{{ $t->id }}">{{ $t->judul }} ({{ $t->kelas->nama_kelas }} - {{ $t->mataPelajaran->nama_mapel }})</option>
+                                         @endforeach
+                                    @endif
                                 </select>
                                 @error('tugas_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
