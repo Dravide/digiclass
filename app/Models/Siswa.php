@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Nilai;
 
-class Siswa extends Model
+class Siswa extends Authenticatable
 {
     protected $table = 'siswa';
     
@@ -18,10 +19,23 @@ class Siswa extends Model
         'jk',
         'nisn',
         'nis',
+        'email',
         'tahun_pelajaran_id',
         'status',
         'keterangan'
     ];
+
+    // Override the default primary key for authentication
+    public function getAuthIdentifierName()
+    {
+        return 'nis'; // Use NIS as the unique identifier
+    }
+
+    // Override password field (if needed for authentication)
+    public function getAuthPassword()
+    {
+        return $this->nis; // Use NIS as password for simple authentication
+    }
 
     protected $casts = [
         'jk' => 'string',

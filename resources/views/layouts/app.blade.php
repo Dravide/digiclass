@@ -21,6 +21,32 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
     
+    <!-- Custom Styles -->
+    <style>
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+        .btn-purple {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+            color: #fff;
+        }
+        .btn-purple:hover {
+            background-color: #5a359a;
+            border-color: #5a359a;
+            color: #fff;
+        }
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+        .hover-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+    </style>
 
     
     @stack('styles')

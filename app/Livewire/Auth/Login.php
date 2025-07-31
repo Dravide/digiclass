@@ -33,7 +33,20 @@ class Login extends Component
             
             $this->dispatch('login-success');
             
-            return $this->redirect(route('dashboard'), navigate: true);
+            // Redirect based on user role
+            $user = Auth::user();
+            if ($user->hasRole('admin')) {
+                return $this->redirect(route('dashboard'), navigate: true);
+            } elseif ($user->hasRole('guru')) {
+                return $this->redirect(route('dashboard'), navigate: true);
+            } elseif ($user->hasRole('siswa')) {
+                return $this->redirect(route('dashboard'), navigate: true);
+            } elseif ($user->hasRole('tata_usaha')) {
+                return $this->redirect(route('dashboard'), navigate: true);
+            } else {
+                // Default redirect for users without specific roles
+                return $this->redirect(route('dashboard'), navigate: true);
+            }
         }
 
         throw ValidationException::withMessages([

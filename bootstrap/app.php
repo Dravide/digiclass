@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.custom' => \App\Http\Middleware\AuthMiddleware::class,
             'guest.custom' => \App\Http\Middleware\GuestMiddleware::class,
             'admin' => \App\Http\Middleware\OperatorMiddleware::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
+            'role.redirect' => \App\Http\Middleware\RoleRedirect::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

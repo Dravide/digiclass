@@ -83,4 +83,16 @@ class TahunPelajaran extends Model
             default => 'badge-warning'
         };
     }
+
+    // Accessor untuk tahun_mulai (extract year from tanggal_mulai)
+    public function getTahunMulaiAttribute(): string
+    {
+        return $this->tanggal_mulai ? $this->tanggal_mulai->format('Y') : '';
+    }
+
+    // Accessor untuk tahun_selesai (extract year from tanggal_selesai)
+    public function getTahunSelesaiAttribute(): string
+    {
+        return $this->tanggal_selesai ? $this->tanggal_selesai->format('Y') : '';
+    }
 }

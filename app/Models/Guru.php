@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\User;
 
 class Guru extends Model
 {
@@ -52,6 +53,12 @@ class Guru extends Model
     public function mataPelajaran()
     {
         return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
+    }
+
+    // Relationship dengan user
+    public function user()
+    {
+        return $this->hasOne(User::class, 'email', 'email');
     }
 
     // Scope untuk guru yang menjadi wali kelas
