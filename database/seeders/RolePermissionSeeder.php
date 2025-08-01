@@ -53,6 +53,7 @@ class RolePermissionSeeder extends Seeder
             // Administrative
             'manage-surat',
             'manage-pelanggaran',
+            'manage-curhat',
             'import-data',
             
             // Games and activities
@@ -148,6 +149,7 @@ class RolePermissionSeeder extends Seeder
             'view-dashboard',
             'view-users',
             'manage-pelanggaran',
+            'manage-curhat',
             'manage-surat',
             'view-reports',
             'view-statistics',

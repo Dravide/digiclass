@@ -18,10 +18,14 @@ use App\Livewire\Admin\NilaiManagement;
 use App\Livewire\Admin\RekapNilai;
 
 use App\Livewire\Admin\PelanggaranManagement;
+use App\Livewire\Admin\KategoriPelanggaranManagement;
+use App\Livewire\Admin\JenisPelanggaranManagement;
+use App\Livewire\Admin\SanksiPelanggaranManagement;
 use App\Livewire\Admin\SuratManagement;
 use App\Livewire\Admin\SuratSignature;
 use App\Livewire\Admin\RolePermissionManagement;
 use App\Livewire\Admin\UserManagement;
+use App\Livewire\Admin\CurhatSiswaManagement;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
@@ -47,6 +51,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     
     Route::get('/surat-management', SuratManagement::class)->name('surat-management');
     Route::get('/surat-signature/{suratId}', SuratSignature::class)->name('surat-signature');
+    Route::get('/curhat-siswa-management', CurhatSiswaManagement::class)->name('curhat-siswa-management');
     
     // Export routes
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
@@ -56,6 +61,9 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
 // Pelanggaran Management Routes (accessible by BK and Admin)
 Route::middleware(['auth.custom', 'permission:manage-pelanggaran'])->group(function () {
     Route::get('/pelanggaran-management', PelanggaranManagement::class)->name('pelanggaran-management');
+    Route::get('/kategori-pelanggaran-management', KategoriPelanggaranManagement::class)->name('kategori-pelanggaran-management');
+    Route::get('/jenis-pelanggaran-management', JenisPelanggaranManagement::class)->name('jenis-pelanggaran-management');
+    Route::get('/sanksi-pelanggaran-management', SanksiPelanggaranManagement::class)->name('sanksi-pelanggaran-management');
     
     // Pelanggaran Siswa routes
     Route::resource('pelanggaran', PelanggaranController::class);

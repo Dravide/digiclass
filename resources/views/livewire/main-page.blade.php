@@ -107,6 +107,20 @@
             </div>
         </div>
 
+        <!-- Curhat Siswa -->
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <i class="mdi mdi-chat-heart text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Curhat BK</h5>
+                    <p class="card-text text-muted mb-4">Layanan konseling dan curhat untuk siswa</p>
+                    <a href="{{ route('curhat-siswa-public') }}" class="btn btn-danger px-4">Curhat</a>
+                </div>
+            </div>
+        </div>
+
 
 
 

@@ -88,6 +88,42 @@ class MenuHelper
                 ]
             ];
             
+            $menuItems['Manajemen Pelanggaran'] = [
+                [
+                    'title' => 'Kategori Pelanggaran',
+                    'route' => 'kategori-pelanggaran-management',
+                    'icon' => 'ri-folder-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Jenis Pelanggaran',
+                    'route' => 'jenis-pelanggaran-management',
+                    'icon' => 'ri-list-check-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Sanksi Pelanggaran',
+                    'route' => 'sanksi-pelanggaran-management',
+                    'icon' => 'ri-scales-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Data Pelanggaran Siswa',
+                    'route' => 'pelanggaran-management',
+                    'icon' => 'ri-alert-line',
+                    'permission' => 'manage-pelanggaran'
+                ]
+            ];
+            
+            $menuItems['Bimbingan Konseling'] = [
+                [
+                    'title' => 'Curhat Siswa',
+                    'route' => 'guru.curhat-siswa-management',
+                    'icon' => 'ri-chat-heart-line',
+                    'permission' => 'manage-curhat'
+                ]
+            ];
+            
             $menuItems['Operasional'] = [
                 [
                     'title' => 'Presensi Siswa',
@@ -126,12 +162,6 @@ class MenuHelper
                     'permission' => 'view-reports'
                 ],
                 [
-                    'title' => 'Manajemen Pelanggaran',
-                    'route' => 'pelanggaran-management',
-                    'icon' => 'ri-alert-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
                     'title' => 'Surat Otomatis',
                     'route' => 'surat-management',
                     'icon' => 'ri-file-text-line',
@@ -144,7 +174,8 @@ class MenuHelper
                     'icon' => 'ri-file-upload-line',
                     'permission' => 'import-data'
                 ],
-                [                    'title' => 'Statistik Sekolah',
+                [
+                    'title' => 'Statistik Sekolah',
                     'route' => 'statistik-management',
                     'icon' => 'ri-bar-chart-line',
                     'permission' => 'view-statistics'
@@ -230,6 +261,20 @@ class MenuHelper
                 ]
             ];
             
+            $menuItems['Layanan Siswa'] = [
+                [
+                    'title' => 'Pelaporan Pelanggaran',
+                    'route' => 'pelaporan-pelanggaran',
+                    'icon' => 'ri-qr-scan-line',
+                    'permission' => 'view-own-grades'
+                ],
+                [
+                    'title' => 'Curhat BK',
+                    'route' => 'curhat-siswa',
+                    'icon' => 'ri-chat-heart-line',
+                    'permission' => 'view-own-grades'
+                ]
+            ];
 
         }
 
@@ -307,12 +352,39 @@ class MenuHelper
 
         // BK (Bimbingan Konseling) Menu Items
         if ($user->hasRole('bk')) {
-            $menuItems['Bimbingan Konseling'] = [
+            $menuItems['Manajemen Pelanggaran'] = [
                 [
-                    'title' => 'Pelanggaran Siswa',
+                    'title' => 'Kategori Pelanggaran',
+                    'route' => 'kategori-pelanggaran-management',
+                    'icon' => 'ri-folder-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Jenis Pelanggaran',
+                    'route' => 'jenis-pelanggaran-management',
+                    'icon' => 'ri-list-check-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Sanksi Pelanggaran',
+                    'route' => 'sanksi-pelanggaran-management',
+                    'icon' => 'ri-scales-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Data Pelanggaran Siswa',
                     'route' => 'pelanggaran-management',
                     'icon' => 'ri-alert-line',
                     'permission' => 'manage-pelanggaran'
+                ]
+            ];
+            
+            $menuItems['Bimbingan Konseling'] = [
+                [
+                    'title' => 'Curhat Siswa',
+                    'route' => 'curhat-siswa-management',
+                    'icon' => 'ri-chat-heart-line',
+                    'permission' => 'manage-curhat'
                 ]
             ];
         }
