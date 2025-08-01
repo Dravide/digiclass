@@ -305,6 +305,18 @@ class MenuHelper
             ];
         }
 
+        // BK (Bimbingan Konseling) Menu Items
+        if ($user->hasRole('bk')) {
+            $menuItems['Bimbingan Konseling'] = [
+                [
+                    'title' => 'Pelanggaran Siswa',
+                    'route' => 'pelanggaran-management',
+                    'icon' => 'ri-alert-line',
+                    'permission' => 'manage-pelanggaran'
+                ]
+            ];
+        }
+
         // Filter menu items based on user permissions
         $filteredMenuItems = [];
         foreach ($menuItems as $section => $items) {

@@ -45,12 +45,17 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
     Route::get('/rekap-nilai', RekapNilai::class)->name('rekap-nilai');
     
-
-    
-    // Pelanggaran Management
-    Route::get('/pelanggaran-management', PelanggaranManagement::class)->name('pelanggaran-management');
     Route::get('/surat-management', SuratManagement::class)->name('surat-management');
     Route::get('/surat-signature/{suratId}', SuratSignature::class)->name('surat-signature');
+    
+    // Export routes
+    Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
+    Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
+});
+
+// Pelanggaran Management Routes (accessible by BK and Admin)
+Route::middleware(['auth.custom', 'permission:manage-pelanggaran'])->group(function () {
+    Route::get('/pelanggaran-management', PelanggaranManagement::class)->name('pelanggaran-management');
     
     // Pelanggaran Siswa routes
     Route::resource('pelanggaran', PelanggaranController::class);
@@ -59,8 +64,4 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/pelanggaran-detail-siswa/{siswa}', [PelanggaranController::class, 'detailSiswa'])->name('pelanggaran.detail-siswa');
     Route::get('/api/jenis-pelanggaran-by-kategori', [PelanggaranController::class, 'getJenisPelanggaranByKategori'])->name('api.jenis-pelanggaran-by-kategori');
     Route::get('/pelanggaran-export', [PelanggaranController::class, 'export'])->name('pelanggaran.export');
-    
-    // Export routes
-    Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
-    Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
 });
