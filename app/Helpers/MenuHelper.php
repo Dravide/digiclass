@@ -235,7 +235,29 @@ class MenuHelper
                 ]
             ];
             
-
+            $menuItems['Bimbingan Konseling'] = [
+                [
+                    'title' => 'Curhat Siswa',
+                    'route' => 'guru.curhat-siswa-management',
+                    'icon' => 'ri-chat-heart-line',
+                    'permission' => 'manage-curhat'
+                ]
+            ];
+            
+            $menuItems['Laporan'] = [
+                [
+                    'title' => 'Rekap Presensi',
+                    'route' => 'rekap-presensi',
+                    'icon' => 'ri-file-list-3-line',
+                    'permission' => 'view-presensi'
+                ],
+                [
+                    'title' => 'Rekap Nilai',
+                    'route' => 'rekap-nilai',
+                    'icon' => 'ri-file-chart-line',
+                    'permission' => 'view-reports'
+                ]
+            ];
         }
 
         // Siswa Menu Items
@@ -250,7 +272,7 @@ class MenuHelper
                 [
                     'title' => 'Presensi Saya',
                     'route' => 'my-attendance',
-                    'icon' => 'ri-user-check-line',
+                    'icon' => 'ri-calendar-check-line',
                     'permission' => 'view-own-attendance'
                 ],
                 [
@@ -258,21 +280,60 @@ class MenuHelper
                     'route' => 'my-assignments',
                     'icon' => 'ri-task-line',
                     'permission' => 'view-own-assignments'
+                ],
+                [
+                    'title' => 'Jadwal Pelajaran',
+                    'route' => 'my-schedule',
+                    'icon' => 'ri-calendar-2-line',
+                    'permission' => 'view-own-schedule'
+                ],
+                [
+                    'title' => 'Rapor Online',
+                    'route' => 'my-report-card',
+                    'icon' => 'ri-file-text-line',
+                    'permission' => 'view-own-report'
                 ]
             ];
             
             $menuItems['Layanan Siswa'] = [
                 [
-                    'title' => 'Pelaporan Pelanggaran',
-                    'route' => 'pelaporan-pelanggaran',
-                    'icon' => 'ri-qr-scan-line',
-                    'permission' => 'view-own-grades'
+                    'title' => 'Curhat BK',
+                    'route' => 'curhat-bk',
+                    'icon' => 'ri-chat-heart-line',
+                    'permission' => 'create-curhat'
                 ],
                 [
-                    'title' => 'Curhat BK',
-                    'route' => 'curhat-siswa',
-                    'icon' => 'ri-chat-heart-line',
-                    'permission' => 'view-own-grades'
+                    'title' => 'Perpustakaan',
+                    'route' => 'library',
+                    'icon' => 'ri-book-line',
+                    'permission' => 'access-library'
+                ],
+                [
+                    'title' => 'Ekstrakurikuler',
+                    'route' => 'extracurricular',
+                    'icon' => 'ri-team-line',
+                    'permission' => 'view-extracurricular'
+                ],
+                [
+                    'title' => 'Pengumuman',
+                    'route' => 'announcements',
+                    'icon' => 'ri-megaphone-line',
+                    'permission' => 'view-announcements'
+                ]
+            ];
+            
+            $menuItems['Komunikasi'] = [
+                [
+                    'title' => 'Pesan Guru',
+                    'route' => 'teacher-messages',
+                    'icon' => 'ri-mail-line',
+                    'permission' => 'view-messages'
+                ],
+                [
+                    'title' => 'Forum Diskusi',
+                    'route' => 'discussion-forum',
+                    'icon' => 'ri-discuss-line',
+                    'permission' => 'access-forum'
                 ]
             ];
 

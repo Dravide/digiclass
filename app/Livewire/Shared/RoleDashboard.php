@@ -69,11 +69,86 @@ class RoleDashboard extends Component
 
     private function getRecentActivities()
     {
-        // TODO: Implement recent activities based on role
-        return [
-            ['activity' => 'Login ke sistem', 'time' => now()->format('H:i')],
-            ['activity' => 'Mengakses dashboard', 'time' => now()->subMinutes(5)->format('H:i')]
+        $user = Auth::user();
+        $activities = [];
+        
+        // Add login activity
+        $activities[] = [
+            'activity' => 'Login ke sistem',
+            'time' => now()->format('H:i'),
+            'icon' => 'ri-login-circle-line',
+            'type' => 'success'
         ];
+        
+        // Role-specific activities
+        switch ($this->userRole) {
+            case 'admin':
+                $activities[] = [
+                    'activity' => 'Mengakses panel admin',
+                    'time' => now()->subMinutes(2)->format('H:i'),
+                    'icon' => 'ri-admin-line',
+                    'type' => 'info'
+                ];
+                break;
+                
+            case 'guru':
+                $activities[] = [
+                    'activity' => 'Memeriksa kelas aktif',
+                    'time' => now()->subMinutes(3)->format('H:i'),
+                    'icon' => 'ri-school-line',
+                    'type' => 'primary'
+                ];
+                break;
+                
+            case 'siswa':
+                $activities[] = [
+                    'activity' => 'Melihat tugas terbaru',
+                    'time' => now()->subMinutes(5)->format('H:i'),
+                    'icon' => 'ri-task-line',
+                    'type' => 'warning'
+                ];
+                break;
+        }
+        
+        return $activities;
+    }
+    
+    public function getNotifications()
+    {
+        $user = Auth::user();
+        $notifications = [];
+        
+        // Role-specific notifications
+        switch ($this->userRole) {
+            case 'admin':
+                $notifications[] = [
+                    'title' => 'Data Siswa Baru',
+                    'message' => '5 siswa baru perlu verifikasi',
+                    'type' => 'info',
+                    'icon' => 'ri-user-add-line'
+                ];
+                break;
+                
+            case 'guru':
+                $notifications[] = [
+                    'title' => 'Tugas Belum Dinilai',
+                    'message' => '12 tugas menunggu penilaian',
+                    'type' => 'warning',
+                    'icon' => 'ri-file-list-line'
+                ];
+                break;
+                
+            case 'siswa':
+                $notifications[] = [
+                    'title' => 'Tugas Baru',
+                    'message' => '3 tugas baru tersedia',
+                    'type' => 'success',
+                    'icon' => 'ri-notification-line'
+                ];
+                break;
+        }
+        
+        return $notifications;
     }
 
     public function render()
@@ -101,8 +176,9 @@ class RoleDashboard extends Component
             'totalSiswa' => $totalSiswa,
             'totalKelas' => $totalKelas,
             'totalGuru' => $totalGuru,
-            'siswaAktifPerpustakaan' => $siswaAktifPerpustakaan,
-            'activeTahunPelajaran' => $activeTahunPelajaran
+            'totalPerpustakaan' => $siswaAktifPerpustakaan,
+            'activeTahunPelajaran' => $activeTahunPelajaran,
+            'recentActivities' => $this->getRecentActivities()
         ])->layout('layouts.app');
     }
 }

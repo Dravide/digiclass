@@ -35,7 +35,7 @@ class Dashboard extends Component
             'totalSiswa' => $totalSiswa,
             'totalKelas' => $totalKelas,
             'totalGuru' => $totalGuru,
-            'siswaAktifPerpustakaan' => $siswaAktifPerpustakaan,
+            'totalPerpustakaan' => $siswaAktifPerpustakaan,
             'activeTahunPelajaran' => $activeTahunPelajaran
         ])->layout('layouts.app', [
             'title' => 'Dashboard - DigiClass',
