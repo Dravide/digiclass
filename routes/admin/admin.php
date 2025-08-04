@@ -26,6 +26,7 @@ use App\Livewire\Admin\SuratSignature;
 use App\Livewire\Admin\RolePermissionManagement;
 use App\Livewire\Admin\UserManagement;
 use App\Livewire\Admin\CurhatSiswaManagement;
+use App\Livewire\Admin\MenuManagement;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
@@ -44,6 +45,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/statistik-management', StatistikManagement::class)->name('statistik-management');
     Route::get('/role-permission-management', RolePermissionManagement::class)->name('role-permission-management');
     Route::get('/user-management', UserManagement::class)->name('user-management');
+    Route::get('/menu-management', MenuManagement::class)->name('menu-management');
     Route::get('/rekap-presensi', RekapPresensi::class)->name('rekap-presensi');
     Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');

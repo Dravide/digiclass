@@ -51,6 +51,12 @@ class MenuHelper
                     'permission' => 'manage-users'
                 ],
                 [
+                    'title' => 'Manajemen Menu',
+                    'route' => 'menu-management',
+                    'icon' => 'ri-menu-line',
+                    'permission' => 'manage-menu'
+                ],
+                [
                     'title' => 'Data Guru',
                     'route' => 'guru-management',
                     'icon' => 'ri-user-3-line',

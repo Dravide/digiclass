@@ -26,6 +26,7 @@ class RolePermissionSeeder extends Seeder
             'create-users',
             'edit-users',
             'delete-users',
+            'manage-menu',
             
             // Academic management
             'manage-tahun-pelajaran',

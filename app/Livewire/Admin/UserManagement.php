@@ -158,8 +158,8 @@ class UserManagement extends Component
             $user = User::findOrFail($userId);
             
             // Check if user has related data
-            $hasGuru = Guru::where('user_id', $userId)->exists();
-            $hasSiswa = Siswa::where('user_id', $userId)->exists();
+            $hasGuru = Guru::where('email', $user->email)->exists();
+            $hasSiswa = Siswa::where('email', $user->email)->exists();
             
             if ($hasGuru || $hasSiswa) {
                 $this->dispatch('user-error', 'Tidak dapat menghapus user yang memiliki data terkait (Guru/Siswa)!');
