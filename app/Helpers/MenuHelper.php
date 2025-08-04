@@ -449,7 +449,7 @@ class MenuHelper
             $menuItems['Bimbingan Konseling'] = [
                 [
                     'title' => 'Curhat Siswa',
-                    'route' => 'curhat-siswa-management',
+                    'route' => 'guru.curhat-siswa-management',
                     'icon' => 'ri-chat-heart-line',
                     'permission' => 'manage-curhat'
                 ]
