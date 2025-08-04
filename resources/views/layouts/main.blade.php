@@ -61,6 +61,21 @@
                              style="max-height: 80px;">
                         <h4 class="mt-2 mb-0 text-white fw-bold">DigiClass</h4>
                         <p class="text-white small mb-0">Sistem Manajemen Kelas Digital</p>
+                        
+                        <!-- Navigation Menu -->
+                        <div class="mt-3">
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('main-page') }}" class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-home me-1"></i> Beranda
+                                </a>
+                                <a href="{{ route('tata-tertib-siswa') }}" class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-book me-1"></i> Tata Tertib
+                                </a>
+                                <a href="{{ route('curhat-siswa-public') }}" class="btn btn-outline-light btn-sm">
+                                    <i class="fas fa-comments me-1"></i> Curhat Siswa
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

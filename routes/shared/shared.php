@@ -6,6 +6,7 @@ use App\Livewire\Shared\RoleDashboard;
 use App\Livewire\Auth\Login;
 use App\Livewire\Shared\AnnouncementPage;
 use App\Livewire\Shared\MainPage;
+use App\Livewire\HtmlEditor;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -15,6 +16,8 @@ Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Kee
 Route::get('/cek-data-siswa', \App\Livewire\Shared\StudentCheckPage::class)->name('student-check');
 Route::get('/surat/validate/{id}', \App\Livewire\Shared\SuratValidation::class)->name('surat.validate');
 Route::get('/curhat-siswa-public', \App\Livewire\Shared\CurhatSiswaPublic::class)->name('curhat-siswa-public');
+Route::get('/tata-tertib-siswa', \App\Livewire\Shared\TataTertibSiswa::class)->name('tata-tertib-siswa');
+
 
 
 

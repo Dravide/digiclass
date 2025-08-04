@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             TahunPelajaranSeeder::class,
             KelasSeeder::class,
             SiswaSeeder::class,
+            TataTertibSeeder::class,
         ]);
     }
 }
