@@ -30,7 +30,6 @@ class TataTertibSiswa extends Component
                   ->where('poin_pelanggaran', 0)
                   ->orderBy('kode_pelanggaran');
         }])
-        ->where('kode_kategori', 'LIKE', 'TT-%')
         ->orderBy('kode_kategori')
         ->get();
     }
