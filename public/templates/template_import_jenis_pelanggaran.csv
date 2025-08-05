@@ -1,0 +1,6 @@
+kode_kategori;kode_pelanggaran;nama_pelanggaran;deskripsi_pelanggaran;poin_pelanggaran;tingkat_pelanggaran;is_active
+A;A.1;Contoh Pelanggaran Ringan;Deskripsi contoh pelanggaran ringan;5;ringan;1
+A;A.2;Contoh Pelanggaran Sedang;Deskripsi contoh pelanggaran sedang;15;sedang;1
+B;B.1;Contoh Pelanggaran Berat;Deskripsi contoh pelanggaran berat;25;berat;1
+C;C.1;Contoh Pelanggaran Sangat Berat;Deskripsi contoh pelanggaran sangat berat;50;sangat_berat;1
+TT-I;TT-1.1;Contoh Tata Tertib;Deskripsi contoh tata tertib positif;0;ringan;1

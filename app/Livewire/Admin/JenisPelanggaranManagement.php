@@ -40,7 +40,7 @@ class JenisPelanggaranManagement extends Component
         'nama_pelanggaran' => 'required|string|max:200',
         'deskripsi_pelanggaran' => 'nullable|string|max:1000',
         'poin_pelanggaran' => 'required|integer|min:1|max:500',
-        'tingkat_pelanggaran' => 'required|in:ringan,sedang,berat',
+        'tingkat_pelanggaran' => 'required|in:ringan,sedang,berat,sangat_berat',
         'is_active' => 'boolean'
     ];
 

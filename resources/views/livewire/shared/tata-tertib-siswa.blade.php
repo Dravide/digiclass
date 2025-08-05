@@ -55,22 +55,65 @@
                         
                         <div class="alert alert-info">
                             <h5><i class="mdi mdi-information me-2"></i>Pakta Integritas</h5>
-                            <p class="mb-0">Sebagai bukti bahwa Anda telah membaca dan memahami tata tertib, silakan unduh Pakta Integritas yang harus ditandatangani oleh siswa dan orang tua/wali.</p>
-                        </div>
-                        
-                        <div class="text-center">
-                            @if($allPagesChecked)
-                                <button wire:click="downloadPaktaIntegritas" class="btn btn-success btn-lg">
-                                    <i class="mdi mdi-download me-2"></i>Unduh Pakta Integritas
-                                </button>
-                                <p class="text-muted mt-2">File PDF akan diunduh secara otomatis</p>
+                            <p class="mb-2">Sebagai bukti bahwa Anda telah membaca dan memahami tata tertib, silakan unduh Pakta Integritas yang harus ditandatangani oleh siswa dan orang tua/wali.</p>
+                            
+                            @if($paktaIntegritasFiles->isNotEmpty())
+                                @foreach($paktaIntegritasFiles as $file)
+                                    <div class="d-flex align-items-center mt-3 p-3 bg-light rounded">
+                                        <div class="me-3">
+                                            @if($file->file_type == 'pdf')
+                                                <i class="mdi mdi-file-pdf-box text-danger" style="font-size: 2rem;"></i>
+                                            @else
+                                                <i class="mdi mdi-file-document text-primary" style="font-size: 2rem;"></i>
+                                            @endif
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ $file->nama_file }}</h6>
+                                            <small class="text-muted">
+                                                {{ strtoupper($file->file_type) }} • {{ $file->formatted_file_size }}
+                                                @if($file->deskripsi)
+                                                    <br>{{ $file->deskripsi }}
+                                                @endif
+                                            </small>
+                                        </div>
+                                        <div class="ms-2">
+                                            @if($allPagesChecked)
+                                                <button wire:click="downloadPaktaIntegritas({{ $file->id }})" class="btn btn-success btn-sm">
+                                                    <i class="mdi mdi-download me-1"></i>Unduh
+                                                </button>
+                                            @else
+                                                <button class="btn btn-secondary btn-sm" disabled>
+                                                    <i class="mdi mdi-lock me-1"></i>Terkunci
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
                             @else
-                                <button class="btn btn-secondary btn-lg" disabled>
-                                    <i class="mdi mdi-lock me-2"></i>Baca Semua Halaman Terlebih Dahulu
-                                </button>
-                                <p class="text-danger mt-2">Anda harus membaca dan mencentang semua halaman tata tertib</p>
+                                <small class="text-muted">File pakta integritas akan dibuat secara otomatis</small>
                             @endif
                         </div>
+                        
+                        @if($paktaIntegritasFiles->isEmpty())
+                            <div class="text-center">
+                                @if($allPagesChecked)
+                                    <button wire:click="downloadPaktaIntegritas" class="btn btn-success btn-lg">
+                                        <i class="mdi mdi-download me-2"></i>Unduh Pakta Integritas (Default)
+                                    </button>
+                                @else
+                                    <button class="btn btn-secondary btn-lg" disabled>
+                                        <i class="mdi mdi-lock me-2"></i>Baca Semua Halaman Terlebih Dahulu
+                                    </button>
+                                    <p class="text-danger mt-2">Anda harus membaca dan mencentang semua halaman tata tertib</p>
+                                @endif
+                            </div>
+                        @else
+                            @if(!$allPagesChecked)
+                                <div class="text-center">
+                                    <p class="text-danger mt-2">Anda harus membaca dan mencentang semua halaman tata tertib untuk dapat mengunduh file pakta integritas</p>
+                                </div>
+                            @endif
+                        @endif
                     @else
                         <!-- Tata Tertib Content -->
                         @if($currentKategori)
@@ -91,19 +134,21 @@
                                 @foreach($currentKategori->jenisPelanggaran as $index => $jenis)
                                     <div class="col-12 mb-3">
                                         <div class="card border-start border-4 
-                                            @if($jenis->tingkat_pelanggaran == 'ringan') border-success
-                                            @elseif($jenis->tingkat_pelanggaran == 'sedang') border-warning  
-                                            @else border-danger
-                                            @endif">
+                                @if($jenis->tingkat_pelanggaran == 'ringan') border-success
+                                @elseif($jenis->tingkat_pelanggaran == 'sedang') border-warning
+                                @elseif($jenis->tingkat_pelanggaran == 'berat') border-danger
+                                @elseif($jenis->tingkat_pelanggaran == 'sangat_berat') border-dark
+                                @else border-secondary @endif">
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div class="flex-grow-1">
                                                         <div class="d-flex align-items-center mb-2">
                                                             <span class="badge 
-                                                                @if($jenis->tingkat_pelanggaran == 'ringan') bg-success
-                                                                @elseif($jenis->tingkat_pelanggaran == 'sedang') bg-warning  
-                                                                @else bg-danger
-                                                                @endif me-2">{{ $jenis->kode_pelanggaran }}</span>
+                                                @if($jenis->tingkat_pelanggaran == 'ringan') bg-success
+                                                @elseif($jenis->tingkat_pelanggaran == 'sedang') bg-warning
+                                                @elseif($jenis->tingkat_pelanggaran == 'berat') bg-danger
+                                                @elseif($jenis->tingkat_pelanggaran == 'sangat_berat') bg-dark
+                                                @else bg-secondary @endif me-2">{{ $jenis->kode_pelanggaran }}</span>
                                                             <h6 class="mb-0 fw-bold">{{ $jenis->nama_pelanggaran }}</h6>
                                                         </div>
                                                         

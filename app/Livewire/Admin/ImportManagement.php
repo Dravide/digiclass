@@ -9,6 +9,9 @@ use App\Models\Kelas;
 use App\Models\Perpustakaan;
 use App\Models\TahunPelajaran;
 use App\Models\KelasSiswa;
+use App\Models\JenisPelanggaran;
+use App\Models\KategoriPelanggaran;
+use App\Imports\JenisPelanggaranImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -23,10 +26,21 @@ class ImportManagement extends Component
     public $importProgress = 0;
     public $importStatus = '';
     public $isImporting = false;
+    
+    // Properties for JenisPelanggaran import
+    public $jenisPelanggaranFile;
+    public $importType = 'siswa'; // 'siswa' or 'jenis_pelanggaran'
+    public $jenisPelanggaranProgress = 0;
+    public $jenisPelanggaranStatus = '';
+    public $isImportingJenisPelanggaran = false;
 
     protected $rules = [
         'kelas_id' => 'required|exists:kelas,id',
-        'excelFile' => 'required|mimes:xlsx,xls,csv|max:10240'
+        'excelFile' => 'required|file|mimes:xlsx,xls,csv|max:2048'
+    ];
+    
+    protected $rulesJenisPelanggaran = [
+        'jenisPelanggaranFile' => 'required|file|mimes:xlsx,xls,csv|max:2048'
     ];
 
     protected $messages = [
@@ -34,6 +48,9 @@ class ImportManagement extends Component
         'kelas_id.exists' => 'Kelas yang dipilih tidak valid.',
         'excelFile.required' => 'File Excel wajib dipilih.',
         'excelFile.mimes' => 'File harus berformat Excel (.xlsx, .xls) atau CSV.',
+        'jenisPelanggaranFile.required' => 'File Excel/CSV wajib dipilih.',
+        'jenisPelanggaranFile.mimes' => 'File harus berformat Excel (.xlsx, .xls) atau CSV.',
+        'jenisPelanggaranFile.max' => 'Ukuran file maksimal 2MB.',
         'excelFile.max' => 'Ukuran file maksimal 10MB.'
     ];
 
@@ -53,6 +70,15 @@ class ImportManagement extends Component
         $this->importProgress = 0;
         $this->importStatus = '';
         $this->isImporting = false;
+        $this->resetErrorBag();
+    }
+    
+    public function resetJenisPelanggaranForm()
+    {
+        $this->jenisPelanggaranFile = null;
+        $this->jenisPelanggaranProgress = 0;
+        $this->jenisPelanggaranStatus = '';
+        $this->isImportingJenisPelanggaran = false;
         $this->resetErrorBag();
     }
 
@@ -201,6 +227,44 @@ class ImportManagement extends Component
             }
         }
     }
+    
+    public function importJenisPelanggaran()
+    {
+        $this->validate($this->rulesJenisPelanggaran, [
+            'jenisPelanggaranFile.required' => 'File Excel/CSV wajib dipilih.',
+            'jenisPelanggaranFile.mimes' => 'File harus berformat Excel (.xlsx, .xls) atau CSV.',
+            'jenisPelanggaranFile.max' => 'Ukuran file maksimal 2MB.'
+        ]);
+
+        try {
+            $this->isImportingJenisPelanggaran = true;
+            
+            // Dispatch event to show loading in frontend
+            $this->dispatch('jenis-pelanggaran-import-started');
+            
+            $this->jenisPelanggaranStatus = 'Memproses file Excel...';
+            $this->jenisPelanggaranProgress = 10;
+
+            // Import using the JenisPelanggaranImport class
+            Excel::import(new JenisPelanggaranImport, $this->jenisPelanggaranFile);
+            
+            $this->jenisPelanggaranProgress = 100;
+            $this->jenisPelanggaranStatus = 'Import berhasil!';
+            
+            $this->dispatch('jenis-pelanggaran-import-success', 'Data Jenis Pelanggaran berhasil diimport!');
+            $this->dispatch('jenis-pelanggaran-import-completed');
+            $this->isImportingJenisPelanggaran = false;
+            
+            // Reset form after successful import
+            $this->resetJenisPelanggaranForm();
+
+        } catch (\Exception $e) {
+            $this->dispatch('jenis-pelanggaran-import-completed');
+            $this->jenisPelanggaranStatus = 'Error: ' . $e->getMessage();
+            $this->dispatch('jenis-pelanggaran-import-error', $e->getMessage());
+            $this->isImportingJenisPelanggaran = false;
+        }
+    }
 
     public function downloadTemplate()
     {
@@ -254,6 +318,23 @@ class ImportManagement extends Component
             $writer->save($tempFile);
             
             return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+            
+        } catch (\Exception $e) {
+            $this->dispatch('template-error', 'Gagal mengunduh template: ' . $e->getMessage());
+        }
+    }
+    
+    public function downloadJenisPelanggaranTemplate()
+    {
+        try {
+            $templatePath = public_path('templates/template_import_jenis_pelanggaran.csv');
+            
+            if (!file_exists($templatePath)) {
+                $this->dispatch('template-error', 'Template file tidak ditemukan.');
+                return;
+            }
+            
+            return response()->download($templatePath, 'template_import_jenis_pelanggaran.csv');
             
         } catch (\Exception $e) {
             $this->dispatch('template-error', 'Gagal mengunduh template: ' . $e->getMessage());

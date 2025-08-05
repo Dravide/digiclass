@@ -21,12 +21,14 @@ use App\Livewire\Admin\PelanggaranManagement;
 use App\Livewire\Admin\KategoriPelanggaranManagement;
 use App\Livewire\Admin\JenisPelanggaranManagement;
 use App\Livewire\Admin\SanksiPelanggaranManagement;
+use App\Livewire\Admin\NotifikasiSanksiSiswa;
 use App\Livewire\Admin\SuratManagement;
 use App\Livewire\Admin\SuratSignature;
 use App\Livewire\Admin\RolePermissionManagement;
 use App\Livewire\Admin\UserManagement;
 use App\Livewire\Admin\CurhatSiswaManagement;
 use App\Livewire\Admin\MenuManagement;
+use App\Livewire\Admin\PaktaIntegritasManagement;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
@@ -46,6 +48,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/role-permission-management', RolePermissionManagement::class)->name('role-permission-management');
     Route::get('/user-management', UserManagement::class)->name('user-management');
     Route::get('/menu-management', MenuManagement::class)->name('menu-management');
+    Route::get('/pakta-integritas-management', PaktaIntegritasManagement::class)->name('pakta-integritas-management');
     Route::get('/rekap-presensi', RekapPresensi::class)->name('rekap-presensi');
     Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
@@ -66,6 +69,7 @@ Route::middleware(['auth.custom', 'permission:manage-pelanggaran'])->group(funct
     Route::get('/kategori-pelanggaran-management', KategoriPelanggaranManagement::class)->name('kategori-pelanggaran-management');
     Route::get('/jenis-pelanggaran-management', JenisPelanggaranManagement::class)->name('jenis-pelanggaran-management');
     Route::get('/sanksi-pelanggaran-management', SanksiPelanggaranManagement::class)->name('sanksi-pelanggaran-management');
+    Route::get('/notifikasi-sanksi-siswa', NotifikasiSanksiSiswa::class)->name('notifikasi-sanksi-siswa');
     
     // Pelanggaran Siswa routes
     Route::resource('pelanggaran', PelanggaranController::class);

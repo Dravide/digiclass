@@ -28,6 +28,7 @@ class JenisPelanggaran extends Model
     const TINGKAT_RINGAN = 'ringan';
     const TINGKAT_SEDANG = 'sedang';
     const TINGKAT_BERAT = 'berat';
+    const TINGKAT_SANGAT_BERAT = 'sangat_berat';
 
     // Relationship dengan kategori pelanggaran
     public function kategoriPelanggaran(): BelongsTo
@@ -65,7 +66,8 @@ class JenisPelanggaran extends Model
         return [
             self::TINGKAT_RINGAN => 'Ringan',
             self::TINGKAT_SEDANG => 'Sedang',
-            self::TINGKAT_BERAT => 'Berat'
+            self::TINGKAT_BERAT => 'Berat',
+            self::TINGKAT_SANGAT_BERAT => 'Sangat Berat'
         ];
     }
 
@@ -100,6 +102,12 @@ class JenisPelanggaran extends Model
         return $this->tingkat_pelanggaran === self::TINGKAT_BERAT;
     }
 
+    // Method untuk mengecek apakah pelanggaran termasuk kategori sangat berat
+    public function isSangatBerat()
+    {
+        return $this->tingkat_pelanggaran === self::TINGKAT_SANGAT_BERAT;
+    }
+
     // Method untuk mendapatkan warna badge berdasarkan tingkat
     public function getBadgeColorAttribute()
     {
@@ -110,6 +118,8 @@ class JenisPelanggaran extends Model
                 return 'warning';
             case self::TINGKAT_BERAT:
                 return 'danger';
+            case self::TINGKAT_SANGAT_BERAT:
+                return 'dark';
             default:
                 return 'secondary';
         }

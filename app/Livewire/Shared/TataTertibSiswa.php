@@ -5,7 +5,9 @@ namespace App\Livewire\Shared;
 use Livewire\Component;
 use App\Models\KategoriPelanggaran;
 use App\Models\JenisPelanggaran;
+use App\Models\PaktaIntegritas;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class TataTertibSiswa extends Component
@@ -16,11 +18,18 @@ class TataTertibSiswa extends Component
     public $allPagesChecked = false;
     public $kategoriPelanggarans = [];
     public $showPaktaIntegritas = false;
+    public $paktaIntegritasFiles = [];
     
     public function mount()
     {
         $this->loadTataTertib();
+        $this->loadPaktaIntegritas();
         $this->calculateTotalPages();
+    }
+    
+    public function loadPaktaIntegritas()
+    {
+        $this->paktaIntegritasFiles = PaktaIntegritas::getActiveFiles();
     }
     
     public function loadTataTertib()
@@ -75,14 +84,51 @@ class TataTertibSiswa extends Component
         $this->allPagesChecked = count($this->checkedPages) >= ($this->totalPages - 1);
     }
     
-    public function downloadPaktaIntegritas()
+    public function downloadPaktaIntegritas($fileId = null)
     {
+        // Pastikan semua halaman sudah dibaca
         if (!$this->allPagesChecked) {
             session()->flash('error', 'Anda harus membaca semua tata tertib terlebih dahulu.');
             return;
         }
         
-        // Generate PDF pakta integritas
+        // Jika ada file ID spesifik, download file tersebut
+        if ($fileId) {
+            return $this->downloadSpecificFile($fileId);
+        }
+        
+        // Jika ada file pakta integritas yang diupload admin, download file pertama
+        if ($this->paktaIntegritasFiles->isNotEmpty()) {
+            return $this->downloadSpecificFile($this->paktaIntegritasFiles->first()->id);
+        }
+        
+        // Jika tidak ada file yang diupload, generate PDF default
+        return $this->downloadGeneratedPDF();
+    }
+    
+    public function downloadSpecificFile($fileId)
+    {
+        $paktaIntegritasFile = PaktaIntegritas::find($fileId);
+        
+        if (!$paktaIntegritasFile || !$paktaIntegritasFile->is_active) {
+            session()->flash('error', 'File pakta integritas tidak ditemukan atau tidak aktif.');
+            return;
+        }
+        
+        $filePath = $paktaIntegritasFile->file_path;
+        $fileName = $paktaIntegritasFile->nama_file;
+        
+        if (!Storage::disk('public')->exists($filePath)) {
+            session()->flash('error', 'File pakta integritas tidak ditemukan di server.');
+            return;
+        }
+        
+        return Storage::disk('public')->download($filePath, $fileName);
+    }
+    
+    public function downloadGeneratedPDF()
+    {
+        // Generate PDF pakta integritas default
         $paktaContent = $this->generatePaktaIntegritasContent();
         
         $pdf = Pdf::loadHTML($paktaContent);

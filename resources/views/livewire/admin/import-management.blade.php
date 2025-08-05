@@ -63,16 +63,43 @@
     </div>
     @endif
 
-    <!-- Import Form -->
+    <!-- Tab Navigation -->
     <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Import Data Siswa ke Kelas</h4>
-                    @if($activeTahunPelajaran)
-                        <p class="text-muted mb-0">Tahun Pelajaran: {{ $activeTahunPelajaran->nama_tahun_pelajaran }}</p>
-                    @endif
-                </div>
+        <div class="col-12">
+            <ul class="nav nav-tabs nav-tabs-custom nav-justified" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link {{ $importType === 'siswa' ? 'active' : '' }}" 
+                       wire:click="$set('importType', 'siswa')" 
+                       data-bs-toggle="tab" href="#siswa-tab" role="tab">
+                        <span class="d-block d-sm-none"><i class="fas fa-users"></i></span>
+                        <span class="d-none d-sm-block">Import Data Siswa</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $importType === 'jenis_pelanggaran' ? 'active' : '' }}" 
+                       wire:click="$set('importType', 'jenis_pelanggaran')" 
+                       data-bs-toggle="tab" href="#jenis-pelanggaran-tab" role="tab">
+                        <span class="d-block d-sm-none"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span class="d-none d-sm-block">Import Jenis Pelanggaran</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content p-3 text-muted">
+        <!-- Siswa Import Tab -->
+        <div class="tab-pane {{ $importType === 'siswa' ? 'active' : '' }}" id="siswa-tab" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Import Data Siswa ke Kelas</h4>
+                            @if($activeTahunPelajaran)
+                                <p class="text-muted mb-0">Tahun Pelajaran: {{ $activeTahunPelajaran->nama_tahun_pelajaran }}</p>
+                            @endif
+                        </div>
                 <div class="card-body">
                     <form wire:submit.prevent="importExcel">
                         <div class="row">
@@ -220,6 +247,129 @@
             </div>
         </div>
     </div>
+    </div>
+    <!-- End Siswa Import Tab -->
+    
+    <!-- Jenis Pelanggaran Import Tab -->
+    <div class="tab-pane {{ $importType === 'jenis_pelanggaran' ? 'active' : '' }}" id="jenis-pelanggaran-tab" role="tabpanel">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Import Data Jenis Pelanggaran</h4>
+                        <p class="text-muted mb-0">Upload file Excel/CSV untuk import data jenis pelanggaran</p>
+                    </div>
+                    <div class="card-body">
+                        <form wire:submit.prevent="importJenisPelanggaran">
+                            <div class="mb-3">
+                                <label for="jenisPelanggaranFile" class="form-label">File Excel/CSV <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control @error('jenisPelanggaranFile') is-invalid @enderror" 
+                                       id="jenisPelanggaranFile" wire:model="jenisPelanggaranFile" accept=".xlsx,.xls,.csv">
+                                @error('jenisPelanggaranFile')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">Format yang didukung: .xlsx, .xls, .csv (Maksimal 2MB)</div>
+                            </div>
+
+                            @if($jenisPelanggaranProgress > 0)
+                            <div class="mb-3">
+                                <label class="form-label">Progress Import</label>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: {{ $jenisPelanggaranProgress }}%" 
+                                         aria-valuenow="{{ $jenisPelanggaranProgress }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ $jenisPelanggaranProgress }}%
+                                    </div>
+                                </div>
+                                @if($jenisPelanggaranStatus)
+                                    <small class="text-muted">{{ $jenisPelanggaranStatus }}</small>
+                                @endif
+                            </div>
+                            @endif
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" 
+                                        {{ $isImportingJenisPelanggaran ? 'disabled' : '' }}>
+                                    @if($isImportingJenisPelanggaran)
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Mengimport...
+                                    @else
+                                        <i class="ri-upload-cloud-line me-1"></i>
+                                        Import Data
+                                    @endif
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" 
+                                        wire:click="downloadJenisPelanggaranTemplate">
+                                    <i class="ri-download-line me-1"></i>
+                                    Download Template
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        wire:click="resetJenisPelanggaranForm" 
+                                        {{ $isImportingJenisPelanggaran ? 'disabled' : '' }}>
+                                    <i class="ri-refresh-line me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Template Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Format Template</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="font-size-14 mb-2">Kolom CSV (Berurutan):</h6>
+                            <ol class="list-unstyled mb-0">
+                                <li class="py-1"><span class="badge bg-primary me-2">1</span>kode_kategori (Wajib)</li>
+                                <li class="py-1"><span class="badge bg-primary me-2">2</span>kode_pelanggaran (Wajib)</li>
+                                <li class="py-1"><span class="badge bg-primary me-2">3</span>nama_pelanggaran (Wajib)</li>
+                                <li class="py-1"><span class="badge bg-secondary me-2">4</span>deskripsi_pelanggaran (Opsional)</li>
+                                <li class="py-1"><span class="badge bg-primary me-2">5</span>poin_pelanggaran (Wajib)</li>
+                                <li class="py-1"><span class="badge bg-primary me-2">6</span>tingkat_pelanggaran (Wajib: ringan, sedang, berat, sangat_berat)</li>
+                                <li class="py-1"><span class="badge bg-secondary me-2">7</span>is_active (Opsional)</li>
+                            </ol>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="font-size-14 mb-2">Ketentuan Data:</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="py-1"><i class="ri-check-line text-success me-2"></i>Tingkat: ringan, sedang, berat</li>
+                                <li class="py-1"><i class="ri-check-line text-success me-2"></i>Poin: angka (0 untuk tata tertib positif)</li>
+                                <li class="py-1"><i class="ri-check-line text-success me-2"></i>Status Aktif: 1 (aktif) atau 0 (tidak aktif)</li>
+                                <li class="py-1"><i class="ri-check-line text-success me-2"></i>Delimiter: semicolon (;)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Import Notes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">Catatan Penting</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning" role="alert">
+                            <h6 class="alert-heading font-size-14">Perhatian!</h6>
+                            <ul class="mb-0 font-size-13">
+                                <li>Kategori akan dibuat otomatis jika belum ada</li>
+                                <li>Data yang sudah ada akan diupdate berdasarkan kode_pelanggaran</li>
+                                <li>Gunakan template yang disediakan untuk format yang benar</li>
+                                <li>Backup data sebelum melakukan import</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Jenis Pelanggaran Import Tab -->
+    
+    </div>
+    <!-- End Tab Content -->
 
     <style>
         .progress {
@@ -296,6 +446,31 @@
             });
 
             Livewire.on('import-completed', () => {
+                // Optional: Hide loading indicator
+            });
+            
+            // Jenis Pelanggaran Import Events
+            Livewire.on('jenis-pelanggaran-import-success', (message) => {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Import Berhasil!',
+                    text: message
+                });
+            });
+
+            Livewire.on('jenis-pelanggaran-import-error', (message) => {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Import Gagal!',
+                    text: message
+                });
+            });
+
+            Livewire.on('jenis-pelanggaran-import-started', () => {
+                // Optional: Show loading indicator
+            });
+
+            Livewire.on('jenis-pelanggaran-import-completed', () => {
                 // Optional: Hide loading indicator
             });
         });

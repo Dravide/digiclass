@@ -57,6 +57,12 @@ class MenuHelper
                     'permission' => 'manage-menu'
                 ],
                 [
+                    'title' => 'Pakta Integritas',
+                    'route' => 'pakta-integritas-management',
+                    'icon' => 'ri-file-shield-line',
+                    'permission' => 'manage-users'
+                ],
+                [
                     'title' => 'Data Guru',
                     'route' => 'guru-management',
                     'icon' => 'ri-user-3-line',
@@ -117,6 +123,12 @@ class MenuHelper
                     'title' => 'Data Pelanggaran Siswa',
                     'route' => 'pelanggaran-management',
                     'icon' => 'ri-alert-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Notifikasi Sanksi Siswa',
+                    'route' => 'notifikasi-sanksi-siswa',
+                    'icon' => 'ri-notification-2-line',
                     'permission' => 'manage-pelanggaran'
                 ]
             ];
@@ -442,6 +454,12 @@ class MenuHelper
                     'title' => 'Data Pelanggaran Siswa',
                     'route' => 'pelanggaran-management',
                     'icon' => 'ri-alert-line',
+                    'permission' => 'manage-pelanggaran'
+                ],
+                [
+                    'title' => 'Notifikasi Sanksi Siswa',
+                    'route' => 'notifikasi-sanksi-siswa',
+                    'icon' => 'ri-notification-2-line',
                     'permission' => 'manage-pelanggaran'
                 ]
             ];
