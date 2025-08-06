@@ -11,7 +11,7 @@ class SanksiPelanggaranManagement extends Component
     use WithPagination;
 
     // Form properties
-    public $tingkat_kelas;
+    public $tingkat_pelanggaran;
     public $poin_minimum;
     public $poin_maksimum;
     public $jenis_sanksi;
@@ -28,13 +28,13 @@ class SanksiPelanggaranManagement extends Component
 
     // Search and filter properties
     public $search = '';
-    public $filterTingkatKelas = '';
+    public $filterTingkatPelanggaran = '';
     public $filterPenanggungjawab = '';
     public $filterStatus = '';
     public $perPage = 10;
 
     protected $rules = [
-        'tingkat_kelas' => 'required|integer|in:7,8,9',
+        'tingkat_pelanggaran' => 'required|string|in:ringan,sedang,berat,sangat_berat',
         'poin_minimum' => 'required|integer|min:1',
         'poin_maksimum' => 'required|integer|min:1',
         'jenis_sanksi' => 'required|string|max:200',
@@ -44,7 +44,7 @@ class SanksiPelanggaranManagement extends Component
     ];
 
     protected $messages = [
-        'tingkat_kelas.required' => 'Tingkat kelas wajib dipilih.',
+        'tingkat_pelanggaran.required' => 'Tingkat pelanggaran wajib dipilih.',
         'poin_minimum.required' => 'Poin minimum wajib diisi.',
         'poin_maksimum.required' => 'Poin maksimum wajib diisi.',
         'jenis_sanksi.required' => 'Jenis sanksi wajib diisi.',
@@ -61,7 +61,7 @@ class SanksiPelanggaranManagement extends Component
         $this->resetPage();
     }
 
-    public function updatedFilterTingkatKelas()
+    public function updatedFilterTingkatPelanggaran()
     {
         $this->resetPage();
     }
@@ -100,7 +100,7 @@ class SanksiPelanggaranManagement extends Component
     {
         $sanksi = SanksiPelanggaran::findOrFail($id);
         $this->editingId = $id;
-        $this->tingkat_kelas = $sanksi->tingkat_kelas;
+        $this->tingkat_pelanggaran = $sanksi->tingkat_pelanggaran;
         $this->poin_minimum = $sanksi->poin_minimum;
         $this->poin_maksimum = $sanksi->poin_maksimum;
         $this->jenis_sanksi = $sanksi->jenis_sanksi;
@@ -118,8 +118,8 @@ class SanksiPelanggaranManagement extends Component
         
         $this->validate();
 
-        // Check for overlapping ranges in the same tingkat_kelas
-        $query = SanksiPelanggaran::where('tingkat_kelas', $this->tingkat_kelas)
+        // Check for overlapping ranges in the same tingkat_pelanggaran
+        $query = SanksiPelanggaran::where('tingkat_pelanggaran', $this->tingkat_pelanggaran)
             ->where('is_active', true)
             ->where(function ($q) {
                 $q->whereBetween('poin_minimum', [$this->poin_minimum, $this->poin_maksimum])
@@ -135,7 +135,7 @@ class SanksiPelanggaranManagement extends Component
         }
 
         if ($query->exists()) {
-            $this->addError('poin_minimum', 'Rentang poin bertumpang tindih dengan sanksi lain pada tingkat kelas yang sama.');
+            $this->addError('poin_minimum', 'Rentang poin bertumpang tindih dengan sanksi lain pada tingkat pelanggaran yang sama.');
             return;
         }
 
@@ -143,7 +143,7 @@ class SanksiPelanggaranManagement extends Component
             if ($this->editMode) {
                 $sanksi = SanksiPelanggaran::findOrFail($this->editingId);
                 $sanksi->update([
-                    'tingkat_kelas' => $this->tingkat_kelas,
+                    'tingkat_pelanggaran' => $this->tingkat_pelanggaran,
                     'poin_minimum' => $this->poin_minimum,
                     'poin_maksimum' => $this->poin_maksimum,
                     'jenis_sanksi' => $this->jenis_sanksi,
@@ -154,7 +154,7 @@ class SanksiPelanggaranManagement extends Component
                 session()->flash('success', 'Sanksi pelanggaran berhasil diperbarui.');
             } else {
                 SanksiPelanggaran::create([
-                    'tingkat_kelas' => $this->tingkat_kelas,
+                    'tingkat_pelanggaran' => $this->tingkat_pelanggaran,
                     'poin_minimum' => $this->poin_minimum,
                     'poin_maksimum' => $this->poin_maksimum,
                     'jenis_sanksi' => $this->jenis_sanksi,
@@ -211,7 +211,7 @@ class SanksiPelanggaranManagement extends Component
 
     public function resetForm()
     {
-        $this->tingkat_kelas = '';
+        $this->tingkat_pelanggaran = '';
         $this->poin_minimum = '';
         $this->poin_maksimum = '';
         $this->jenis_sanksi = '';
@@ -226,7 +226,7 @@ class SanksiPelanggaranManagement extends Component
     public function resetFilters()
     {
         $this->search = '';
-        $this->filterTingkatKelas = '';
+        $this->filterTingkatPelanggaran = '';
         $this->filterPenanggungjawab = '';
         $this->filterStatus = '';
         $this->resetPage();
@@ -242,8 +242,8 @@ class SanksiPelanggaranManagement extends Component
                       ->orWhere('penanggungjawab', 'like', '%' . $this->search . '%');
                 });
             })
-            ->when($this->filterTingkatKelas, function ($query) {
-                $query->where('tingkat_kelas', $this->filterTingkatKelas);
+            ->when($this->filterTingkatPelanggaran, function ($query) {
+                $query->where('tingkat_pelanggaran', $this->filterTingkatPelanggaran);
             })
             ->when($this->filterPenanggungjawab, function ($query) {
                 $query->where('penanggungjawab', $this->filterPenanggungjawab);
@@ -251,17 +251,17 @@ class SanksiPelanggaranManagement extends Component
             ->when($this->filterStatus !== '', function ($query) {
                 $query->where('is_active', $this->filterStatus);
             })
-            ->orderBy('tingkat_kelas')
+            ->orderBy('tingkat_pelanggaran')
             ->orderBy('poin_minimum');
 
         $sanksiPerPage = $sanksiQuery->paginate($this->perPage);
 
-        $tingkatKelasOptions = SanksiPelanggaran::getAvailableTingkatKelas();
+        $tingkatPelanggaranOptions = SanksiPelanggaran::getAvailableTingkatPelanggaran();
         $penanggungjawabOptions = SanksiPelanggaran::getAvailablePenanggungjawab();
 
         return view('livewire.admin.sanksi-pelanggaran-management', [
             'sanksiPerPage' => $sanksiPerPage,
-            'tingkatKelasOptions' => $tingkatKelasOptions,
+            'tingkatPelanggaranOptions' => $tingkatPelanggaranOptions,
             'penanggungjawabOptions' => $penanggungjawabOptions
         ])->layout('layouts.app');
     }

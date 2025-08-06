@@ -9,7 +9,7 @@ class SanksiPelanggaran extends Model
     protected $table = 'sanksi_pelanggaran';
     
     protected $fillable = [
-        'tingkat_kelas',
+        'tingkat_pelanggaran',
         'poin_minimum',
         'poin_maksimum',
         'jenis_sanksi',
@@ -19,7 +19,6 @@ class SanksiPelanggaran extends Model
     ];
 
     protected $casts = [
-        'tingkat_kelas' => 'integer',
         'poin_minimum' => 'integer',
         'poin_maksimum' => 'integer',
         'is_active' => 'boolean'
@@ -31,10 +30,10 @@ class SanksiPelanggaran extends Model
         return $query->where('is_active', true);
     }
 
-    // Scope untuk sanksi berdasarkan tingkat kelas
-    public function scopeByTingkatKelas($query, $tingkatKelas)
+    // Scope untuk sanksi berdasarkan tingkat pelanggaran
+    public function scopeByTingkatPelanggaran($query, $tingkatPelanggaran)
     {
-        return $query->where('tingkat_kelas', $tingkatKelas);
+        return $query->where('tingkat_pelanggaran', $tingkatPelanggaran);
     }
 
     // Scope untuk sanksi berdasarkan poin tertentu
@@ -44,21 +43,21 @@ class SanksiPelanggaran extends Model
                     ->where('poin_maksimum', '>=', $poin);
     }
 
-    // Method untuk mendapatkan sanksi yang sesuai berdasarkan tingkat kelas dan total poin
-    public static function getSanksiByPoin($tingkatKelas, $totalPoin)
+    // Method untuk mendapatkan sanksi yang sesuai berdasarkan tingkat pelanggaran dan total poin
+    public static function getSanksiByPoin($tingkatPelanggaran, $totalPoin)
     {
         return self::active()
-                  ->byTingkatKelas($tingkatKelas)
+                  ->byTingkatPelanggaran($tingkatPelanggaran)
                   ->byPoin($totalPoin)
                   ->orderBy('poin_minimum', 'desc')
                   ->first();
     }
 
-    // Method untuk mendapatkan semua sanksi berdasarkan tingkat kelas
-    public static function getSanksiByTingkatKelas($tingkatKelas)
+    // Method untuk mendapatkan semua sanksi berdasarkan tingkat pelanggaran
+    public static function getSanksiByTingkatPelanggaran($tingkatPelanggaran)
     {
         return self::active()
-                  ->byTingkatKelas($tingkatKelas)
+                  ->byTingkatPelanggaran($tingkatPelanggaran)
                   ->orderBy('poin_minimum')
                   ->get();
     }
@@ -78,10 +77,16 @@ class SanksiPelanggaran extends Model
         return $this->poin_minimum . ' - ' . $this->poin_maksimum;
     }
 
-    // Accessor untuk mendapatkan tingkat kelas dalam format string
-    public function getTingkatKelasLabelAttribute()
+    // Accessor untuk mendapatkan tingkat pelanggaran dalam format string
+    public function getTingkatPelanggaranLabelAttribute()
     {
-        return 'Kelas ' . $this->tingkat_kelas;
+        $labels = [
+            'ringan' => 'Ringan',
+            'sedang' => 'Sedang', 
+            'berat' => 'Berat',
+            'sangat_berat' => 'Sangat Berat'
+        ];
+        return $labels[$this->tingkat_pelanggaran] ?? $this->tingkat_pelanggaran;
     }
 
     // Method untuk mendapatkan warna badge berdasarkan tingkat sanksi
@@ -98,13 +103,14 @@ class SanksiPelanggaran extends Model
         }
     }
 
-    // Method untuk mendapatkan daftar tingkat kelas yang tersedia
-    public static function getAvailableTingkatKelas()
+    // Method untuk mendapatkan daftar tingkat pelanggaran yang tersedia
+    public static function getAvailableTingkatPelanggaran()
     {
         return [
-            7 => 'Kelas VII',
-            8 => 'Kelas VIII', 
-            9 => 'Kelas IX'
+            'ringan' => 'Ringan',
+            'sedang' => 'Sedang',
+            'berat' => 'Berat',
+            'sangat_berat' => 'Sangat Berat'
         ];
     }
 

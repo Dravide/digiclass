@@ -60,9 +60,9 @@
                     <!-- Filters -->
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <select wire:model.live="filterTingkatKelas" class="form-select">
-                                <option value="">Semua Tingkat Kelas</option>
-                                @foreach($tingkatKelasOptions as $key => $label)
+                            <select wire:model.live="filterTingkatPelanggaran" class="form-select">
+                                <option value="">Semua Tingkat Pelanggaran</option>
+                                @foreach($tingkatPelanggaranOptions as $key => $label)
                                     <option value="{{ $key }}">{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -94,7 +94,7 @@
                         <table class="table table-striped table-bordered">
                             <thead class="table-dark">
                                 <tr>
-                                    <th width="10%">Tingkat Kelas</th>
+                                    <th width="10%">Tingkat Pelanggaran</th>
                                     <th width="12%">Rentang Poin</th>
                                     <th width="25%">Jenis Sanksi</th>
                                     <th width="25%">Deskripsi</th>
@@ -107,7 +107,7 @@
                                 @forelse($sanksiPerPage as $sanksi)
                                     <tr>
                                         <td>
-                                            <span class="badge bg-info">{{ $sanksi->tingkat_kelas_label }}</span>
+                                            <span class="badge bg-info">{{ $sanksi->tingkat_pelanggaran_label }}</span>
                                         </td>
                                         <td>
                                             <span class="badge bg-{{ $sanksi->badge_color }}">{{ $sanksi->rentang_poin }}</span>
@@ -189,15 +189,15 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="tingkat_kelas" class="form-label">Tingkat Kelas <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('tingkat_kelas') is-invalid @enderror" 
-                                                wire:model="tingkat_kelas" id="tingkat_kelas">
-                                            <option value="">Pilih Tingkat Kelas</option>
-                                            @foreach($tingkatKelasOptions as $key => $label)
+                                        <label for="tingkat_pelanggaran" class="form-label">Tingkat Pelanggaran <span class="text-danger">*</span></label>
+                                        <select class="form-select @error('tingkat_pelanggaran') is-invalid @enderror" 
+                                                wire:model="tingkat_pelanggaran" id="tingkat_pelanggaran">
+                                            <option value="">Pilih Tingkat Pelanggaran</option>
+                                            @foreach($tingkatPelanggaranOptions as $key => $label)
                                                 <option value="{{ $key }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
-                                        @error('tingkat_kelas')
+                                        @error('tingkat_pelanggaran')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
