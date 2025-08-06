@@ -36,16 +36,19 @@ class TataTertibSiswa extends Component
     {
         $this->kategoriPelanggarans = KategoriPelanggaran::with(['jenisPelanggaran' => function($query) {
             $query->where('is_active', true)
-                  ->where('poin_pelanggaran', 0)
                   ->orderBy('kode_pelanggaran');
         }])
         ->orderBy('kode_kategori')
-        ->get();
+        ->get()
+        ->filter(function($kategori) {
+            return $kategori->jenisPelanggaran->count() > 0;
+        })
+        ->values(); // Reset array keys after filtering
     }
     
     public function calculateTotalPages()
     {
-        // Hitung total halaman berdasarkan kategori + 1 halaman untuk pakta integritas
+        // Hitung total halaman berdasarkan kategori yang memiliki jenis pelanggaran + 1 halaman untuk pakta integritas
         $this->totalPages = $this->kategoriPelanggarans->count() + 1;
     }
     
@@ -59,6 +62,9 @@ class TataTertibSiswa extends Component
         if ($this->currentPage == $this->totalPages) {
             $this->showPaktaIntegritas = true;
         }
+        
+        // Scroll to top after page change
+        $this->dispatch('scroll-to-top');
     }
     
     public function prevPage()
@@ -67,6 +73,9 @@ class TataTertibSiswa extends Component
             $this->currentPage--;
             $this->showPaktaIntegritas = false;
         }
+        
+        // Scroll to top after page change
+        $this->dispatch('scroll-to-top');
     }
     
     public function checkPage($pageNumber)

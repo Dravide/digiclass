@@ -252,5 +252,16 @@
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 </style>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('scroll-to-top', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
 </div>
 
