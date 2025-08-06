@@ -48,8 +48,8 @@ class TataTertibSiswa extends Component
     
     public function calculateTotalPages()
     {
-        // Hitung total halaman berdasarkan kategori yang memiliki jenis pelanggaran + 1 halaman untuk pakta integritas
-        $this->totalPages = $this->kategoriPelanggarans->count() + 1;
+        // Hitung total halaman: 1 halaman instruksi + kategori yang memiliki jenis pelanggaran + 1 halaman untuk pakta integritas
+        $this->totalPages = 1 + $this->kategoriPelanggarans->count() + 1;
     }
     
     public function nextPage()
@@ -221,10 +221,16 @@ class TataTertibSiswa extends Component
     
     public function getCurrentKategori()
     {
-        if ($this->currentPage <= $this->kategoriPelanggarans->count()) {
-            return $this->kategoriPelanggarans[$this->currentPage - 1] ?? null;
+        // Halaman 1 adalah instruksi, halaman 2-n adalah kategori, halaman terakhir adalah pakta integritas
+        if ($this->currentPage > 1 && $this->currentPage <= ($this->kategoriPelanggarans->count() + 1)) {
+            return $this->kategoriPelanggarans[$this->currentPage - 2] ?? null;
         }
         return null;
+    }
+    
+    public function isInstructionPage()
+    {
+        return $this->currentPage == 1;
     }
     
     public function render()
@@ -232,6 +238,7 @@ class TataTertibSiswa extends Component
         return view('livewire.shared.tata-tertib-siswa', [
             'currentKategori' => $this->getCurrentKategori(),
             'isLastPage' => $this->currentPage == $this->totalPages,
+            'isInstructionPage' => $this->isInstructionPage(),
             'canProceed' => in_array($this->currentPage, $this->checkedPages) || $this->currentPage == $this->totalPages
         ])->layout('layouts.main');
     }

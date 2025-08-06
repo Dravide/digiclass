@@ -38,8 +38,10 @@
                     <h5 class="card-title text-white mb-0">
                         @if($isLastPage)
                             <i class="mdi mdi-file-document-outline me-2"></i>Pakta Integritas
+                        @elseif($isInstructionPage)
+                            <i class="mdi mdi-information-outline me-2"></i>Instruksi Tata Tertib Siswa
                         @else
-                            <i class="mdi mdi-book-open-page-variant me-2"></i>Halaman {{ $currentPage }} dari {{ $totalPages - 1 }}
+                            <i class="mdi mdi-book-open-page-variant me-2"></i>Halaman {{ $currentPage }} dari {{ $totalPages }}
                         @endif
                     </h5>
                 </div>
@@ -114,6 +116,71 @@
                                 </div>
                             @endif
                         @endif
+                    @elseif($isInstructionPage)
+                        <!-- Halaman Instruksi -->
+                        <div class="text-center mb-4">
+                            <i class="mdi mdi-information-outline text-primary" style="font-size: 4rem;"></i>
+                            <h3 class="text-primary mt-3">Selamat Datang di Tata Tertib Siswa</h3>
+                            <p class="lead">Silakan baca dengan seksama seluruh aturan dan ketentuan berikut</p>
+                        </div>
+                        
+                        <div class="alert alert-info border-start border-primary border-4">
+                            <h5><i class="mdi mdi-information me-2"></i>Petunjuk Penggunaan</h5>
+                            <ul class="mb-0">
+                                <li>Baca setiap halaman dengan teliti dan seksama</li>
+                                <li>Centang kotak konfirmasi di bagian bawah setiap halaman setelah selesai membaca</li>
+                                <li>Anda harus membaca semua halaman untuk dapat mengunduh Pakta Integritas</li>
+                                <li>Gunakan tombol "Selanjutnya" dan "Sebelumnya" untuk navigasi</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-start border-4 border-primary">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary"><i class="mdi mdi-book-open-page-variant me-2"></i>Apa yang akan Anda pelajari?</h6>
+                                        <ul class="mb-0">
+                                            <li>Kategori-kategori pelanggaran siswa</li>
+                                            <li>Jenis-jenis pelanggaran dalam setiap kategori</li>
+                                            <li>Tingkat pelanggaran dan poin yang diberikan</li>
+                                            <li>Sanksi yang berlaku untuk setiap pelanggaran</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-start border-4 border-success">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-success"><i class="mdi mdi-target me-2"></i>Tujuan Tata Tertib</h6>
+                                        <ul class="mb-0">
+                                            <li>Menciptakan lingkungan belajar yang kondusif</li>
+                                            <li>Membentuk karakter siswa yang disiplin</li>
+                                            <li>Memberikan panduan perilaku yang jelas</li>
+                                            <li>Menjaga ketertiban dan keamanan sekolah</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning border-start border-warning border-4">
+                             <h6><i class="mdi mdi-alert me-2"></i>Penting untuk Diingat</h6>
+                             <p class="mb-0">Setiap siswa wajib mematuhi tata tertib yang berlaku. Pelanggaran terhadap tata tertib akan dikenakan sanksi sesuai dengan tingkat dan jenis pelanggaran yang dilakukan. Pakta Integritas yang akan Anda unduh di akhir merupakan komitmen untuk mematuhi seluruh aturan yang telah ditetapkan.</p>
+                         </div>
+                         
+                         <!-- Checkbox untuk konfirmasi membaca halaman instruksi -->
+                         <div class="mt-4 p-3 bg-light rounded">
+                             <div class="form-check">
+                                 <input class="form-check-input" type="checkbox" 
+                                        wire:click="checkPage({{ $currentPage }})" 
+                                        @if(in_array($currentPage, $checkedPages)) checked @endif
+                                        id="readCheck{{ $currentPage }}">
+                                 <label class="form-check-label fw-bold" for="readCheck{{ $currentPage }}">
+                                     <i class="mdi mdi-check-circle text-success me-1"></i>
+                                     Saya telah membaca dan memahami instruksi tata tertib ini
+                                 </label>
+                             </div>
+                         </div>
                     @else
                         <!-- Tata Tertib Content -->
                         @if($currentKategori)
