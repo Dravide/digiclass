@@ -255,13 +255,14 @@
 
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <button type="button" class="btn btn-outline-primary" wire:click="editSiswa({{ $siswa->id }})" data-bs-toggle="modal" data-bs-target="#editModal">
+                                                <button type="button" class="btn btn-outline-primary" wire:click="editSiswa({{ $siswa->id }})" data-bs-toggle="modal" data-bs-target="#editModal" title="Edit Siswa">
                                                     <i class="ri-edit-line"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ $siswa->id }}, '{{ addslashes($siswa->nama_siswa) }}')">
+
+                                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ $siswa->id }}, '{{ addslashes($siswa->nama_siswa) }}')" title="Hapus Siswa">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
-                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -981,6 +982,8 @@
                     editModal.hide();
                 }
             });
+            
+
         });
         
 
@@ -1097,6 +1100,8 @@
                          clearTimeout(timeout);
                          func(...args);
                      };
+
+        // PDF generation is now handled server-side
                      clearTimeout(timeout);
                      timeout = setTimeout(later, wait);
                  };
@@ -1318,6 +1323,8 @@
                   });
               }, 2000);
           }
+          
+
     </script>
     @endpush
 </div>

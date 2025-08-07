@@ -87,8 +87,11 @@ class NotifikasiSanksiSiswa extends Component
                 return null;
             }
             
+            // Konversi tingkat kelas ke tingkat pelanggaran
+            $tingkatPelanggaran = $this->getTingkatPelanggaranByKelas($tingkatKelas);
+            
             // Cari sanksi yang sesuai
-            $sanksi = SanksiPelanggaran::getSanksiByPoin($tingkatKelas, $totalPoin);
+            $sanksi = SanksiPelanggaran::getSanksiByPoin($tingkatPelanggaran, $totalPoin);
             
             if (!$sanksi) {
                 return null;
@@ -132,7 +135,8 @@ class NotifikasiSanksiSiswa extends Component
         
         $currentKelas = $siswa->getCurrentKelas();
         $totalPoin = PelanggaranSiswa::getTotalPoinSiswa($siswa->id, $this->tahunPelajaranId);
-        $sanksi = SanksiPelanggaran::getSanksiByPoin($currentKelas->tingkat, $totalPoin);
+        $tingkatPelanggaran = $this->getTingkatPelanggaranByKelas($currentKelas->tingkat);
+        $sanksi = SanksiPelanggaran::getSanksiByPoin($tingkatPelanggaran, $totalPoin);
         
         $this->selectedSiswa = $siswa;
         $this->selectedSanksi = $sanksi;
@@ -194,5 +198,23 @@ class NotifikasiSanksiSiswa extends Component
             'perPage' => $perPage,
             'totalPages' => ceil($total / $perPage)
         ])->layout('layouts.app');
+    }
+    
+    /**
+     * Konversi tingkat kelas ke tingkat pelanggaran
+     * Mapping berdasarkan kebijakan sekolah:
+     * - Kelas 7-8: ringan
+     * - Kelas 9-10: sedang  
+     * - Kelas 11-12: berat
+     */
+    private function getTingkatPelanggaranByKelas($tingkatKelas)
+    {
+        if ($tingkatKelas <= 8) {
+            return 'ringan';
+        } elseif ($tingkatKelas <= 10) {
+            return 'sedang';
+        } else {
+            return 'berat';
+        }
     }
 }

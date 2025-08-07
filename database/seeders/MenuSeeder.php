@@ -149,6 +149,13 @@ class MenuSeeder extends Seeder
                     'icon' => 'ri-calendar-2-line',
                     'permission' => 'manage-jadwal',
                     'roles' => ['admin']
+                ],
+                [
+                    'title' => 'Magic Link & Kartu QR',
+                    'route' => 'magic-link-management',
+                    'icon' => 'ri-qr-code-line',
+                    'permission' => 'manage-siswa',
+                    'roles' => ['admin', 'bk']
                 ]
             ],
             'Manajemen Pelanggaran' => [

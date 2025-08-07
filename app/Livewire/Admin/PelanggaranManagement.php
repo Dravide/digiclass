@@ -50,6 +50,12 @@ class PelanggaranManagement extends Component
     public $kategoriPelanggarans;
     public $jenisPelanggarans = [];
     public $kelasList;
+    
+    // Properties untuk search siswa
+    public $siswaSearch = '';
+    public $filteredSiswaList = [];
+    public $selectedSiswaName = '';
+    public $selectedSiswaDetails = [];
 
     protected $rules = [
         'siswa_id' => 'required|exists:siswa,id',
@@ -108,6 +114,7 @@ class PelanggaranManagement extends Component
         $this->resetForm();
         $this->showModal = true;
         $this->editMode = false;
+        $this->dispatch('modalOpened');
     }
 
     public function editPelanggaran($id)
@@ -116,6 +123,11 @@ class PelanggaranManagement extends Component
         
         $this->selectedPelanggaran = $pelanggaran;
         $this->siswa_id = $pelanggaran->siswa_id;
+        $this->selectedSiswaName = $pelanggaran->siswa->nama_siswa;
+        $this->selectedSiswaDetails = [
+            'nis' => $pelanggaran->siswa->nis,
+            'kelas' => $pelanggaran->siswa->getCurrentKelas()?->nama_kelas ?? 'Tidak ada kelas'
+        ];
         $this->tahun_pelajaran_id = $pelanggaran->tahun_pelajaran_id;
         
         // Find the jenis pelanggaran and set kategori
@@ -138,6 +150,7 @@ class PelanggaranManagement extends Component
         
         $this->showModal = true;
         $this->editMode = true;
+        $this->dispatch('modalOpened');
     }
 
     public function savePelanggaran()
@@ -185,9 +198,68 @@ class PelanggaranManagement extends Component
 
     public function closeModal()
     {
+        $this->dispatch('modalClosed');
         $this->showModal = false;
         $this->showDetailModal = false;
         $this->resetForm();
+    }
+    
+    public function updatedSiswaSearch()
+    {
+        if (strlen($this->siswaSearch) >= 2) {
+            $this->filteredSiswaList = Siswa::active()
+                ->with(['kelasSiswa.kelas'])
+                ->where(function($query) {
+                    $query->where('nama_siswa', 'like', '%' . $this->siswaSearch . '%')
+                          ->orWhere('nis', 'like', '%' . $this->siswaSearch . '%');
+                })
+                ->orderBy('nama_siswa')
+                ->limit(15)
+                ->get();
+                
+            // Auto-select jika ada exact match
+            $exactMatch = $this->filteredSiswaList->firstWhere('nama_siswa', $this->siswaSearch);
+            if ($exactMatch) {
+                $this->selectSiswaFromSearch($exactMatch);
+            }
+        } else {
+            $this->filteredSiswaList = [];
+        }
+    }
+    
+    public function selectSiswaFromSearch($siswaData)
+    {
+        $this->siswa_id = $siswaData['id'];
+        $this->selectedSiswaName = $siswaData['nama_siswa'];
+        $this->selectedSiswaDetails = [
+            'nis' => $siswaData['nis'],
+            'kelas' => $siswaData['kelas']
+        ];
+        $this->siswaSearch = $siswaData['nama_siswa'];
+        $this->filteredSiswaList = [];
+    }
+    
+    public function clearSiswaSearch()
+    {
+        $this->siswaSearch = '';
+        $this->filteredSiswaList = [];
+    }
+    
+    public function selectSiswa($siswaId, $siswaName)
+    {
+        $this->siswa_id = $siswaId;
+        $this->selectedSiswaName = $siswaName;
+        $this->siswaSearch = '';
+        $this->filteredSiswaList = [];
+    }
+    
+    public function clearSiswaSelection()
+    {
+        $this->siswa_id = null;
+        $this->selectedSiswaName = '';
+        $this->selectedSiswaDetails = [];
+        $this->siswaSearch = '';
+        $this->filteredSiswaList = [];
     }
 
     public function resetForm()
@@ -204,6 +276,12 @@ class PelanggaranManagement extends Component
         $this->selectedPelanggaran = null;
         $this->jenisPelanggarans = [];
         $this->filterKategori = '';
+        
+        // Reset search siswa properties
+        $this->siswaSearch = '';
+        $this->filteredSiswaList = [];
+        $this->selectedSiswaName = '';
+        $this->selectedSiswaDetails = [];
     }
 
     public function resetFilters()

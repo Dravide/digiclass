@@ -20,6 +20,8 @@
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     <!-- Custom Styles -->
     <style>
@@ -88,6 +90,29 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
      <!-- SweetAlert2 JS -->
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+     <!-- Select2 JS -->
+     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+     <!-- jsPDF Library -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="console.log('jsPDF loaded successfully')" onerror="console.error('Failed to load jsPDF')"></script>
+     <!-- QRCode.js Library -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js" onload="console.log('QRCode loaded successfully')" onerror="console.error('Failed to load QRCode')"></script>
+     
+     <!-- Library verification script -->
+     <script>
+         window.addEventListener('load', function() {
+             console.log('Checking libraries availability:');
+             console.log('jsPDF available:', typeof jsPDF !== 'undefined' || (window.jspdf && window.jspdf.jsPDF));
+             console.log('QRCode available:', typeof QRCode !== 'undefined');
+             
+             // Global library check function
+             window.checkLibraries = function() {
+                 return {
+                     jsPDF: typeof jsPDF !== 'undefined' || (window.jspdf && window.jspdf.jsPDF),
+                     QRCode: typeof QRCode !== 'undefined'
+                 };
+             };
+         });
+     </script>
 
     
     @stack('scripts')

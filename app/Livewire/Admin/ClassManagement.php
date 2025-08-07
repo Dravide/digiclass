@@ -14,6 +14,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
+use Carbon\Carbon;
 
 class ClassManagement extends Component
 {
@@ -431,6 +435,12 @@ class ClassManagement extends Component
     }
 
     protected $listeners = ['deleteSiswa'];
+
+
+
+
+
+
 
     public function render()
     {

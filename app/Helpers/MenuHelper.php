@@ -93,6 +93,12 @@ class MenuHelper
                     'permission' => 'manage-perpustakaan'
                 ],
                 [
+                    'title' => 'Magic Link & Kartu QR',
+                    'route' => 'magic-link-management',
+                    'icon' => 'ri-qr-code-line',
+                    'permission' => 'manage-siswa'
+                ],
+                [
                     'title' => 'Jadwal Guru',
                     'route' => 'jadwal-management',
                     'icon' => 'ri-calendar-2-line',

@@ -45,6 +45,12 @@ class PelanggaranSiswa extends Model
         return $this->belongsTo(TahunPelajaran::class);
     }
 
+    // Relationship dengan jenis pelanggaran
+    public function jenisPelanggaran(): BelongsTo
+    {
+        return $this->belongsTo(JenisPelanggaran::class, 'jenis_pelanggaran', 'nama_pelanggaran');
+    }
+
     // Scope untuk pelanggaran berdasarkan tahun pelajaran aktif
     public function scopeActive($query)
     {

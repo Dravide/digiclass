@@ -17,9 +17,10 @@ Route::get('/cek-data-siswa', \App\Livewire\Shared\StudentCheckPage::class)->nam
 Route::get('/surat/validate/{id}', \App\Livewire\Shared\SuratValidation::class)->name('surat.validate');
 Route::get('/curhat-siswa-public', \App\Livewire\Shared\CurhatSiswaPublic::class)->name('curhat-siswa-public');
 Route::get('/tata-tertib-siswa', \App\Livewire\Shared\TataTertibSiswa::class)->name('tata-tertib-siswa');
+Route::get('/magic-link/{token}', \App\Livewire\Shared\MagicLinkPelanggaran::class)->name('magic-link-pelanggaran');
 
-
-
+// Magic Link Card PDF route (public access)
+Route::get('/generate-magic-link-card-pdf/{siswaId}', [\App\Http\Controllers\Admin\MagicLinkCardController::class, 'generatePDF'])->name('generate-magic-link-card-pdf');
 
 // Public Export routes
 Route::get('/download', \App\Livewire\Shared\DownloadPage::class)->name('download');

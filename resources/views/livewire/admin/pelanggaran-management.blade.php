@@ -248,22 +248,52 @@
                             <!-- Siswa -->
                             <div class="col-12 mb-3">
                                 <label class="form-label">Siswa *</label>
-                                <select wire:model="siswa_id" required class="form-select">
-                                    <option value="">Pilih Siswa</option>
-                                    @foreach($siswaList as $siswa)
-                                        <option value="{{ $siswa->id }}">
-                                            {{ $siswa->nama_siswa }} - {{ $siswa->nis }} 
-                                            ({{ $siswa->getCurrentKelas()?->nama_kelas ?? 'Tidak ada kelas' }})
+                                <div class="input-group">
+                                    <input type="text" 
+                                           wire:model.live.debounce.500ms="siswaSearch" 
+                                           class="form-control" 
+                                           placeholder="Ketik nama atau NIS siswa..."
+                                           list="siswaDatalist"
+                                           autocomplete="off">
+                                    <button class="btn btn-outline-secondary" type="button" wire:click="clearSiswaSearch">
+                                        <i class="ri-close-line"></i>
+                                    </button>
+                                </div>
+                                
+                                <datalist id="siswaDatalist">
+                                    @foreach($filteredSiswaList as $siswa)
+                                        <option value="{{ $siswa->nama_siswa }}" 
+                                                data-siswa-id="{{ $siswa->id }}"
+                                                data-nis="{{ $siswa->nis }}"
+                                                data-kelas="{{ $siswa->getCurrentKelas()?->nama_kelas ?? 'Tidak ada kelas' }}">
+                                            {{ $siswa->nama_siswa }} ({{ $siswa->nis }}) - {{ $siswa->getCurrentKelas()?->nama_kelas ?? 'Tidak ada kelas' }}
                                         </option>
                                     @endforeach
-                                </select>
-                                @error('siswa_id') <div class="text-danger small">{{ $message }}</div> @enderror
+                                </datalist>
+                                
+                                @if($selectedSiswaName)
+                                    <div class="mt-2">
+                                        <div class="alert alert-info py-2 mb-0">
+                                            <i class="ri-user-line me-2"></i>
+                                            <strong>{{ $selectedSiswaName }}</strong>
+                                            @if($selectedSiswaDetails)
+                                                <br><small class="text-muted">NIS: {{ $selectedSiswaDetails['nis'] }} | Kelas: {{ $selectedSiswaDetails['kelas'] }}</small>
+                                            @endif
+                                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" 
+                                                    wire:click="clearSiswaSelection">
+                                                <i class="ri-close-line"></i> Hapus
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                                
+                                @error('siswa_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <!-- Kategori Pelanggaran -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Kategori Pelanggaran *</label>
-                                <select wire:model.live="kategori_pelanggaran_id" required class="form-select">
+                                <select wire:model.live="kategori_pelanggaran_id" required class="form-select select2-kategori" id="kategori_pelanggaran_id">
                                     <option value="">Pilih Kategori</option>
                                     @foreach($kategoriPelanggarans as $kategori)
                                         <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
@@ -275,7 +305,7 @@
                             <!-- Jenis Pelanggaran -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Jenis Pelanggaran *</label>
-                                <select wire:model="jenis_pelanggaran_id" required class="form-select"
+                                <select wire:model="jenis_pelanggaran_id" required class="form-select select2-jenis" id="jenis_pelanggaran_id"
                                         {{ empty($jenisPelanggarans) ? 'disabled' : '' }}>
                                     <option value="">Pilih Jenis Pelanggaran</option>
                                     @foreach($jenisPelanggarans as $jenis)
@@ -486,3 +516,122 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Select2 to be available
+        function waitForSelect2(callback) {
+            if (typeof $.fn.select2 !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(function() {
+                    waitForSelect2(callback);
+                }, 100);
+            }
+        }
+        
+        // Handle datalist selection for siswa
+        function handleDatalistSelection() {
+            const siswaInput = document.querySelector('input[list="siswaDatalist"]');
+            if (siswaInput) {
+                siswaInput.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    const datalist = document.getElementById('siswaDatalist');
+                    const options = datalist.querySelectorAll('option');
+                    
+                    // Check if the input value matches any option
+                    for (let option of options) {
+                        if (option.value === value) {
+                            const siswaId = option.getAttribute('data-siswa-id');
+                            const siswaName = option.value;
+                            const siswaData = {
+                                id: siswaId,
+                                nama_siswa: siswaName,
+                                nis: option.getAttribute('data-nis'),
+                                kelas: option.getAttribute('data-kelas')
+                            };
+                            
+                            // Trigger Livewire method to select siswa
+                            @this.call('selectSiswaFromSearch', siswaData);
+                            break;
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Initialize Select2 when modal is shown
+        Livewire.on('modalOpened', function() {
+            waitForSelect2(function() {
+                initializeSelect2();
+            });
+            // Initialize datalist handler when modal opens
+            setTimeout(handleDatalistSelection, 100);
+        });
+        
+        function initializeSelect2() {
+            // Destroy existing Select2 instances first
+            if ($('#kategori_pelanggaran_id').hasClass('select2-hidden-accessible')) {
+                $('#kategori_pelanggaran_id').select2('destroy');
+            }
+            if ($('#jenis_pelanggaran_id').hasClass('select2-hidden-accessible')) {
+                $('#jenis_pelanggaran_id').select2('destroy');
+            }
+            
+            // Initialize Select2 for Kategori Pelanggaran
+            if ($('#kategori_pelanggaran_id').length) {
+                $('#kategori_pelanggaran_id').select2({
+                    placeholder: 'Pilih Kategori',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('.modal-content')
+                }).on('change', function() {
+                    var selectedValue = $(this).val();
+                    @this.set('kategori_pelanggaran_id', selectedValue);
+                });
+            }
+            
+            // Initialize Select2 for Jenis Pelanggaran
+            if ($('#jenis_pelanggaran_id').length) {
+                $('#jenis_pelanggaran_id').select2({
+                    placeholder: 'Pilih Jenis Pelanggaran',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('.modal-content')
+                }).on('change', function() {
+                    var selectedValue = $(this).val();
+                    @this.set('jenis_pelanggaran_id', selectedValue);
+                });
+            }
+        }
+        
+        // Destroy Select2 when modal is closed
+        Livewire.on('modalClosed', function() {
+            if ($('#kategori_pelanggaran_id').hasClass('select2-hidden-accessible')) {
+                $('#kategori_pelanggaran_id').select2('destroy');
+            }
+            if ($('#jenis_pelanggaran_id').hasClass('select2-hidden-accessible')) {
+                $('#jenis_pelanggaran_id').select2('destroy');
+            }
+        });
+        
+        // Reinitialize Select2 after Livewire updates
+        Livewire.hook('message.processed', (message, component) => {
+            if ($('#kategori_pelanggaran_id').length) {
+                waitForSelect2(function() {
+                    setTimeout(initializeSelect2, 300);
+                });
+            }
+            // Reinitialize datalist handler after Livewire updates
+            setTimeout(handleDatalistSelection, 100);
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+@endpush

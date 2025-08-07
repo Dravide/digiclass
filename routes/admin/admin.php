@@ -29,6 +29,7 @@ use App\Livewire\Admin\UserManagement;
 use App\Livewire\Admin\CurhatSiswaManagement;
 use App\Livewire\Admin\MenuManagement;
 use App\Livewire\Admin\PaktaIntegritasManagement;
+use App\Livewire\Admin\MagicLinkManagement;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
@@ -49,6 +50,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/user-management', UserManagement::class)->name('user-management');
     Route::get('/menu-management', MenuManagement::class)->name('menu-management');
     Route::get('/pakta-integritas-management', PaktaIntegritasManagement::class)->name('pakta-integritas-management');
+    Route::get('/magic-link-management', MagicLinkManagement::class)->name('magic-link-management');
     Route::get('/rekap-presensi', RekapPresensi::class)->name('rekap-presensi');
     Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
@@ -61,6 +63,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     // Export routes
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
     Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
+    
 });
 
 // Pelanggaran Management Routes (accessible by BK and Admin)
