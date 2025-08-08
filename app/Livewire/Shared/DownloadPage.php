@@ -53,7 +53,7 @@ class DownloadPage extends Component
     public function render()
     {
         $kelas = Kelas::with(['tahunPelajaran', 'guru'])->get();
-        $mataPelajaran = MataPelajaran::active()->get();
+        $mataPelajaran = MataPelajaran::active()->orderBy('nama_mapel')->get();
         
         // Ambil 5 siswa terbaru dengan keterangan pindahan
         $siswa_terbaru = Siswa::with(['tahunPelajaran', 'kelasSiswa.kelas'])
