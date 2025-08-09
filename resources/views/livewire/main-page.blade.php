@@ -135,6 +135,20 @@
             </div>
         </div>
 
+        <!-- Laporan Pelanggaran -->
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <i class="mdi mdi-alert-circle text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Laporan Pelanggaran</h5>
+                    <p class="card-text text-muted mb-4">Laporkan pelanggaran siswa dengan kode akses</p>
+                    <a href="{{ route('pelanggaran-report') }}" class="btn btn-danger px-4">Laporkan</a>
+                </div>
+            </div>
+        </div>
+
 
 
 

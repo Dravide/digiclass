@@ -6,6 +6,7 @@ use App\Livewire\Shared\RoleDashboard;
 use App\Livewire\Auth\Login;
 use App\Livewire\Shared\AnnouncementPage;
 use App\Livewire\Shared\MainPage;
+use App\Livewire\Shared\PelanggaranReport;
 use App\Livewire\HtmlEditor;
 
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,9 @@ Route::get('/generate-magic-link-card-pdf/{siswaId}', [\App\Http\Controllers\Adm
 
 // Public Export routes
 Route::get('/download', \App\Livewire\Shared\DownloadPage::class)->name('download');
+
+// Pelanggaran Report route (public with access code)
+Route::get('/pelanggaran-report', PelanggaranReport::class)->name('pelanggaran-report');
 Route::get('/public-export/daftar-hadir', [App\Http\Controllers\PublicExportController::class, 'exportDaftarHadir'])->name('public-export.daftar-hadir');
 Route::get('/public-export/daftar-nilai', [App\Http\Controllers\PublicExportController::class, 'exportDaftarNilai'])->name('public-export.daftar-nilai');
 Route::get('/api/kelas', [App\Http\Controllers\PublicExportController::class, 'getKelas'])->name('api.kelas');
