@@ -57,6 +57,8 @@ class PelanggaranManagement extends Component
     public $selectedSiswaName = '';
     public $selectedSiswaDetails = [];
 
+    protected $paginationTheme = 'bootstrap';
+
     protected $rules = [
         'siswa_id' => 'required|exists:siswa,id',
         'kategori_pelanggaran_id' => 'required|exists:kategori_pelanggaran,id',
@@ -95,6 +97,32 @@ class PelanggaranManagement extends Component
             $this->jenisPelanggarans = [];
         }
         $this->jenis_pelanggaran_id = null;
+        $this->resetPage();
+    }
+
+    public function updatedFilterKelas()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterTanggalMulai()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterTanggalSelesai()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
     public function updatedKategoriPelanggaranId()
@@ -403,9 +431,9 @@ class PelanggaranManagement extends Component
             ];
         });
 
-        // Convert to paginated collection
-        $currentPage = request()->get('page', 1);
+        // Convert to paginated collection using Livewire pagination
         $perPage = 10;
+        $currentPage = $this->getPage();
         $currentItems = $groupedPelanggarans->slice(($currentPage - 1) * $perPage, $perPage);
         
         $paginatedSiswa = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -413,8 +441,14 @@ class PelanggaranManagement extends Component
             $groupedPelanggarans->count(),
             $perPage,
             $currentPage,
-            ['path' => request()->url(), 'pageName' => 'page']
+            [
+                'path' => request()->url(),
+                'pageName' => 'page'
+            ]
         );
+        
+        // Append query parameters to pagination links
+        $paginatedSiswa->appends(request()->query());
 
         // Get siswa list for dropdown
         $siswaList = Siswa::active()
