@@ -45,6 +45,11 @@ class RolePermissionSeeder extends Seeder
             
             // Library management
             'manage-perpustakaan',
+            'manage-library-books',
+            'manage-library-borrowing',
+            'manage-library-staff',
+            'view-library-reports',
+            'manage-library-attendance',
             
             // Reports and statistics
             'view-reports',
@@ -213,5 +218,30 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $bkUser->assignRole('bk');
+
+        // Petugas Perpustakaan Role - Library management permissions
+        $petugasPerpustakaanRole = Role::firstOrCreate(['name' => 'petugas_perpustakaan']);
+        $petugasPerpustakaanRole->syncPermissions([
+            'view-dashboard',
+            'manage-library-books',
+            'manage-library-borrowing',
+            'manage-library-staff',
+            'view-library-reports',
+            'manage-library-attendance',
+            'manage-perpustakaan',
+            'view-reports',
+            'export-data',
+        ]);
+
+        // Create sample petugas perpustakaan user
+        $petugasPerpustakaanUser = User::firstOrCreate(
+            ['email' => 'perpustakaan@digiclass.com'],
+            [
+                'name' => 'Petugas Perpustakaan',
+                'password' => Hash::make('perpustakaan123'),
+                'role' => 'petugas_perpustakaan'
+            ]
+        );
+        $petugasPerpustakaanUser->assignRole('petugas_perpustakaan');
     }
 }

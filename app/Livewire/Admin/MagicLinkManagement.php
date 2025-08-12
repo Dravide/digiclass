@@ -89,6 +89,73 @@ class MagicLinkManagement extends Component
         }
     }
 
+    public function downloadMagicLinksByClass($kelasId)
+    {
+        try {
+            $kelas = \App\Models\Kelas::with(['guru', 'tahunPelajaran'])->find($kelasId);
+            if (!$kelas) {
+                $this->dispatch('magic-link-error', 'Kelas tidak ditemukan.');
+                return;
+            }
+
+            // Get students in this class
+            $siswaList = Siswa::whereHas('kelasSiswa', function ($q) use ($kelasId) {
+                $q->where('kelas_id', $kelasId);
+            })
+            ->where('status', 'aktif')
+            ->orderBy('nama_siswa', 'asc')
+            ->get();
+
+            if ($siswaList->isEmpty()) {
+                $this->dispatch('magic-link-error', 'Tidak ada siswa aktif di kelas ini.');
+                return;
+            }
+
+            // Generate magic links for all students
+            $magicLinksData = [];
+            foreach ($siswaList as $siswa) {
+                $token = hash('sha256', 'magic_link_' . $siswa->id . '_2026');
+                $expiresAt = \Carbon\Carbon::create(2026, 7, 1, 23, 59, 59);
+                
+                // Store in cache
+                cache()->put("magic_link_{$token}", [
+                    'siswa_id' => $siswa->id,
+                    'type' => 'violation_form',
+                    'expires_at' => $expiresAt
+                ], $expiresAt);
+
+                $magicLinksData[] = [
+                    'nama_siswa' => $siswa->nama_siswa,
+                    'nis' => $siswa->nis,
+                    'nisn' => $siswa->nisn,
+                    'magic_link' => route('magic-link-pelanggaran', ['token' => $token])
+                ];
+            }
+
+            // Generate PDF content
+            $pdf = Pdf::loadView('exports.magic-links-pdf', [
+                'kelas' => $kelas,
+                'siswaList' => $magicLinksData,
+                'tanggal' => date('d/m/Y')
+            ]);
+
+            // Generate filename
+            $fileName = 'magic-links-' . str_replace(' ', '-', strtolower($kelas->nama_kelas)) . '-' . date('Y-m-d') . '.pdf';
+
+            // Dispatch download event
+            $this->dispatch('download-pdf', [
+                'content' => base64_encode($pdf->output()),
+                'filename' => $fileName
+            ]);
+
+            $this->dispatch('magic-link-success', "Magic links untuk kelas {$kelas->nama_kelas} berhasil diunduh!");
+
+        } catch (\Exception $e) {
+            Log::error('Error in downloadMagicLinksByClass: ' . $e->getMessage());
+            $this->dispatch('magic-link-error', 'Gagal mengunduh magic links: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
         $query = Siswa::with(['tahunPelajaran', 'kelasSiswa.kelas.guru'])
@@ -106,8 +173,7 @@ class MagicLinkManagement extends Component
         // Apply class filter
         if ($this->filterKelas) {
             $query->whereHas('kelasSiswa', function ($q) {
-                $q->where('kelas_id', $this->filterKelas)
-                  ->where('is_active', true);
+                $q->where('kelas_id', $this->filterKelas);
             });
         }
 

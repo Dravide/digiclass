@@ -30,6 +30,10 @@ use App\Livewire\Admin\CurhatSiswaManagement;
 use App\Livewire\Admin\MenuManagement;
 use App\Livewire\Admin\PaktaIntegritasManagement;
 use App\Livewire\Admin\MagicLinkManagement;
+use App\Livewire\Admin\LibraryDashboard;
+use App\Livewire\Admin\LibraryBookManagement;
+use App\Livewire\Admin\LibraryBorrowingManagement;
+use App\Livewire\Admin\LibraryAttendanceManagement;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
@@ -64,6 +68,15 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
     Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
     
+});
+
+// Library Management Routes
+Route::middleware(['auth.custom', 'permission:manage-library-books,manage-library-borrowing,manage-library-staff,view-library-reports,manage-library-attendance'])->group(function () {
+    Route::get('/library/dashboard', LibraryDashboard::class)->name('admin.library.dashboard');
+    Route::get('/library/books', LibraryBookManagement::class)->name('admin.library.books');
+    Route::get('/library/borrowings', LibraryBorrowingManagement::class)->name('admin.library.borrowings');
+    Route::get('/library/attendance', LibraryAttendanceManagement::class)->name('admin.library.attendance');
+    Route::get('/library/reports', LibraryDashboard::class)->name('admin.library.reports'); // Using dashboard for now
 });
 
 // Pelanggaran Management Routes (accessible by BK and Admin)

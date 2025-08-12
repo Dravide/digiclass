@@ -254,16 +254,63 @@ class PresensiPage extends Component
         }
     }
 
+    public function markAllPresent()
+    {
+        if (!$this->selectedJadwal) {
+            $this->showAlertMessage('error', 'Pilih jadwal terlebih dahulu!');
+            return;
+        }
+
+        try {
+            $updated = 0;
+            foreach ($this->presensiList as $presensi) {
+                if ($presensi->status === 'alpha' || !$presensi->jam_masuk) {
+                    $presensi->update([
+                        'status' => 'hadir',
+                        'jam_masuk' => Carbon::now('Asia/Jakarta')->format('H:i'),
+                        'keterangan' => 'Presensi massal oleh guru'
+                    ]);
+                    $updated++;
+                }
+            }
+
+            $this->loadPresensiByDate();
+            $this->showAlertMessage('success', "Berhasil menandai {$updated} siswa sebagai hadir!");
+        } catch (\Exception $e) {
+            $this->showAlertMessage('error', 'Gagal melakukan presensi massal: ' . $e->getMessage());
+        }
+    }
+
     public function render()
     {
+        // Hitung statistik presensi
+        $totalPresensi = count($this->presensiList);
+        $totalHadir = collect($this->presensiList)->where('status', 'hadir')->count();
+        $totalTerlambat = collect($this->presensiList)->where('status', 'terlambat')->count();
+        $totalAlpha = collect($this->presensiList)->where('status', 'alpha')->count();
+        $totalIzin = collect($this->presensiList)->where('status', 'izin')->count();
+        $totalSakit = collect($this->presensiList)->where('status', 'sakit')->count();
+        $totalDispensasi = collect($this->presensiList)->where('status', 'dispensasi')->count();
+
+        // Pisahkan siswa berdasarkan status presensi
+        $sudahPresensi = collect($this->presensiList)->filter(function($presensi) {
+            return $presensi->status !== 'alpha' && $presensi->jam_masuk;
+        });
+        
+        $belumPresensi = collect($this->presensiList)->filter(function($presensi) {
+            return $presensi->status === 'alpha' || !$presensi->jam_masuk;
+        });
+
         return view('livewire.admin.presensi-page', [
-            'totalPresensi' => count($this->presensiList),
-            'totalHadir' => collect($this->presensiList)->where('status', 'hadir')->count(),
-            'totalTerlambat' => collect($this->presensiList)->where('status', 'terlambat')->count(),
-            'totalIzin' => collect($this->presensiList)->where('status', 'izin')->count(),
-            'totalSakit' => collect($this->presensiList)->where('status', 'sakit')->count(),
-            'totalDispensasi' => collect($this->presensiList)->where('status', 'dispensasi')->count(),
-            'totalAlpha' => collect($this->presensiList)->where('status', 'alpha')->count(),
+            'totalPresensi' => $totalPresensi,
+            'totalHadir' => $totalHadir,
+            'totalTerlambat' => $totalTerlambat,
+            'totalAlpha' => $totalAlpha,
+            'totalIzin' => $totalIzin,
+            'totalSakit' => $totalSakit,
+            'totalDispensasi' => $totalDispensasi,
+            'sudahPresensi' => $sudahPresensi,
+            'belumPresensi' => $belumPresensi,
         ])->layout('layouts.app');
     }
 }

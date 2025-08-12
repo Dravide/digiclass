@@ -139,6 +139,33 @@ class MenuHelper
                 ]
             ];
             
+            $menuItems['Manajemen Perpustakaan'] = [
+                [
+                    'title' => 'Dashboard Perpustakaan',
+                    'route' => 'admin.library.dashboard',
+                    'icon' => 'ri-dashboard-3-line',
+                    'permission' => 'manage-library-books'
+                ],
+                [
+                    'title' => 'Manajemen Buku',
+                    'route' => 'admin.library.books',
+                    'icon' => 'ri-book-2-line',
+                    'permission' => 'manage-library-books'
+                ],
+                [
+                    'title' => 'Peminjaman Buku',
+                    'route' => 'admin.library.borrowings',
+                    'icon' => 'ri-book-mark-line',
+                    'permission' => 'manage-library-borrowing'
+                ],
+                [
+                    'title' => 'Kehadiran Perpustakaan',
+                    'route' => 'admin.library.attendance',
+                    'icon' => 'ri-user-check-line',
+                    'permission' => 'manage-library-attendance'
+                ]
+            ];
+            
             $menuItems['Bimbingan Konseling'] = [
                 [
                     'title' => 'Curhat Siswa',

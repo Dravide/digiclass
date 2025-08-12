@@ -131,9 +131,16 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <div class="text-muted small">
-                                Total: {{ $siswaList->total() }} siswa
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center gap-2">
+                                @if($filterKelas)
+                                    <button type="button" class="btn btn-success btn-sm" wire:click="downloadMagicLinksByClass({{ $filterKelas }})" title="Unduh Magic Links untuk Kelas Terpilih">
+                                        <i class="ri-download-line me-1"></i> Unduh Data Kelas
+                                    </button>
+                                @endif
+                                <div class="text-muted small">
+                                    Total: {{ $siswaList->total() }} siswa
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -228,7 +235,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <h6 class="text-primary">Magic Link</h6>
                             <ul class="list-unstyled">
                                 <li><i class="ri-check-line text-success me-2"></i>Link akses langsung untuk pelaporan pelanggaran</li>
@@ -237,13 +244,22 @@
                                 <li><i class="ri-check-line text-success me-2"></i>Aman dengan token unik untuk setiap siswa</li>
                             </ul>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <h6 class="text-success">Kartu QR</h6>
                             <ul class="list-unstyled">
                                 <li><i class="ri-check-line text-success me-2"></i>Format surat keterangan akun dengan QR Code</li>
                                 <li><i class="ri-check-line text-success me-2"></i>Dapat dicetak dan dibagikan secara fisik</li>
                                 <li><i class="ri-check-line text-success me-2"></i>Berisi informasi lengkap siswa</li>
                                 <li><i class="ri-check-line text-success me-2"></i>QR Code dapat di-scan untuk akses langsung</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-info">Unduh Data Kelas</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="ri-check-line text-success me-2"></i>Unduh magic links semua siswa dalam satu kelas</li>
+                                <li><i class="ri-check-line text-success me-2"></i>Format PDF untuk kemudahan distribusi</li>
+                                <li><i class="ri-check-line text-success me-2"></i>Dapat dibagikan kepada wali kelas</li>
+                                <li><i class="ri-check-line text-success me-2"></i>Pilih kelas terlebih dahulu untuk mengaktifkan tombol</li>
                             </ul>
                         </div>
                     </div>
@@ -332,6 +348,32 @@
                 title: 'Gagal membuat Magic Link!',
                 text: message || 'Terjadi kesalahan tidak diketahui'
             });
+        });
+
+        Livewire.on('magic-link-success', (message) => {
+            Toast.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: message
+            });
+        });
+
+        Livewire.on('download-pdf', (data) => {
+            const byteCharacters = atob(data.content);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', data.filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     });
 
