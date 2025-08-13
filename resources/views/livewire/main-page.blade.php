@@ -14,7 +14,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-login text-primary" style="font-size: 4rem;"></i>
+                        <i class="fas fa-sign-in-alt text-primary" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Login</h5>
                     <p class="card-text text-muted mb-4">Masuk ke sistem untuk mengakses fitur lengkap</p>
@@ -28,7 +28,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-bullhorn text-warning" style="font-size: 4rem;"></i>
+                        <i class="fas fa-bullhorn text-warning" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Pengumuman Kelas</h5>
                     <p class="card-text text-muted mb-4">Lihat pengumuman kelas terbaru dari sekolah</p>
@@ -42,7 +42,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-school text-info" style="font-size: 4rem;"></i>
+                        <i class="fas fa-graduation-cap text-info" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Daftar Nilai dan Hadir</h5>
                     <p class="card-text text-muted mb-4">Unduh Daftar Nilai dan Daftar Siswa PDF</p>
@@ -56,7 +56,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-library text-success" style="font-size: 4rem;"></i>
+                        <i class="fas fa-book text-success" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Perpustakaan</h5>
                     <p class="card-text text-muted mb-4">Sistem manajemen perpustakaan digital</p>
@@ -70,7 +70,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-laptop text-primary" style="font-size: 4rem;"></i>
+                        <i class="fas fa-laptop text-primary" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">E-Learning</h5>
                     <p class="card-text text-muted mb-4">Platform pembelajaran online</p>
@@ -84,7 +84,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-qrcode-scan text-warning" style="font-size: 4rem;"></i>
+                        <i class="fas fa-qrcode text-warning" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Presensi Siswa</h5>
                     <p class="card-text text-muted mb-4">Sistem presensi dengan QR Code Scanner</p>
@@ -98,7 +98,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-account-search text-info" style="font-size: 4rem;"></i>
+                        <i class="fas fa-user-check text-info" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Cek Data Siswa</h5>
                     <p class="card-text text-muted mb-4">Cek kehadiran dan nilai dengan NIS & NISN</p>
@@ -112,7 +112,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-chat-heart text-danger" style="font-size: 4rem;"></i>
+                        <i class="fas fa-heart text-danger" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Curhat BK</h5>
                     <p class="card-text text-muted mb-4">Layanan konseling dan curhat untuk siswa</p>
@@ -126,7 +126,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-book-open-variant text-primary" style="font-size: 4rem;"></i>
+                        <i class="fas fa-book-open text-primary" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Tata Tertib Siswa</h5>
                     <p class="card-text text-muted mb-4">Baca tata tertib sekolah dan unduh pakta integritas</p>
@@ -140,7 +140,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-alert-circle text-danger" style="font-size: 4rem;"></i>
+                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Laporan Pelanggaran</h5>
                     <p class="card-text text-muted mb-4">Laporkan pelanggaran siswa dengan kode akses</p>
@@ -158,7 +158,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-file-document text-info" style="font-size: 4rem;"></i>
+                        <i class="fas fa-file-alt text-info" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Nilai & Rapor</h5>
                     <p class="card-text text-muted mb-4">Sistem penilaian dan rapor digital</p>
@@ -172,7 +172,7 @@
             <div class="card h-100 shadow-sm border-0 hover-card">
                 <div class="card-body text-center p-4">
                     <div class="mb-4">
-                        <i class="mdi mdi-message-text text-success" style="font-size: 4rem;"></i>
+                        <i class="fas fa-comments text-success" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Komunikasi</h5>
                     <p class="card-text text-muted mb-4">Platform komunikasi guru, siswa, dan orang tua</p>
@@ -194,17 +194,17 @@
                 </p>
                 <div class="row g-4">
                     <div class="col-md-4">
-                        <i class="mdi mdi-shield-check text-success mb-2" style="font-size: 2.5rem;"></i>
+                        <i class="fas fa-shield-alt text-success mb-2" style="font-size: 2.5rem;"></i>
                         <h6 class="fw-bold">Aman & Terpercaya</h6>
                         <p class="text-muted small mb-0">Data terlindungi dengan sistem keamanan terbaik</p>
                     </div>
                     <div class="col-md-4">
-                        <i class="mdi mdi-responsive text-primary mb-2" style="font-size: 2.5rem;"></i>
+                        <i class="fas fa-mobile-alt text-primary mb-2" style="font-size: 2.5rem;"></i>
                         <h6 class="fw-bold">Responsif</h6>
                         <p class="text-muted small mb-0">Dapat diakses dari berbagai perangkat</p>
                     </div>
                     <div class="col-md-4">
-                        <i class="mdi mdi-clock-fast text-warning mb-2" style="font-size: 2.5rem;"></i>
+                        <i class="fas fa-bolt text-warning mb-2" style="font-size: 2.5rem;"></i>
                         <h6 class="fw-bold">Efisien</h6>
                         <p class="text-muted small mb-0">Mempercepat proses administrasi sekolah</p>
                     </div>
