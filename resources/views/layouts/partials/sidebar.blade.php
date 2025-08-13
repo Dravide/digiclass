@@ -38,6 +38,10 @@
                     <li class="menu-title">{{ $section }}</li>
                     
                     @foreach($items as $item)
+                        @if(isset($item['permission']) && !auth()->user()->can($item['permission']))
+                            @continue
+                        @endif
+                        
                         @if(isset($item['submenu']))
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -46,7 +50,14 @@
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     @foreach($item['submenu'] as $subitem)
-                                        <li><a href="{{ isset($subitem['route']) ? route($subitem['route']) : '#' }}">{{ $subitem['title'] }}</a></li>
+                                        @if(isset($subitem['permission']) && !auth()->user()->can($subitem['permission']))
+                                            @continue
+                                        @endif
+                                        <li>
+                                            <a href="{{ isset($subitem['route']) ? route($subitem['route']) : '#' }}">
+                                                {{ $subitem['title'] }}
+                                            </a>
+                                        </li>
                                     @endforeach
                                 </ul>
                             </li>
@@ -60,8 +71,6 @@
                         @endif
                     @endforeach
                 @endforeach
-
-
             </ul>
         </div>
         <!-- Sidebar -->
