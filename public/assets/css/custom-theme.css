@@ -1,0 +1,253 @@
+/* DigiClass Custom Theme - Blue Gradient Colors */
+/* Based on uploaded image color scheme */
+
+:root {
+    /* Primary Colors - Blue Gradient Theme */
+    --primary-color: #4a90a4;
+    --primary-dark: #2c5f75;
+    --primary-light: #6ba3b5;
+    --primary-lighter: #a8c8d1;
+    --primary-lightest: #e3f0f3;
+    
+    /* Secondary Colors */
+    --secondary-color: #5a7a8a;
+    --secondary-dark: #3d5259;
+    --secondary-light: #7a9aaa;
+    
+    /* Accent Colors */
+    --accent-blue: #4a90a4;
+    --accent-teal: #5aa4b4;
+    --accent-navy: #2c4a5f;
+    
+    /* Status Colors */
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    
+    /* Neutral Colors */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --gray: #6c757d;
+    --dark-gray: #495057;
+    --dark: #343a40;
+}
+
+/* Override Bootstrap Primary Colors */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent-navy) 100%);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(74, 144, 164, 0.3);
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 164, 0.5);
+}
+
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active {
+    background-color: var(--accent-navy);
+    border-color: var(--accent-navy);
+}
+
+/* Outline Primary Button */
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+}
+
+/* Light Buttons */
+.btn-outline-light {
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--white);
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+/* Card Enhancements */
+.card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(74, 144, 164, 0.15) !important;
+}
+
+/* Header Styling */
+header.bg-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 50%, var(--accent-navy) 100%) !important;
+    box-shadow: 0 4px 12px rgba(74, 144, 164, 0.2);
+}
+
+/* Navigation Enhancements */
+.btn-group .btn {
+    border-radius: 6px;
+    margin: 0 2px;
+}
+
+/* Icon Colors */
+.text-primary i {
+    color: var(--primary-color) !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--primary-dark);
+    text-decoration: none;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 164, 0.25);
+}
+
+/* Badges */
+.badge-primary {
+    background-color: var(--primary-color);
+}
+
+/* Progress Bars */
+.progress-bar {
+    background-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+}
+
+/* Alerts */
+.alert-primary {
+    color: var(--primary-dark);
+    background-color: var(--primary-lightest);
+    border-color: var(--primary-lighter);
+}
+
+/* Tables */
+.table-primary {
+    background-color: var(--primary-lightest);
+}
+
+.table-primary th,
+.table-primary td,
+.table-primary thead th {
+    border-color: var(--primary-lighter);
+}
+
+/* Custom Gradient Backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
+}
+
+.bg-gradient-blue {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-teal) 100%) !important;
+}
+
+/* Shadow Utilities */
+.shadow-primary {
+    box-shadow: 0 4px 12px rgba(74, 144, 164, 0.15) !important;
+}
+
+.shadow-primary-lg {
+    box-shadow: 0 8px 24px rgba(74, 144, 164, 0.2) !important;
+}
+
+/* Text Shadows */
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(44, 74, 95, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn-group .btn {
+        margin: 2px 0;
+        display: block;
+        width: 100%;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-4px);
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Loading States */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

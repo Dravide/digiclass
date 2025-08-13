@@ -7,6 +7,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Sistem Manajemen Kelas Digital" name="description" />
     <meta content="DigiClass" name="author" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="digiclass, manajemen kelas digital, sistem sekolah, SMPN 1 Cipanas, pendidikan digital, e-learning, presensi online, perpustakaan digital">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Indonesian">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="@yield('title', 'DigiClass - Manajemen Kelas Digital')">
+    <meta property="og:description" content="Sistem Manajemen Kelas Digital SMPN 1 Cipanas - Platform terpadu untuk mengelola kegiatan akademik, presensi, perpustakaan digital, dan komunikasi sekolah.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('assets/images/logo-dark.png') }}">
+    <meta property="og:image:alt" content="Logo DigiClass SMPN 1 Cipanas">
+    <meta property="og:site_name" content="DigiClass">
+    <meta property="og:locale" content="id_ID">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', 'DigiClass - Manajemen Kelas Digital')">
+    <meta name="twitter:description" content="Sistem Manajemen Kelas Digital SMPN 1 Cipanas - Platform terpadu untuk mengelola kegiatan akademik, presensi, perpustakaan digital, dan komunikasi sekolah.">
+    <meta name="twitter:image" content="{{ asset('assets/images/logo-dark.png') }}">
+    <meta name="twitter:image:alt" content="Logo DigiClass SMPN 1 Cipanas">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="application-name" content="DigiClass">
+    <meta name="apple-mobile-web-app-title" content="DigiClass">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url()->current() }}">
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 
@@ -18,6 +54,8 @@
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <!-- Custom Theme Css -->
+    <link href="{{ asset('assets/css/custom-theme.css') }}" rel="stylesheet" type="text/css" />
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
     <!-- Select2 CSS -->
