@@ -134,7 +134,7 @@ Jika Anda menemukan kerentanan keamanan dalam DigiClass, silakan kirim email ke 
 Untuk dukungan teknis dan pertanyaan:
 - **Email**: [support@smpn1cipanas.sch.id](mailto:support@smpn1cipanas.sch.id)
 - **Website**: [https://digiclass.smpn1cipanas.sch.id](https://digiclass.smpn1cipanas.sch.id)
-- **Alamat**: SMPN 1 Cipanas, Jl. Raya Cipanas, Cianjur, Jawa Barat
+- **Alamat**: SMPN 1 Cipanas, Jl. SMP No.67 SDL, Cianas, Cianjur, Jawa Barat
 
 ## Lisensi
 

@@ -51,31 +51,16 @@
     <!-- Begin page -->
     <div class="min-vh-100">
         <!-- Header with Logo -->
-        <header class="bg-primary shadow-sm py-3 mb-4">
+        <header class="bg-white shadow-sm py-3 mb-4">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-12 text-center">
-                        <img src="{{ asset('assets/cropped-Logo-SMPN-1-Cipanas-2024.png') }}" 
+                        <img src="{{ asset('assets/images/logo-dark.png') }}" 
                              alt="Logo SMPN 1 Cipanas" 
-                             class="img-fluid" 
-                             style="max-height: 80px;">
-                        <h4 class="mt-2 mb-0 text-white fw-bold">DigiClass</h4>
-                        <p class="text-white small mb-0">Sistem Manajemen Kelas Digital</p>
+                             class="img-fluid my-3" 
+                             style="max-height: 60px;">
                         
-                        <!-- Navigation Menu -->
-                        <div class="mt-3">
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('main-page') }}" class="btn btn-outline-light btn-sm">
-                                    <i class="fas fa-home me-1"></i> Beranda
-                                </a>
-                                <a href="{{ route('tata-tertib-siswa') }}" class="btn btn-outline-light btn-sm">
-                                    <i class="fas fa-book me-1"></i> Tata Tertib
-                                </a>
-                                <a href="{{ route('curhat-siswa-public') }}" class="btn btn-outline-light btn-sm">
-                                    <i class="fas fa-comments me-1"></i> Curhat Siswa
-                                </a>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
