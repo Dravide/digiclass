@@ -166,6 +166,6 @@ class StudentCheckPage extends Component
     public function render()
     {
         return view('livewire.student-check-page')
-            ->layout('layouts.public', ['title' => 'Cek Data Siswa - DigiClass']);
+            ->layout('layouts.main', ['title' => 'Cek Data Siswa - DigiClass']);
     }
 }

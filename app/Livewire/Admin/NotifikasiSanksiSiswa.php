@@ -9,6 +9,8 @@ use App\Models\PelanggaranSiswa;
 use App\Models\SanksiPelanggaran;
 use App\Models\TahunPelajaran;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class NotifikasiSanksiSiswa extends Component
 {
@@ -22,6 +24,14 @@ class NotifikasiSanksiSiswa extends Component
     public $selectedSiswa = null;
     public $selectedSanksi = null;
     public $catatan = '';
+    
+    // Properties for manual PDF generation
+    public $showManualModal = false;
+    public $manualSiswaId = null;
+    public $manualJenisSP = '1';
+    public $manualNomorSurat = '';
+    public $manualPelanggaran = [];
+    public $manualSanksi = '';
     
     protected $paginationTheme = 'bootstrap';
     
@@ -152,6 +162,38 @@ class NotifikasiSanksiSiswa extends Component
         $this->catatan = '';
     }
     
+    public function openManualModal()
+    {
+        $this->showManualModal = true;
+        $this->resetManualForm();
+    }
+    
+    public function closeManualModal()
+    {
+        $this->showManualModal = false;
+        $this->resetManualForm();
+    }
+    
+    private function resetManualForm()
+    {
+        $this->manualSiswaId = null;
+        $this->manualJenisSP = '1';
+        $this->manualNomorSurat = '';
+        $this->manualPelanggaran = [];
+        $this->manualSanksi = '';
+    }
+    
+    public function addManualPelanggaran()
+    {
+        $this->manualPelanggaran[] = '';
+    }
+    
+    public function removeManualPelanggaran($index)
+    {
+        unset($this->manualPelanggaran[$index]);
+        $this->manualPelanggaran = array_values($this->manualPelanggaran);
+    }
+    
     public function updateStatusPenanganan($status)
     {
         if (!$this->selectedSiswa) {
@@ -176,6 +218,114 @@ class NotifikasiSanksiSiswa extends Component
         $this->closeModal();
     }
     
+    // Generate PDF Otomatis (berdasarkan data pelanggaran siswa)
+    public function generatePDF($siswaId, $jenisSP)
+    {
+        $siswa = Siswa::find($siswaId);
+        if (!$siswa) {
+            session()->flash('error', 'Siswa tidak ditemukan!');
+            return;
+        }
+        
+        $currentKelas = $siswa->getCurrentKelas();
+        $totalPoin = PelanggaranSiswa::getTotalPoinSiswa($siswa->id, $this->tahunPelajaranId);
+        
+        // Ambil data pelanggaran siswa
+        $pelanggaranList = PelanggaranSiswa::with(['jenisPelanggaran'])
+            ->where('siswa_id', $siswa->id)
+            ->where('tahun_pelajaran_id', $this->tahunPelajaranId)
+            ->orderBy('tanggal_pelanggaran', 'desc')
+            ->get();
+            
+        $tingkatPelanggaran = $this->getTingkatPelanggaranByKelas($currentKelas->tingkat);
+        $sanksi = SanksiPelanggaran::getSanksiByPoin($tingkatPelanggaran, $totalPoin);
+        
+        // Data untuk PDF
+        $data = [
+            'siswa' => $siswa,
+            'kelas' => $currentKelas,
+            'totalPoin' => $totalPoin,
+            'pelanggaranList' => $pelanggaranList,
+            'sanksi' => $sanksi,
+            'jenisSP' => $jenisSP,
+            'tanggalSurat' => Carbon::now()->locale('id')->translatedFormat('d F Y'),
+            'nomorSurat' => $this->generateNomorSurat($jenisSP),
+            'isManual' => false
+        ];
+        
+        $pdf = Pdf::loadView('exports.surat-peringatan', $data)
+            ->setPaper('a4', 'portrait');
+            
+        $filename = "SP{$jenisSP}_{$siswa->nama_siswa}_{$currentKelas->nama_kelas}_" . date('Y-m-d') . ".pdf";
+        
+        return response()->streamDownload(function() use ($pdf) {
+            echo $pdf->output();
+        }, $filename);
+    }
+    
+    // Generate PDF Manual (input data manual)
+    public function generateManualPDF()
+    {
+        $this->validate([
+            'manualSiswaId' => 'required|exists:siswa,id',
+            'manualJenisSP' => 'required|in:1,2,3',
+            'manualNomorSurat' => 'required|string|max:100',
+            'manualSanksi' => 'required|string|max:500'
+        ]);
+        
+        $siswa = Siswa::find($this->manualSiswaId);
+        $currentKelas = $siswa->getCurrentKelas();
+        
+        // Data untuk PDF Manual
+        $data = [
+            'siswa' => $siswa,
+            'kelas' => $currentKelas,
+            'totalPoin' => 0, // Manual tidak menggunakan poin otomatis
+            'pelanggaranList' => collect(), // Manual tidak menggunakan pelanggaran otomatis
+            'sanksi' => (object) ['deskripsi_sanksi' => $this->manualSanksi],
+            'jenisSP' => $this->manualJenisSP,
+            'tanggalSurat' => Carbon::now()->locale('id')->translatedFormat('d F Y'),
+            'nomorSurat' => $this->manualNomorSurat,
+            'isManual' => true,
+            'manualPelanggaran' => $this->manualPelanggaran
+        ];
+        
+        $pdf = Pdf::loadView('exports.surat-peringatan', $data)
+            ->setPaper('a4', 'portrait');
+            
+        $filename = "SP{$this->manualJenisSP}_Manual_{$siswa->nama_siswa}_{$currentKelas->nama_kelas}_" . date('Y-m-d') . ".pdf";
+        
+        $this->closeManualModal();
+        session()->flash('message', 'PDF berhasil dibuat!');
+        
+        return response()->streamDownload(function() use ($pdf) {
+            echo $pdf->output();
+        }, $filename);
+    }
+    
+    // Get list of students for dropdown
+    public function getAllSiswa()
+    {
+        if (!$this->tahunPelajaranId) {
+            return collect();
+        }
+        
+        return Siswa::with(['kelasSiswa.kelas'])
+            ->where('tahun_pelajaran_id', $this->tahunPelajaranId)
+            ->where('status', Siswa::STATUS_AKTIF)
+            ->orderBy('nama_siswa')
+            ->get();
+    }
+    
+    private function generateNomorSurat($jenisSP)
+    {
+        $tahun = date('Y');
+        $bulan = date('m');
+        $urutan = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        
+        return "420/{$urutan}/SMPN1Cipanas/{$tahun}";
+    }
+    
     public function render()
     {
         $siswaData = $this->getSiswaYangPerluDitangani();
@@ -188,11 +338,13 @@ class NotifikasiSanksiSiswa extends Component
         
         $tahunPelajarans = TahunPelajaran::orderBy('tanggal_mulai', 'desc')->get();
         $tingkatKelasList = [7, 8, 9];
+        $allSiswa = $this->getAllSiswa();
         
         return view('livewire.admin.notifikasi-sanksi-siswa', [
             'siswaData' => $items,
             'tahunPelajarans' => $tahunPelajarans,
             'tingkatKelasList' => $tingkatKelasList,
+            'allSiswa' => $allSiswa,
             'total' => $total,
             'currentPage' => $currentPage,
             'perPage' => $perPage,

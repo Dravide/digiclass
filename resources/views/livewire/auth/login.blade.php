@@ -1,13 +1,7 @@
-<div class="card my-auto overflow-hidden">
-    <div class="row g-0">
-        <div class="col-lg-6">
-            <div class="bg-overlay bg-primary"></div>
-            <div class="h-100 bg-auth align-items-end">
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            <div class="p-lg-5 p-4">
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
                 <div>
                     <div class="text-center mt-1">
                         <h4 class="font-size-18">Selamat Datang Kembali!</h4>
@@ -103,4 +97,3 @@
         </div>
     </div>
 </div>
-<!-- end card -->

@@ -1,30 +1,22 @@
-<div class="card my-auto overflow-hidden">
-    <div class="row g-0">
-        <div class="col-lg-6">
-            <div class="bg-overlay bg-primary"></div>
-            <div class="h-100 bg-auth align-items-end d-flex">
-                <div class="p-5 text-white">
-                    <h2 class="mb-3">Selamat Datang di DigiClass</h2>
-                    <p class="mb-4">Sistem informasi manajemen kelas digital yang memudahkan siswa untuk mengetahui informasi kelas dan bergabung dengan grup WhatsApp kelas.</p>
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-sm me-3">
-                            <span class="avatar-title rounded-circle bg-white bg-opacity-20">
-                                <i class="ri-graduation-cap-line font-size-20"></i>
-                            </span>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Cek Kelas Anda</h6>
-                            <p class="mb-0 opacity-75">Masukkan NIS untuk melihat informasi kelas</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card">
+                <div class="card-body p-4">
+                     <!-- Header Section -->
+                     <div class="text-center mb-4">
+                         <div class="mb-3">
+                             <div class="avatar-lg mx-auto">
+                                 <span class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                     <i class="ri-graduation-cap-line font-size-24"></i>
+                                 </span>
+                             </div>
+                         </div>
+                         <h4 class="mb-2">Selamat Datang di DigiClass</h4>
+                         <p class="text-muted mb-0">Sistem informasi manajemen kelas digital yang memudahkan siswa untuk mengetahui informasi kelas dan bergabung dengan grup WhatsApp kelas.</p>
+                     </div>
 
-        <div class="col-lg-6">
-            <div class="p-lg-5 p-4">
-                <div>
-                    <!-- Countdown Timer -->
+                     <!-- Countdown Timer -->
                     <div class="text-center mb-4">
                         <div class="card border-0 bg-light">
                             <div class="card-body py-3">
@@ -168,12 +160,8 @@
                     @endif
                     </div>
                 </div>
-            
-                {{-- <div class="mt-4 text-center">
-                    <p class="mb-0">Sudah punya akses admin? <a href="{{ route('login') }}" class="fw-medium text-primary">Login di sini</a></p>
-                </div> --}}
             </div>
-        </div>  
+        </div>
     </div>
 </div>
 

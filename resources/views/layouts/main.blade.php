@@ -87,16 +87,18 @@
 
 <body class="bg-light">
     <!-- Begin page -->
-    <div class="min-vh-100">
-        <!-- Header with Logo -->
-        <header class="bg-white shadow-sm py-3 mb-4">
+    <div class="d-flex flex-column min-vh-100">
+        <!-- Header with Logo - Fixed/Floating -->
+        <header class="bg-white shadow-sm py-3 position-fixed w-100" style="top: 0; z-index: 1030;">
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-12 text-center">
-                        <img src="{{ asset('assets/images/logo-dark.png') }}" 
-                             alt="Logo SMPN 1 Cipanas" 
-                             class="img-fluid my-3" 
-                             style="max-height: 60px;">
+                        <a href="{{ url('/') }}" class="text-decoration-none">
+                            <img src="{{ asset('assets/images/logo-dark.png') }}" 
+                                 alt="Logo SMPN 1 Cipanas" 
+                                 class="img-fluid my-3" 
+                                 style="max-height: 60px;">
+                        </a>
                         
 
                     </div>
@@ -104,14 +106,53 @@
             </div>
         </header>
         
-        <!-- Main Content -->
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-12">
-                    {{ $slot }}
+        <!-- Main Content with top padding to account for fixed header -->
+        <main class="flex-grow-1" style="padding-top: 140px; padding-bottom: 60px;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        {{ $slot }}
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
+        
+        <!-- Footer - Always at bottom -->
+        <footer class="bg-white border-top py-4 mt-auto">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-center mb-3 mb-lg-0">
+                            <img src="{{ asset('assets/images/logo-dark.png') }}" 
+                                 alt="Logo SMPN 1 Cipanas" 
+                                 class="me-3" 
+                                 style="max-height: 40px;">
+                            <div>
+                                <h6 class="mb-1 text-dark">SMPN 1 Cipanas</h6>
+                                <p class="text-muted mb-0 small">Sistem Manajemen Kelas Digital</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="text-lg-end">
+                            <p class="text-muted mb-2 small">
+                                <i class="ri-map-pin-line me-1"></i>
+                                Jl. Raya Cipanas No. 123, Cipanas, Cianjur, Jawa Barat
+                            </p>
+                            <p class="text-muted mb-2 small">
+                                <i class="ri-phone-line me-1"></i>
+                                (0263) 123456 | 
+                                <i class="ri-mail-line me-1"></i>
+                                info@smpn1cipanas.sch.id
+                            </p>
+                            <p class="text-muted mb-0 small">
+                                © {{ date('Y') }} DigiClass. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
     <!-- END page -->
 

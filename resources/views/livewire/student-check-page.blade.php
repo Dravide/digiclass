@@ -1,8 +1,10 @@
 @section('title', 'Cek Data Siswa')
 
-<div>
-    <div class="card">
-        <div class="card-body">
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card">
+                <div class="card-body">
             <div class="text-center mb-4">
                 <h4 class="card-title">Cek Data Siswa</h4>
                 <p class="card-title-desc">Masukkan NIS dan NISN untuk melihat data presensi dan nilai</p>
@@ -48,6 +50,8 @@
                     </button>
                 </div>
             </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -258,4 +262,6 @@
             </small>
         </div>
     @endif
+        </div>
+    </div>
 </div>

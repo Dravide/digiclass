@@ -18,6 +18,9 @@
                     <p class="text-muted mb-0">Daftar siswa yang poin pelanggarannya mencapai batas sanksi</p>
                 </div>
                 <div class="col-auto">
+                    <button wire:click="openManualModal" class="btn btn-primary btn-sm me-2">
+                        <i class="mdi mdi-file-plus"></i> Generate Manual
+                    </button>
                     <span class="badge bg-warning fs-6">
                         Total: {{ $total }} siswa
                     </span>
@@ -118,10 +121,38 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-primary" 
-                                            wire:click="showDetailSiswa({{ $data->siswa->id }})">
-                                        <i class="mdi mdi-eye"></i> Detail
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                wire:click="showDetailSiswa({{ $data->siswa->id }})">
+                                            <i class="mdi mdi-eye"></i> Detail
+                                        </button>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-success dropdown-toggle" 
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-file-pdf"></i> PDF
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" 
+                                                       wire:click="generatePDF({{ $data->siswa->id }}, '1')">
+                                                        <i class="mdi mdi-file-pdf text-danger me-2"></i>SP1 - Teguran
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" 
+                                                       wire:click="generatePDF({{ $data->siswa->id }}, '2')">
+                                                        <i class="mdi mdi-file-pdf text-warning me-2"></i>SP2 - Tindakan
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" 
+                                                       wire:click="generatePDF({{ $data->siswa->id }}, '3')">
+                                                        <i class="mdi mdi-file-pdf text-danger me-2"></i>SP3 - Sanksi Tegas
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -249,18 +280,126 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" wire:click="closeModal">Tutup</button>
-                        <button type="button" class="btn btn-info" 
-                                wire:click="updateStatusPenanganan('dalam_proses')">
-                            <i class="mdi mdi-clock-outline"></i> Dalam Proses
-                        </button>
-                        <button type="button" class="btn btn-success" 
-                                wire:click="updateStatusPenanganan('selesai')">
-                            <i class="mdi mdi-check-circle"></i> Selesai
-                        </button>
+                        <div class="me-auto">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-danger" 
+                                        wire:click="generatePDF({{ $selectedSiswa?->id }}, '1')">
+                                    <i class="mdi mdi-file-pdf"></i> SP1
+                                </button>
+                                <button type="button" class="btn btn-outline-warning" 
+                                        wire:click="generatePDF({{ $selectedSiswa?->id }}, '2')">
+                                    <i class="mdi mdi-file-pdf"></i> SP2
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        wire:click="generatePDF({{ $selectedSiswa?->id }}, '3')">
+                                    <i class="mdi mdi-file-pdf"></i> SP3
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-secondary" wire:click="closeModal">Tutup</button>
+                            <button type="button" class="btn btn-info" 
+                                    wire:click="updateStatusPenanganan('dalam_proses')">
+                                <i class="mdi mdi-clock-outline"></i> Dalam Proses
+                            </button>
+                            <button type="button" class="btn btn-success" 
+                                    wire:click="updateStatusPenanganan('selesai')">
+                                <i class="mdi mdi-check-circle"></i> Selesai
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    @endif
+        @endif
+        
+        <!-- Manual PDF Generation Modal -->
+        @if($showManualModal)
+            <div class="modal fade show" style="display: block;" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="mdi mdi-file-plus text-primary me-2"></i>
+                                Generate PDF Manual
+                            </h5>
+                            <button type="button" class="btn-close" wire:click="closeManualModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form wire:submit.prevent="generateManualPDF">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Pilih Siswa <span class="text-danger">*</span></label>
+                                            <select wire:model="manualSiswaId" class="form-select" required>
+                                                 <option value="">-- Pilih Siswa --</option>
+                                                 @foreach($allSiswa as $siswa)
+                                                     <option value="{{ $siswa->id }}">
+                                                         {{ $siswa->nama_siswa }} - {{ $siswa->getCurrentKelas()?->nama_kelas }}
+                                                     </option>
+                                                 @endforeach
+                                             </select>
+                                            @error('manualSiswaId') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Jenis Surat <span class="text-danger">*</span></label>
+                                            <select wire:model="manualJenisSP" class="form-select" required>
+                                                <option value="1">SP1 - Surat Peringatan Pertama</option>
+                                                <option value="2">SP2 - Surat Peringatan Kedua</option>
+                                                <option value="3">SP3 - Surat Peringatan Ketiga</option>
+                                            </select>
+                                            @error('manualJenisSP') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Nomor Surat <span class="text-danger">*</span></label>
+                                    <input type="text" wire:model="manualNomorSurat" class="form-control" 
+                                           placeholder="Contoh: 420/271/SMPN1Cipanas/2024" required>
+                                    <small class="text-muted">Format: 420/[nomor urut]/SMPN1Cipanas/[tahun]</small>
+                                    @error('manualNomorSurat') <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Deskripsi Sanksi <span class="text-danger">*</span></label>
+                                    <textarea wire:model="manualSanksi" class="form-control" rows="4" 
+                                              placeholder="Masukkan deskripsi sanksi yang diberikan..." required></textarea>
+                                    @error('manualSanksi') <span class="text-danger small">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div class="mb-3">
+                                     <label class="form-label">Pelanggaran (Opsional)</label>
+                                     <div id="pelanggaran-container">
+                                         @foreach($manualPelanggaran as $index => $pelanggaran)
+                                             <div class="input-group mb-2">
+                                                 <input type="text" wire:model="manualPelanggaran.{{ $index }}" 
+                                                        class="form-control" placeholder="Masukkan pelanggaran...">
+                                                 <button type="button" class="btn btn-outline-danger" 
+                                                         wire:click="removeManualPelanggaran({{ $index }})">
+                                                     <i class="mdi mdi-close"></i>
+                                                 </button>
+                                             </div>
+                                         @endforeach
+                                     </div>
+                                     <button type="button" class="btn btn-outline-primary btn-sm" 
+                                             wire:click="addManualPelanggaran">
+                                         <i class="mdi mdi-plus"></i> Tambah Pelanggaran
+                                     </button>
+                                 </div>
+                                
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" wire:click="closeManualModal">Batal</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="mdi mdi-download"></i> Generate PDF
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
 </div>
