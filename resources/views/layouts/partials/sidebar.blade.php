@@ -1,4 +1,34 @@
 <!-- ========== Left Sidebar Start ========== -->
+<style>
+    /* Custom styling for active sidebar links with higher specificity */
+    .vertical-menu #sidebar-menu .metismenu li.mm-active > a,
+    .vertical-menu #sidebar-menu .metismenu li a.mm-active {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+        color: #667eea !important;
+        border-radius: 6px !important;
+        margin: 2px 8px !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    .vertical-menu #sidebar-menu .metismenu li.mm-active > a i,
+    .vertical-menu #sidebar-menu .metismenu li a.mm-active i {
+        color: #667eea !important;
+    }
+    
+    /* Remove default active styles */
+    .vertical-menu #sidebar-menu .metismenu li.mm-active > a::before,
+    .vertical-menu #sidebar-menu .metismenu li a.mm-active::before {
+        display: none !important;
+    }
+    
+    /* Hover effect for non-active items */
+    .vertical-menu #sidebar-menu .metismenu li a:hover:not(.mm-active) {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+        border-radius: 6px !important;
+        margin: 2px 8px !important;
+    }
+</style>
 <div class="vertical-menu">
     <!-- LOGO -->
     <div class="navbar-brand-box">

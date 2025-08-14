@@ -57,7 +57,7 @@
     @livewireStyles
 </head>
 
-<body data-sidebar="dark">
+<body data-sidebar="light">
     <!-- Begin page -->
     <div id="layout-wrapper">
         
