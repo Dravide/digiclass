@@ -69,6 +69,12 @@ class MenuHelper
                     'permission' => 'manage-guru'
                 ],
                 [
+                    'title' => 'Data Tata Usaha',
+                    'route' => 'tata-usaha-management',
+                    'icon' => 'ri-user-settings-line',
+                    'permission' => 'manage-tata-usaha'
+                ],
+                [
                     'title' => 'Data Kelas',
                     'route' => 'kelas-management',
                     'icon' => 'ri-building-line',
@@ -189,6 +195,12 @@ class MenuHelper
                     'permission' => 'view-presensi'
                 ],
                 [
+                    'title' => 'Pengaturan Jam Presensi',
+                    'route' => 'pengaturan-jam-presensi',
+                    'icon' => 'ri-time-line',
+                    'permission' => 'manage-users'
+                ],
+                [
                     'title' => 'Manajemen Tugas',
                     'route' => 'tugas-management',
                     'icon' => 'ri-task-line',
@@ -249,10 +261,27 @@ class MenuHelper
                     ]
                 ]
             ];
+            
+            $menuItems['Keamanan'] = [
+                [
+                    'title' => 'Generator Secure Code',
+                    'route' => 'secure-code-generator',
+                    'icon' => 'ri-key-2-line',
+                    'permission' => 'generate-secure-code'
+                ],
+                [
+                    'title' => 'Presensi QR Code',
+                    'route' => 'presensi-qr',
+                    'icon' => 'ri-qr-scan-2-line',
+                    'permission' => 'scan-qr-presensi'
+                ]
+            ];
         }
 
         // Guru Menu Items
         if ($user->hasRole('guru')) {
+
+            
             $menuItems['Pengajaran'] = [
                 [
                     'title' => 'Kelas Saya',
@@ -309,6 +338,16 @@ class MenuHelper
                     'permission' => 'view-reports'
                 ]
             ];
+            
+            $menuItems['Presensi'] = [
+                [
+                    'title' => 'Presensi QR Code',
+                    'route' => 'presensi-qr',
+                    'icon' => 'ri-qr-scan-2-line',
+                    'permission' => 'scan-qr-presensi'
+                ]
+            ];
+            
         }
 
         // Siswa Menu Items
@@ -392,6 +431,7 @@ class MenuHelper
 
         // Tata Usaha Menu Items
         if ($user->hasRole('tata_usaha')) {
+            
             $menuItems['Pengaturan Dasar'] = [
                 [
                     'title' => 'Tahun Pelajaran',
@@ -458,6 +498,15 @@ class MenuHelper
                     'route' => 'statistik-management',
                     'icon' => 'ri-bar-chart-line',
                     'permission' => 'view-statistics'
+                ]
+            ];
+            
+            $menuItems['Presensi'] = [
+                [
+                    'title' => 'Presensi QR Code',
+                    'route' => 'presensi-qr',
+                    'icon' => 'ri-qr-scan-2-line',
+                    'permission' => 'scan-qr-presensi'
                 ]
             ];
         }

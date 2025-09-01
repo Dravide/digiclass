@@ -17,7 +17,8 @@ class Guru extends Model
         'email',
         'telepon',
         'is_wali_kelas',
-        'mata_pelajaran_id'
+        'mata_pelajaran_id',
+        'qr_token'
     ];
 
     protected $casts = [
@@ -71,5 +72,28 @@ class Guru extends Model
     public function scopeBukanWaliKelas($query)
     {
         return $query->where('is_wali_kelas', false);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->qr_token)) {
+                $model->qr_token = self::generateNumericToken(20);
+            }
+        });
+    }
+
+    public static function generateNumericToken(int $length = 20): string
+    {
+        do {
+            $token = '';
+            for ($i = 0; $i < $length; $i++) {
+                $token .= (string) random_int(0, 9);
+            }
+        } while (self::where('qr_token', $token)->exists());
+
+        return $token;
     }
 }

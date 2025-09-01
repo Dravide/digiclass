@@ -34,6 +34,7 @@ class RolePermissionSeeder extends Seeder
             'manage-kelas',
             'manage-siswa',
             'manage-guru',
+            'manage-tata-usaha',
             
             // Academic operations
             'manage-jadwal',
@@ -83,6 +84,10 @@ class RolePermissionSeeder extends Seeder
             'manage-administrative-data',
             'process-documents',
             'manage-student-records',
+            
+            // Security
+            'generate-secure-code',
+            'scan-qr-presensi',
         ];
 
         foreach ($permissions as $permission) {
@@ -138,6 +143,7 @@ class RolePermissionSeeder extends Seeder
             'manage-kelas',
             'manage-siswa',
             'manage-guru',
+            'manage-tata-usaha',
             'manage-perpustakaan',
             'manage-administrative-data',
             'process-documents',

@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\OperatorMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role.redirect' => \App\Http\Middleware\RoleRedirect::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -87,7 +87,7 @@
                         <i class="fas fa-qrcode text-warning" style="font-size: 4rem;"></i>
                     </div>
                     <h5 class="card-title fw-bold">Presensi Siswa</h5>
-                    <p class="card-text text-muted mb-4">Sistem presensi dengan QR Code Scanner</p>
+                    <p class="card-text text-muted mb-4">Sistem presensi siswa</p>
                     <a href="{{ route('presensi') }}" class="btn btn-warning px-4">Akses</a>
                 </div>
             </div>

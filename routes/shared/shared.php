@@ -8,6 +8,10 @@ use App\Livewire\Shared\AnnouncementPage;
 use App\Livewire\Shared\MainPage;
 use App\Livewire\Shared\PelanggaranReport;
 use App\Livewire\HtmlEditor;
+use App\Livewire\Shared\QRGenerator;
+use App\Livewire\Shared\QRScanner;
+use App\Livewire\Shared\SecureCodeGenerator;
+use App\Livewire\Shared\QrPresensi;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -30,6 +34,8 @@ Route::get('/download', \App\Livewire\Shared\DownloadPage::class)->name('downloa
 Route::get('/pelanggaran-report', PelanggaranReport::class)->name('pelanggaran-report');
 Route::get('/public-export/daftar-hadir', [App\Http\Controllers\PublicExportController::class, 'exportDaftarHadir'])->name('public-export.daftar-hadir');
 Route::get('/public-export/daftar-nilai', [App\Http\Controllers\PublicExportController::class, 'exportDaftarNilai'])->name('public-export.daftar-nilai');
+Route::get('/public-export/daftar-hadir-excel', [App\Http\Controllers\PublicExportController::class, 'exportDaftarHadirExcel'])->name('public-export.daftar-hadir-excel');
+Route::get('/public-export/daftar-nilai-excel', [App\Http\Controllers\PublicExportController::class, 'exportDaftarNilaiExcel'])->name('public-export.daftar-nilai-excel');
 Route::get('/api/kelas', [App\Http\Controllers\PublicExportController::class, 'getKelas'])->name('api.kelas');
 Route::get('/api/mata-pelajaran', [App\Http\Controllers\PublicExportController::class, 'getMataPelajaran'])->name('api.mata-pelajaran');
 
@@ -49,7 +55,19 @@ Route::post('/logout', function () {
 // Protected routes (for authenticated users)
 Route::middleware('auth.custom')->group(function () {
     Route::get('/dashboard', RoleDashboard::class)->name('dashboard');
+    
+    // Secure Code Generator (admin only)
+    Route::get('/secure-code-generator', SecureCodeGenerator::class)
+        ->name('secure-code-generator')
+        ->middleware('role:admin');
+    
+    // Route lain yang memerlukan auth
 });
+
+// QR Presensi - Akses tanpa login dengan kode akses
+Route::get('/presensi-qr', QrPresensi::class)->name('presensi-qr');
+
+
 
 // Redirect root to main page
 Route::get('/', function () {

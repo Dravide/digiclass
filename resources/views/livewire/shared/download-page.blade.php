@@ -54,8 +54,11 @@
                                 @error('selectedYear') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-primary">
-                                <i class="mdi mdi-download me-1"></i> Download Daftar Hadir
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="mdi mdi-file-pdf me-1"></i> Download PDF
+                            </button>
+                            <button type="button" wire:click="downloadDaftarHadirExcel" class="btn btn-success">
+                                <i class="mdi mdi-file-excel me-1"></i> Download Excel
                             </button>
                         </form>
                     </div>
@@ -92,8 +95,11 @@
                                 @error('selectedMataPelajaran') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
 
-                            <button type="submit" class="btn btn-success">
-                                <i class="mdi mdi-download me-1"></i> Download Daftar Nilai
+                            <button type="submit" class="btn btn-success me-2">
+                                <i class="mdi mdi-file-pdf me-1"></i> Download PDF
+                            </button>
+                            <button type="button" wire:click="downloadDaftarNilaiExcel" class="btn btn-primary">
+                                <i class="mdi mdi-file-excel me-1"></i> Download Excel
                             </button>
                         </form>
                     </div>

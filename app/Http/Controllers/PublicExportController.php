@@ -9,6 +9,9 @@ use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DaftarHadirExport;
+use App\Exports\DaftarNilaiExport;
 
 class PublicExportController extends Controller
 {
@@ -177,5 +180,70 @@ class PublicExportController extends Controller
         }
         
         return $tanggalList;
+    }
+
+    public function exportDaftarHadirExcel(Request $request)
+    {
+        $kelasId = $request->get('kelas_id');
+        $bulan = (int) $request->get('bulan', date('n'));
+        $tahun = (int) $request->get('tahun', date('Y'));
+        
+        // Validasi input
+        if (!$kelasId) {
+            return response()->json(['error' => 'Kelas harus dipilih'], 400);
+        }
+        
+        // Validasi bulan (1-12)
+        if ($bulan < 1 || $bulan > 12) {
+            return response()->json(['error' => 'Bulan tidak valid. Harus antara 1-12'], 400);
+        }
+        
+        // Ambil data kelas
+        $kelas = Kelas::with(['guru', 'tahunPelajaran'])->find($kelasId);
+        if (!$kelas) {
+            return response()->json(['error' => 'Kelas tidak ditemukan'], 404);
+        }
+        
+        // Nama bulan dalam bahasa Indonesia
+        $namaBulan = [
+            1 => 'JANUARI', 2 => 'FEBRUARI', 3 => 'MARET', 4 => 'APRIL',
+            5 => 'MEI', 6 => 'JUNI', 7 => 'JULI', 8 => 'AGUSTUS',
+            9 => 'SEPTEMBER', 10 => 'OKTOBER', 11 => 'NOVEMBER', 12 => 'DESEMBER'
+        ];
+        
+        $filename = 'Daftar_Hadir_' . $kelas->nama_kelas . '_' . $namaBulan[$bulan] . '_' . $tahun . '.xlsx';
+        
+        return Excel::download(new DaftarHadirExport($kelasId, $bulan, $tahun), $filename);
+    }
+    
+    public function exportDaftarNilaiExcel(Request $request)
+    {
+        $kelasId = $request->get('kelas_id');
+        $mataPelajaranId = $request->get('mata_pelajaran_id');
+        
+        // Validasi input
+        if (!$kelasId) {
+            return response()->json(['error' => 'Kelas harus dipilih'], 400);
+        }
+        
+        if (!$mataPelajaranId) {
+            return response()->json(['error' => 'Mata pelajaran harus dipilih'], 400);
+        }
+        
+        // Ambil data kelas
+        $kelas = Kelas::with(['tahunPelajaran', 'guru'])->find($kelasId);
+        if (!$kelas) {
+            return response()->json(['error' => 'Kelas tidak ditemukan'], 404);
+        }
+        
+        // Ambil mata pelajaran
+        $mataPelajaran = MataPelajaran::find($mataPelajaranId);
+        if (!$mataPelajaran) {
+            return response()->json(['error' => 'Mata pelajaran tidak ditemukan'], 404);
+        }
+        
+        $filename = 'Daftar_Nilai_' . $kelas->nama_kelas . '_' . $mataPelajaran->kode_mapel . '_' . date('Y-m-d') . '.xlsx';
+        
+        return Excel::download(new DaftarNilaiExport($kelasId, $mataPelajaranId), $filename);
     }
 }

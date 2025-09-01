@@ -50,6 +50,34 @@ class DownloadPage extends Component
         ]);
     }
     
+    public function downloadDaftarHadirExcel()
+    {
+        $this->validate([
+            'selectedKelas' => 'required',
+            'selectedMonth' => 'required',
+            'selectedYear' => 'required'
+        ]);
+        
+        return redirect()->route('public-export.daftar-hadir-excel', [
+            'kelas_id' => $this->selectedKelas,
+            'bulan' => $this->selectedMonth,
+            'tahun' => $this->selectedYear
+        ]);
+    }
+    
+    public function downloadDaftarNilaiExcel()
+    {
+        $this->validate([
+            'selectedKelas' => 'required',
+            'selectedMataPelajaran' => 'required'
+        ]);
+        
+        return redirect()->route('public-export.daftar-nilai-excel', [
+            'kelas_id' => $this->selectedKelas,
+            'mata_pelajaran_id' => $this->selectedMataPelajaran
+        ]);
+    }
+    
     public function render()
     {
         $kelas = Kelas::with(['tahunPelajaran', 'guru'])->get();
