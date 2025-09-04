@@ -178,7 +178,7 @@
                                                     </div>
                                                     <h6 class="mb-1 text-warning fw-bold">Pengaturan Belum Dikonfigurasi</h6>
                                                     <p class="text-muted small mb-2">Jam presensi untuk hari {{ \App\Models\JamPresensi::getNamaHariIni() }} belum diatur.</p>
-                                                    <a href="{{ route('admin.pengaturan-jam-presensi') }}" class="btn btn-warning btn-sm">
+                                                    <a href="{{ route('pengaturan-jam-presensi') }}" class="btn btn-warning btn-sm">
                                                         <i class="mdi mdi-settings me-1"></i>Atur Sekarang
                                                     </a>
                                                 </div>
