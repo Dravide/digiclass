@@ -119,7 +119,7 @@ class QrPresensiApiController extends Controller
                 'secure_code_id' => $secureCode->id
             ]);
             
-            // Optional: Validate attendance time (you can enable/disable this)
+            // Validasi jadwal presensi
             $timeValidation = JamPresensi::validasiJamPresensi($request->jenis_presensi);
             if (!$timeValidation['valid']) {
                 // Delete photo if time is invalid

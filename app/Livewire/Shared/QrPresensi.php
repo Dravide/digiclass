@@ -135,6 +135,23 @@ class QrPresensi extends Component
             $fotoPath = $this->simpanFotoWebcam();
         }
         
+        // Validasi jadwal presensi terlebih dahulu
+        $validasiJadwal = JamPresensi::validasiJamPresensi($this->jenis_presensi);
+        
+        if (!$validasiJadwal['valid']) {
+            // Hapus foto jika jadwal tidak valid
+            if ($fotoPath) {
+                $this->hapusFoto($fotoPath);
+            }
+            
+            $this->resultMessage = $validasiJadwal['pesan'];
+            $this->resultType = 'error';
+            $this->showResult = true;
+            $this->dispatch('auto-hide-result');
+            $this->reset(['qr_code']);
+            return;
+        }
+        
         // Cari user berdasarkan secure code dari QR
         $secureCode = SecureCode::where('secure_code', $cleanQrCode)->first();
         
