@@ -14,6 +14,10 @@ use App\Livewire\Admin\ImportManagement;
 use App\Livewire\Admin\StatistikManagement;
 use App\Livewire\Admin\JadwalManagement;
 use App\Livewire\Admin\RekapPresensi;
+use App\Livewire\Admin\RekapPresensiGuru;
+use App\Livewire\Admin\RekapPresensiTataUsaha;
+use App\Livewire\Admin\DetailPresensiGuru;
+use App\Livewire\Admin\DetailPresensiTataUsaha;
 use App\Livewire\Admin\TugasManagement;
 use App\Livewire\Admin\NilaiManagement;
 use App\Livewire\Admin\RekapNilai;
@@ -48,7 +52,6 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/inactive-siswa-management', InactiveSiswaManagement::class)->name('inactive-siswa-management');
     Route::get('/kelas-management', KelasManagement::class)->name('kelas-management');
     Route::get('/guru-management', GuruManagement::class)->name('guru-management');
-    Route::get('/tata-usaha-management', TataUsahaManagement::class)->name('tata-usaha-management');
     Route::get('/perpustakaan-management', PerpustakaanManagement::class)->name('perpustakaan-management');
     Route::get('/tahun-pelajaran-management', TahunPelajaranManagement::class)->name('tahun-pelajaran-management');
     Route::get('/mata-pelajaran-management', MataPelajaranManagement::class)->name('mata-pelajaran-management');
@@ -61,6 +64,10 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/pakta-integritas-management', PaktaIntegritasManagement::class)->name('pakta-integritas-management');
     Route::get('/magic-link-management', MagicLinkManagement::class)->name('magic-link-management');
     Route::get('/rekap-presensi', RekapPresensi::class)->name('rekap-presensi');
+    Route::get('/rekap-presensi-guru', RekapPresensiGuru::class)->name('rekap-presensi-guru');
+    Route::get('/rekap-presensi-tata-usaha', RekapPresensiTataUsaha::class)->name('rekap-presensi-tata-usaha');
+    Route::get('/detail-presensi-guru/{guruId}/{tanggalMulai?}/{tanggalSelesai?}', DetailPresensiGuru::class)->name('admin.detail-presensi-guru');
+    Route::get('/detail-presensi-tata-usaha/{tataUsahaId}/{tanggalMulai?}/{tanggalSelesai?}', DetailPresensiTataUsaha::class)->name('admin.detail-presensi-tata-usaha');
     Route::get('/pengaturan-jam-presensi', PengaturanJamPresensi::class)->name('pengaturan-jam-presensi');
     Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
@@ -76,6 +83,11 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/export/daftar-hadir/{kelasId}', [ExportController::class, 'exportDaftarHadir'])->name('export.daftar-hadir');
     Route::get('/export/daftar-nilai/{kelasId}', [ExportController::class, 'exportDaftarNilai'])->name('export.daftar-nilai');
     
+});
+
+// Tata Usaha Management Route
+Route::middleware(['auth.custom', 'permission:manage-tata-usaha'])->group(function () {
+    Route::get('/tata-usaha-management', TataUsahaManagement::class)->name('tata-usaha-management');
 });
 
 // Library Management Routes

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Presensi Hardware Scanner - SMPN 1 Cipanas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .scanner-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            animation: scan 2s infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Touch-friendly styles */
+        .touch-button {
+            min-height: 60px;
+            min-width: 120px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .touch-button:active {
+            transform: scale(0.95);
+        }
+        
+        .qr-input-large {
+            font-size: 24px;
+            min-height: 70px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .scanner-focus {
+            border-color: #3B82F6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="app">
+        <!-- Header -->
+        <header class="bg-white shadow-md">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-qrcode text-2xl text-blue-600"></i>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">QR Presensi Hardware Scanner</h1>
+                            <p class="text-sm text-gray-600">SMPN 1 Cipanas</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">{{ currentDate }}</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ currentTime }}</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- Auto-detect Status -->
+            <div class="mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Mode Presensi Otomatis</h3>
+                            <p class="text-blue-100">{{ autoDetected.message }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                                {{ autoDetected.type === 'masuk' ? '📅 Masuk' : '🏠 Pulang' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- QR Scanner Section -->
+                <div class="space-y-6">
+                    <!-- Scanner Card -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="scanner-container p-6 text-white">
+                            <h2 class="text-2xl font-bold mb-2 flex items-center">
+                                <i class="fas fa-barcode mr-3"></i>
+                                Hardware QR Scanner
+                            </h2>
+                            <p class="text-blue-100">Gunakan hardware scanner USB untuk melakukan presensi</p>
+                        </div>
+                        
+                        <div class="p-6">
+                            <!-- Hardware QR Scanner Input -->
+                            <div class="mb-6">
+                                <label class="block text-lg font-medium text-gray-700 mb-3">
+                                    <i class="fas fa-barcode mr-2"></i>
+                                    Hardware QR Scanner
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        ref="qrInput"
+                                        type="text" 
+                                        v-model="qrInput"
+                                        @keyup.enter="processQR"
+                                        @input="handleScannerInput"
+                                        @focus="onInputFocus"
+                                        @blur="onInputBlur"
+                                        class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-transparent qr-input-large"
+                                        placeholder="Scan QR code dengan hardware scanner..."
+                                        :disabled="processing"
+                                        autocomplete="off"
+                                        autofocus
+                                    >
+                                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                        <i class="fas fa-usb text-2xl" :class="inputFocused ? 'text-blue-500' : 'text-gray-400'"></i>
+                                    </div>
+                                    <div v-if="inputFocused" class="absolute left-2 top-2">
+                                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-2">
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Pastikan scanner USB terhubung dan field ini aktif
+                                    </p>
+                                    <button 
+                                        @click="clearInput"
+                                        class="text-sm text-red-600 hover:text-red-800"
+                                        v-if="qrInput"
+                                    >
+                                        <i class="fas fa-times mr-1"></i>Clear
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Attendance Type Override -->
+                            <div class="mb-4">
+                                <label class="block text-lg font-medium text-gray-700 mb-3">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    Jenis Presensi
+                                </label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button 
+                                        @click="attendanceType = 'masuk'"
+                                        :class="['touch-button transition-all', attendanceType === 'masuk' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
+                                    >
+                                        <i class="fas fa-sun mr-2"></i>
+                                        Masuk
+                                    </button>
+                                    <button 
+                                        @click="attendanceType = 'pulang'"
+                                        :class="['touch-button transition-all', attendanceType === 'pulang' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
+                                    >
+                                        <i class="fas fa-moon mr-2"></i>
+                                        Pulang
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Webcam Photo -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Foto Presensi
+                                </label>
+                                
+                                <!-- Camera Error Message -->
+                                <div v-if="showCameraError" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                                        <div>
+                                            <p class="font-medium">Tidak dapat mengakses kamera</p>
+                                            <p class="text-sm">Pastikan browser memiliki izin kamera dan tidak ada aplikasi lain yang menggunakan kamera.</p>
+                                        </div>
+                                    </div>
+                                    <button @click="retryCamera" class="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
+                                        <i class="fas fa-redo mr-1"></i>
+                                        Coba Lagi
+                                    </button>
+                                </div>
+                                
+                                <!-- Loading State -->
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center" v-if="!cameraReady && !showCameraError">
+                                    <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-500 mb-2">Mempersiapkan kamera...</p>
+                                    <p class="text-xs text-gray-400">Pastikan izin kamera telah diberikan</p>
+                                </div>
+                                
+                                <!-- Camera Preview -->
+                                <div class="relative" v-else-if="cameraReady && !showCameraError">
+                                    <video ref="video" class="w-full h-48 bg-gray-200 rounded-lg object-cover" autoplay muted playsinline></video>
+                                    <div class="absolute top-2 right-2 space-x-2">
+                                        <button 
+                                            @click="capturePhoto"
+                                            class="touch-button px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                        >
+                                            <i class="fas fa-camera mr-2"></i>
+                                            Ambil
+                                        </button>
+                                        <button 
+                                            @click="toggleCamera"
+                                            class="touch-button px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                        >
+                                            <i class="fas fa-stop mr-2"></i>
+                                            Stop
+                                        </button>
+                                    </div>
+                                    <div v-if="webcamPhoto" class="absolute bottom-2 left-2">
+                                        <img :src="webcamPhoto" class="w-16 h-12 object-cover rounded border-2 border-white shadow-lg">
+                                    </div>
+                                </div>
+                                
+                                <!-- Captured Photo Management -->
+                                <div v-if="webcamPhoto" class="mt-2 text-center">
+                                    <button 
+                                        @click="clearPhoto"
+                                        class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
+                                    >
+                                        <i class="fas fa-trash mr-1"></i>
+                                        Hapus Foto
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Process Button -->
+                            <button 
+                                @click="processQR"
+                                :disabled="!qrInput.trim() || processing"
+                                class="w-full py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105 touch-button"
+                            >
+                                <i class="fas fa-qrcode mr-3 text-2xl" v-if="!processing"></i>
+                                <i class="fas fa-spinner fa-spin mr-3 text-2xl" v-else></i>
+                                {{ processing ? 'Memproses...' : 'PROSES PRESENSI' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Card -->
+                    <div v-if="lastResult" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center" 
+                                     :class="lastResult.success ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'">
+                                    <i :class="lastResult.success ? 'fas fa-check' : 'fas fa-times'" class="text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold" 
+                                        :class="lastResult.success ? 'text-green-800' : 'text-red-800'">
+                                        {{ lastResult.success ? 'Presensi Berhasil' : 'Presensi Gagal' }}
+                                    </h3>
+                                    <p class="text-gray-600">{{ lastResult.message }}</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="lastResult.success && lastResult.data" class="bg-gray-50 rounded-lg p-4">
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">Nama:</span>
+                                        <p class="font-medium">{{ lastResult.data.user_name }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Waktu:</span>
+                                        <p class="font-medium">{{ formatDateTime(lastResult.data.waktu_presensi) }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Jenis:</span>
+                                        <p class="font-medium capitalize">{{ lastResult.data.jenis_presensi }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Status:</span>
+                                        <span class="inline-block px-2 py-1 rounded text-xs" 
+                                              :class="lastResult.data.is_terlambat ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'">
+                                            {{ lastResult.data.is_terlambat ? 'Terlambat' : 'Tepat Waktu' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div v-if="lastResult.data.foto_url" class="mt-4">
+                                    <span class="text-gray-500 text-sm">Foto Presensi:</span>
+                                    <img :src="lastResult.data.foto_url" class="w-24 h-24 object-cover rounded-lg mt-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Attendance -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-500 to-blue-600 p-6 text-white">
+                            <h2 class="text-2xl font-bold mb-2 flex items-center">
+                                <i class="fas fa-users mr-3"></i>
+                                Presensi Hari Ini
+                            </h2>
+                            <p class="text-green-100">{{ todayAttendance.length }} orang telah melakukan presensi</p>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="mb-4 flex justify-between items-center">
+                                <button 
+                                    @click="loadTodayAttendance"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    <i class="fas fa-sync-alt mr-2"></i>
+                                    Refresh
+                                </button>
+                                
+                                <div class="text-sm text-gray-500">
+                                    Terakhir diperbarui: {{ lastUpdated }}
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                <div v-if="loadingAttendance" class="text-center py-8">
+                                    <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-500">Memuat data presensi...</p>
+                                </div>
+                                
+                                <div v-else-if="todayAttendance.length === 0" class="text-center py-8">
+                                    <i class="fas fa-calendar-times text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-500">Belum ada presensi hari ini</p>
+                                </div>
+                                
+                                <div v-else v-for="attendance in todayAttendance" :key="attendance.id" 
+                                     class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                                        {{ attendance.user_name.charAt(0) }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-900">{{ attendance.user_name }}</p>
+                                        <p class="text-sm text-gray-600">{{ attendance.user_email }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium" 
+                                           :class="attendance.jenis_presensi === 'masuk' ? 'text-green-600' : 'text-blue-600'">
+                                            {{ attendance.jenis_presensi === 'masuk' ? '📅 Masuk' : '🏠 Pulang' }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ formatTime(attendance.waktu_presensi) }}</p>
+                                        <span v-if="attendance.is_terlambat" 
+                                              class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded mt-1">
+                                            Terlambat
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    qrInput: '',
+                    attendanceType: 'masuk',
+                    webcamPhoto: null,
+                    processing: false,
+                    lastResult: null,
+                    todayAttendance: [],
+                    loadingAttendance: false,
+                    autoDetected: {
+                        type: 'masuk',
+                        message: 'Mode otomatis aktif'
+                    },
+                    currentTime: '',
+                    currentDate: '',
+                    lastUpdated: '',
+                    showCamera: false,
+                    stream: null,
+                    cameraReady: false,
+                    showCameraError: false,
+                    inputFocused: false,
+                    apiBase: 'http://127.0.0.1:8000/api/qr-presensi'
+                }
+            },
+            
+            async mounted() {
+                this.updateTime();
+                setInterval(this.updateTime, 1000);
+                
+                await this.loadAutoDetect();
+                await this.loadTodayAttendance();
+                
+                // Auto refresh attendance every 30 seconds
+                setInterval(this.loadTodayAttendance, 30000);
+                
+                // Auto refresh attendance type detection every 60 seconds
+                // This ensures the system automatically switches between masuk/pulang
+                // based on the configured schedule without manual intervention
+                setInterval(this.loadAutoDetect, 60000);
+                
+                // Auto-start camera when page loads
+                setTimeout(() => {
+                    this.initializeCamera();
+                }, 500); // Small delay to ensure DOM is ready
+                
+                // Auto-focus QR input for hardware scanner
+                this.ensureInputFocus();
+            },
+            
+            methods: {
+                updateTime() {
+                    const now = new Date();
+                    this.currentTime = now.toLocaleTimeString('id-ID');
+                    this.currentDate = now.toLocaleDateString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                },
+                
+                async makeRequest(url, options = {}) {
+                    try {
+                        const response = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            ...options
+                        });
+                        return await response.json();
+                    } catch (error) {
+                        return { success: false, message: 'Gagal terhubung ke server' };
+                    }
+                },
+                
+                async loadAutoDetect() {
+                    const result = await this.makeRequest(`${this.apiBase}/auto-detect`);
+                    if (result.success) {
+                        this.attendanceType = result.data.jenis_presensi;
+                        this.autoDetected = {
+                            type: result.data.jenis_presensi,
+                            message: `Mode ${result.data.jenis_presensi} otomatis (${result.data.current_time})`
+                        };
+                    }
+                },
+                
+                async loadTodayAttendance() {
+                    this.loadingAttendance = true;
+                    const result = await this.makeRequest(`${this.apiBase}/today`);
+                    if (result.success) {
+                        this.todayAttendance = result.data;
+                        this.lastUpdated = new Date().toLocaleTimeString('id-ID');
+                    }
+                    this.loadingAttendance = false;
+                },
+                
+                async processQR() {
+                    if (!this.qrInput.trim() || this.processing) return;
+                    
+                    this.processing = true;
+                    this.lastResult = null;
+                    
+                    const payload = {
+                        qr_code: this.qrInput.trim(),
+                        jenis_presensi: this.attendanceType
+                    };
+                    
+                    if (this.webcamPhoto) {
+                        payload.foto_webcam = this.webcamPhoto;
+                    }
+                    
+                    const result = await this.makeRequest(`${this.apiBase}/process`, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    this.lastResult = result;
+                    this.processing = false;
+                    
+                    if (result.success) {
+                        this.qrInput = '';
+                        this.webcamPhoto = null;
+                        await this.loadTodayAttendance();
+                        await this.loadAutoDetect();
+                        
+                        // Refocus input for next scan
+                        setTimeout(() => {
+                            if (this.$refs.qrInput) {
+                                this.$refs.qrInput.focus();
+                            }
+                        }, 100);
+                    }
+                    
+                    // Auto hide result after 10 seconds
+                    setTimeout(() => {
+                        this.lastResult = null;
+                    }, 10000);
+                },
+                
+                async initializeCamera() {
+                    console.log('Initializing camera...');
+                    
+                    try {
+                        // Check if getUserMedia is supported
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            throw new Error('Camera API not supported');
+                        }
+                        
+                        console.log('Requesting camera access...');
+                        
+                        // Request camera permission and start stream
+                        this.stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { 
+                                width: { ideal: 640, min: 320 },
+                                height: { ideal: 480, min: 240 },
+                                facingMode: 'user' // Use front camera if available
+                            } 
+                        });
+                        
+                        console.log('Camera access granted, stream obtained');
+                        
+                        // Wait for next tick to ensure video element is ready
+                        await this.$nextTick();
+                        
+                        // Wait a bit more to ensure DOM is fully rendered
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        
+                        if (this.$refs.video) {
+                            console.log('Setting video source...');
+                            this.$refs.video.srcObject = this.stream;
+                            
+                            // Wait for video to load metadata
+                            this.$refs.video.addEventListener('loadedmetadata', () => {
+                                console.log('Video metadata loaded');
+                                this.cameraReady = true;
+                            });
+                            
+                            // Also listen for canplay event
+                            this.$refs.video.addEventListener('canplay', () => {
+                                console.log('Video can play');
+                                this.cameraReady = true;
+                            });
+                            
+                            // Force play the video
+                            try {
+                                await this.$refs.video.play();
+                                console.log('Video playing');
+                            } catch (playError) {
+                                console.log('Video play error (this might be normal):', playError);
+                            }
+                            
+                            // Fallback - set ready after 3 seconds
+                            setTimeout(() => {
+                                if (!this.cameraReady) {
+                                    console.log('Fallback: Setting camera ready');
+                                    this.cameraReady = true;
+                                }
+                            }, 3000);
+                        } else {
+                            console.error('Video element not found');
+                            throw new Error('Video element not found');
+                        }
+                    } catch (error) {
+                        console.error('Camera initialization failed:', error);
+                        this.cameraReady = false;
+                        this.showCameraError = true;
+                        
+                        // Stop any streams if they exist
+                        if (this.stream) {
+                            this.stream.getTracks().forEach(track => track.stop());
+                            this.stream = null;
+                        }
+                    }
+                },
+                
+                toggleCamera() {
+                    if (this.stream) {
+                        this.stream.getTracks().forEach(track => track.stop());
+                        this.stream = null;
+                        this.cameraReady = false;
+                        this.showCameraError = false;
+                    } else {
+                        this.showCameraError = false;
+                        this.initializeCamera();
+                    }
+                },
+                
+                retryCamera() {
+                    this.showCameraError = false;
+                    this.cameraReady = false;
+                    if (this.stream) {
+                        this.stream.getTracks().forEach(track => track.stop());
+                        this.stream = null;
+                    }
+                    this.initializeCamera();
+                },
+                
+                capturePhoto() {
+                    if (!this.cameraReady || !this.$refs.video) return;
+                    
+                    const video = this.$refs.video;
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0);
+                    
+                    this.webcamPhoto = canvas.toDataURL('image/jpeg', 0.8);
+                },
+                
+                retakePhoto() {
+                    this.clearPhoto();
+                },
+                
+                clearPhoto() {
+                    this.webcamPhoto = null;
+                },
+                
+                // Clean up camera when component is destroyed
+                beforeUnmount() {
+                    if (this.stream) {
+                        this.stream.getTracks().forEach(track => track.stop());
+                    }
+                },
+                
+                // Hardware Scanner Input Methods
+                handleScannerInput(event) {
+                    // Auto-process after scanner input (usually ends with Enter)
+                    clearTimeout(this.scanTimeout);
+                    this.scanTimeout = setTimeout(() => {
+                        if (this.qrInput.trim() && !this.processing) {
+                            this.processQR();
+                        }
+                    }, 100); // Small delay to ensure complete input
+                },
+                
+                onInputFocus() {
+                    this.inputFocused = true;
+                },
+                
+                onInputBlur() {
+                    this.inputFocused = false;
+                    // Refocus after a small delay to maintain focus for hardware scanner
+                    setTimeout(() => {
+                        if (this.$refs.qrInput && !this.processing) {
+                            this.$refs.qrInput.focus();
+                        }
+                    }, 100);
+                },
+                
+                ensureInputFocus() {
+                    // Ensure input stays focused for hardware scanner
+                    setInterval(() => {
+                        if (this.$refs.qrInput && !this.processing && document.activeElement !== this.$refs.qrInput) {
+                            this.$refs.qrInput.focus();
+                        }
+                    }, 1000);
+                },
+                
+                clearInput() {
+                    this.qrInput = '';
+                    this.$refs.qrInput.focus();
+                },
+                
+                formatDateTime(datetime) {
+                    return new Date(datetime).toLocaleString('id-ID');
+                },
+                
+                formatTime(datetime) {
+                    return new Date(datetime).toLocaleTimeString('id-ID');
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

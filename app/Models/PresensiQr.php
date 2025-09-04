@@ -23,12 +23,21 @@ class PresensiQr extends Model
         'keterangan',
         'foto_path',
         'is_terlambat',
+        'menit_keterlambatan',
+        'is_pulang_awal',
+        'menit_kepulangan_awal',
+        'jam_masuk_standar',
+        'jam_pulang_standar',
     ];
 
     protected $casts = [
         'waktu_presensi' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'is_terlambat' => 'boolean',
+        'is_pulang_awal' => 'boolean',
+        'jam_masuk_standar' => 'datetime:H:i:s',
+        'jam_pulang_standar' => 'datetime:H:i:s',
     ];
 
     /**
@@ -83,6 +92,31 @@ class PresensiQr extends Model
         // Validasi jam presensi berdasarkan pengaturan admin
         $validasiJam = JamPresensi::validasiJamPresensi($jenisPresensi);
         $isTerlambat = !$validasiJam['valid'];
+        
+        // Ambil pengaturan jam presensi untuk menghitung keterlambatan
+        $jamPresensi = JamPresensi::getJamPresensiHari();
+        $waktuSekarang = Carbon::now();
+        $menitKeterlambatan = null;
+        $isPulangAwal = false;
+        $menitKepulanganAwal = null;
+        $jamMasukStandar = '07:00:00';
+        $jamPulangStandar = '15:00:00';
+        
+        if ($jamPresensi) {
+            $jamMasukStandar = Carbon::parse($jamPresensi->jam_masuk_selesai)->format('H:i:s');
+            $jamPulangStandar = Carbon::parse($jamPresensi->jam_pulang_mulai)->format('H:i:s');
+            
+            if ($jenisPresensi === 'masuk' && $isTerlambat) {
+                $jamBatasMasuk = Carbon::parse($jamPresensi->jam_masuk_selesai);
+                $menitKeterlambatan = $waktuSekarang->diffInMinutes($jamBatasMasuk);
+            } elseif ($jenisPresensi === 'pulang') {
+                $jamMinimalPulang = Carbon::parse($jamPresensi->jam_pulang_mulai);
+                if ($waktuSekarang->lt($jamMinimalPulang)) {
+                    $isPulangAwal = true;
+                    $menitKepulanganAwal = $jamMinimalPulang->diffInMinutes($waktuSekarang);
+                }
+            }
+        }
 
         // Cek apakah sudah presensi sesuai jenis hari ini
         if ($jenisPresensi === 'masuk' && self::sudahPresensiMasukHariIni($userId)) {
@@ -102,9 +136,14 @@ class PresensiQr extends Model
             'user_id' => $userId,
             'secure_code' => $secureCode,
             'jenis_presensi' => $jenisPresensi,
-            'waktu_presensi' => Carbon::now(),
+            'waktu_presensi' => $waktuSekarang,
             'foto_path' => $fotoPath,
             'is_terlambat' => $isTerlambat,
+            'menit_keterlambatan' => $menitKeterlambatan,
+            'is_pulang_awal' => $isPulangAwal,
+            'menit_kepulangan_awal' => $menitKepulanganAwal,
+            'jam_masuk_standar' => $jamMasukStandar,
+            'jam_pulang_standar' => $jamPulangStandar,
         ]);
     }
 

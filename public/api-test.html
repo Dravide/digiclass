@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Presensi API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .endpoint { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .response { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Presensi API Test</h1>
+        <p>This page tests the QR Presensi API endpoints.</p>
+
+        <div class="endpoint">
+            <h3>1. Auto-detect Attendance Type</h3>
+            <button onclick="testAutoDetect()">Test Auto-detect</button>
+            <div id="autoDetectResponse" class="response"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>2. Get Today's Attendance</h3>
+            <button onclick="testTodayAttendance()">Get Today's Attendance</button>
+            <div id="todayResponse" class="response"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>3. Get User Info by QR Code</h3>
+            <input type="text" id="qrCodeInput" placeholder="Enter QR Code" value="TESTQR123">
+            <button onclick="testUserInfo()">Get User Info</button>
+            <div id="userInfoResponse" class="response"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>4. Process QR Attendance</h3>
+            <input type="text" id="processQrCode" placeholder="QR Code" value="TESTQR123">
+            <select id="attendanceType">
+                <option value="masuk">Masuk</option>
+                <option value="pulang">Pulang</option>
+            </select>
+            <button onclick="testProcessAttendance()">Process Attendance</button>
+            <div id="processResponse" class="response"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api/qr-presensi';
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    ...options
+                });
+                const data = await response.json();
+                return { status: response.status, data };
+            } catch (error) {
+                return { status: 0, data: { error: error.message } };
+            }
+        }
+
+        async function testAutoDetect() {
+            const result = await makeRequest(`${API_BASE}/auto-detect`);
+            document.getElementById('autoDetectResponse').innerHTML = `
+                <strong>Status:</strong> ${result.status}<br>
+                <strong>Response:</strong> <pre>${JSON.stringify(result.data, null, 2)}</pre>
+            `;
+        }
+
+        async function testTodayAttendance() {
+            const result = await makeRequest(`${API_BASE}/today`);
+            document.getElementById('todayResponse').innerHTML = `
+                <strong>Status:</strong> ${result.status}<br>
+                <strong>Response:</strong> <pre>${JSON.stringify(result.data, null, 2)}</pre>
+            `;
+        }
+
+        async function testUserInfo() {
+            const qrCode = document.getElementById('qrCodeInput').value;
+            const result = await makeRequest(`${API_BASE}/user-info`, {
+                method: 'POST',
+                body: JSON.stringify({ qr_code: qrCode })
+            });
+            document.getElementById('userInfoResponse').innerHTML = `
+                <strong>Status:</strong> ${result.status}<br>
+                <strong>Response:</strong> <pre>${JSON.stringify(result.data, null, 2)}</pre>
+            `;
+        }
+
+        async function testProcessAttendance() {
+            const qrCode = document.getElementById('processQrCode').value;
+            const attendanceType = document.getElementById('attendanceType').value;
+            const result = await makeRequest(`${API_BASE}/process`, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    qr_code: qrCode,
+                    jenis_presensi: attendanceType
+                })
+            });
+            document.getElementById('processResponse').innerHTML = `
+                <strong>Status:</strong> ${result.status}<br>
+                <strong>Response:</strong> <pre>${JSON.stringify(result.data, null, 2)}</pre>
+            `;
+        }
+
+        // Auto-load the auto-detect on page load
+        window.onload = function() {
+            testAutoDetect();
+        };
+    </script>
+</body>
+</html>

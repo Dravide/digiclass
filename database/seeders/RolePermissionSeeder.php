@@ -42,6 +42,8 @@ class RolePermissionSeeder extends Seeder
             'manage-nilai',
             'manage-presensi',
             'view-presensi',
+            'view-presensi-guru',
+            'view-presensi-tata-usaha',
             'manage-jurnal-mengajar',
             
             // Library management
@@ -153,6 +155,8 @@ class RolePermissionSeeder extends Seeder
             'view-reports',
             'view-statistics',
             'export-data',
+            'view-presensi-guru',
+            'view-presensi-tata-usaha',
         ]);
 
         // BK (Bimbingan Konseling) Role - Guidance counselor permissions

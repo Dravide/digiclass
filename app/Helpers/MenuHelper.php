@@ -28,226 +28,79 @@ class MenuHelper
 
         // Admin Menu Items
         if ($user->hasRole('admin')) {
-            $menuItems['Pengaturan Dasar'] = [
-                [
-                    'title' => 'Tahun Pelajaran',
-                    'route' => 'tahun-pelajaran-management',
-                    'icon' => 'ri-calendar-line',
-                    'permission' => 'manage-tahun-pelajaran'
-                ],
-                [
-                    'title' => 'Mata Pelajaran',
-                    'route' => 'mata-pelajaran-management',
-                    'icon' => 'ri-book-line',
-                    'permission' => 'manage-mata-pelajaran'
-                ]
-            ];
-            
             $menuItems['Manajemen Data'] = [
                 [
+                    'title' => 'Data Master',
+                    'icon' => 'ri-database-line',
+                    'permission' => 'manage-users',
+                    'submenu' => [
+                        ['title' => 'Tahun Pelajaran', 'route' => 'tahun-pelajaran-management', 'permission' => 'manage-tahun-pelajaran'],
+                        ['title' => 'Mata Pelajaran', 'route' => 'mata-pelajaran-management', 'permission' => 'manage-mata-pelajaran'],
+                        ['title' => 'Data Kelas', 'route' => 'kelas-management', 'permission' => 'manage-kelas'],
+                        ['title' => 'Jadwal Guru', 'route' => 'jadwal-management', 'permission' => 'manage-jadwal']
+                    ]
+                ],
+                [
                     'title' => 'Manajemen Users',
-                    'route' => 'user-management',
-                    'icon' => 'ri-user-settings-line',
-                    'permission' => 'manage-users'
+                    'icon' => 'ri-team-line',
+                    'permission' => 'manage-users',
+                    'submenu' => [
+                        ['title' => 'Data Guru', 'route' => 'guru-management', 'permission' => 'manage-guru'],
+                        ['title' => 'Data Tata Usaha', 'route' => 'tata-usaha-management', 'permission' => 'manage-tata-usaha'],
+                        ['title' => 'Data Siswa', 'route' => 'class-management', 'permission' => 'manage-siswa'],
+                        ['title' => 'Siswa Tidak Aktif', 'route' => 'inactive-siswa-management', 'permission' => 'manage-siswa'],
+                        ['title' => 'User Management', 'route' => 'user-management', 'permission' => 'manage-users']
+                    ]
                 ],
                 [
-                    'title' => 'Manajemen Menu',
-                    'route' => 'menu-management',
-                    'icon' => 'ri-menu-line',
-                    'permission' => 'manage-menu'
-                ],
-                [
-                    'title' => 'Pakta Integritas',
-                    'route' => 'pakta-integritas-management',
-                    'icon' => 'ri-file-shield-line',
-                    'permission' => 'manage-users'
-                ],
-                [
-                    'title' => 'Data Guru',
-                    'route' => 'guru-management',
-                    'icon' => 'ri-user-3-line',
-                    'permission' => 'manage-guru'
-                ],
-                [
-                    'title' => 'Data Tata Usaha',
-                    'route' => 'tata-usaha-management',
-                    'icon' => 'ri-user-settings-line',
-                    'permission' => 'manage-tata-usaha'
-                ],
-                [
-                    'title' => 'Data Kelas',
-                    'route' => 'kelas-management',
-                    'icon' => 'ri-building-line',
-                    'permission' => 'manage-kelas'
-                ],
-                [
-                    'title' => 'Data Siswa',
-                    'route' => 'class-management',
-                    'icon' => 'ri-group-line',
-                    'permission' => 'manage-siswa'
-                ],
-                [
-                    'title' => 'Siswa Tidak Aktif',
-                    'route' => 'inactive-siswa-management',
-                    'icon' => 'ri-user-unfollow-line',
-                    'permission' => 'manage-siswa'
-                ],
-                [
-                    'title' => 'Data Perpustakaan',
-                    'route' => 'perpustakaan-management',
-                    'icon' => 'ri-book-open-line',
-                    'permission' => 'manage-perpustakaan'
-                ],
-                [
-                    'title' => 'Magic Link & Kartu QR',
-                    'route' => 'magic-link-management',
-                    'icon' => 'ri-qr-code-line',
-                    'permission' => 'manage-siswa'
-                ],
-                [
-                    'title' => 'Jadwal Guru',
-                    'route' => 'jadwal-management',
-                    'icon' => 'ri-calendar-2-line',
-                    'permission' => 'manage-jadwal'
+                    'title' => 'Sistem & Keamanan',
+                    'icon' => 'ri-settings-3-line',
+                    'permission' => 'manage-users',
+                    'submenu' => [
+                        ['title' => 'Menu Management', 'route' => 'menu-management', 'permission' => 'manage-menu'],
+                        ['title' => 'Role & Permission', 'route' => 'role-permission-management', 'permission' => 'manage-roles'],
+                        ['title' => 'Pakta Integritas', 'route' => 'pakta-integritas-management', 'permission' => 'manage-users'],
+                        ['title' => 'Magic Link & QR', 'route' => 'magic-link-management', 'permission' => 'manage-siswa'],
+                        ['title' => 'Data Perpustakaan', 'route' => 'perpustakaan-management', 'permission' => 'manage-perpustakaan']
+                    ]
                 ]
             ];
             
-            $menuItems['Manajemen Pelanggaran'] = [
-                [
-                    'title' => 'Kategori Pelanggaran',
-                    'route' => 'kategori-pelanggaran-management',
-                    'icon' => 'ri-folder-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Jenis Pelanggaran',
-                    'route' => 'jenis-pelanggaran-management',
-                    'icon' => 'ri-list-check-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Sanksi Pelanggaran',
-                    'route' => 'sanksi-pelanggaran-management',
-                    'icon' => 'ri-scales-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Data Pelanggaran Siswa',
-                    'route' => 'pelanggaran-management',
-                    'icon' => 'ri-alert-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Notifikasi Sanksi Siswa',
-                    'route' => 'notifikasi-sanksi-siswa',
-                    'icon' => 'ri-notification-2-line',
-                    'permission' => 'manage-pelanggaran'
-                ]
-            ];
-            
-            $menuItems['Manajemen Perpustakaan'] = [
-                [
-                    'title' => 'Dashboard Perpustakaan',
-                    'route' => 'admin.library.dashboard',
-                    'icon' => 'ri-dashboard-3-line',
-                    'permission' => 'manage-library-books'
-                ],
-                [
-                    'title' => 'Manajemen Buku',
-                    'route' => 'admin.library.books',
-                    'icon' => 'ri-book-2-line',
-                    'permission' => 'manage-library-books'
-                ],
-                [
-                    'title' => 'Peminjaman Buku',
-                    'route' => 'admin.library.borrowings',
-                    'icon' => 'ri-book-mark-line',
-                    'permission' => 'manage-library-borrowing'
-                ],
-                [
-                    'title' => 'Kehadiran Perpustakaan',
-                    'route' => 'admin.library.attendance',
-                    'icon' => 'ri-user-check-line',
-                    'permission' => 'manage-library-attendance'
-                ]
-            ];
-            
-            $menuItems['Bimbingan Konseling'] = [
-                [
-                    'title' => 'Curhat Siswa',
-                    'route' => 'guru.curhat-siswa-management',
-                    'icon' => 'ri-chat-heart-line',
-                    'permission' => 'manage-curhat'
-                ]
-            ];
+
             
             $menuItems['Operasional'] = [
                 [
-                    'title' => 'Presensi Siswa',
-                    'route' => 'presensi',
+                    'title' => 'Presensi & Kehadiran',
                     'icon' => 'ri-user-check-line',
-                    'permission' => 'manage-presensi'
+                    'permission' => 'manage-presensi',
+                    'submenu' => [
+                        ['title' => 'Presensi Siswa', 'route' => 'presensi', 'permission' => 'manage-presensi'],
+                        ['title' => 'Rekap Presensi Siswa', 'route' => 'rekap-presensi', 'permission' => 'view-presensi'],
+                        ['title' => 'Rekap Presensi Guru', 'route' => 'rekap-presensi-guru', 'permission' => 'view-presensi-guru'],
+                        ['title' => 'Rekap Presensi Tata Usaha', 'route' => 'rekap-presensi-tata-usaha', 'permission' => 'view-presensi-tata-usaha'],
+                        ['title' => 'Pengaturan Jam Presensi', 'route' => 'pengaturan-jam-presensi', 'permission' => 'manage-users']
+                    ]
                 ],
                 [
-                    'title' => 'Rekap Presensi',
-                    'route' => 'rekap-presensi',
-                    'icon' => 'ri-file-list-3-line',
-                    'permission' => 'view-presensi'
+                    'title' => 'Akademik',
+                    'icon' => 'ri-book-open-line',
+                    'permission' => 'manage-tugas',
+                    'submenu' => [
+                        ['title' => 'Manajemen Tugas', 'route' => 'tugas-management', 'permission' => 'manage-tugas'],
+                        ['title' => 'Manajemen Nilai', 'route' => 'nilai-management', 'permission' => 'manage-nilai'],
+                        ['title' => 'Jurnal Mengajar', 'route' => 'jurnal-mengajar', 'permission' => 'manage-jurnal-mengajar'],
+                        ['title' => 'Rekap Nilai Siswa', 'route' => 'rekap-nilai', 'permission' => 'view-reports']
+                    ]
                 ],
                 [
-                    'title' => 'Pengaturan Jam Presensi',
-                    'route' => 'pengaturan-jam-presensi',
-                    'icon' => 'ri-time-line',
-                    'permission' => 'manage-users'
-                ],
-                [
-                    'title' => 'Manajemen Tugas',
-                    'route' => 'tugas-management',
-                    'icon' => 'ri-task-line',
-                    'permission' => 'manage-tugas'
-                ],
-                [
-                    'title' => 'Manajemen Nilai',
-                    'route' => 'nilai-management',
-                    'icon' => 'ri-award-line',
-                    'permission' => 'manage-nilai'
-                ],
-                [
-                    'title' => 'Jurnal Mengajar',
-                    'route' => 'jurnal-mengajar',
+                    'title' => 'Administrasi',
                     'icon' => 'ri-file-text-line',
-                    'permission' => 'manage-jurnal-mengajar'
-                ],
-                [
-                    'title' => 'Rekap Nilai Siswa',
-                    'route' => 'rekap-nilai',
-                    'icon' => 'ri-file-chart-line',
-                    'permission' => 'view-reports'
-                ],
-                [
-                    'title' => 'Surat Otomatis',
-                    'route' => 'surat-management',
-                    'icon' => 'ri-file-text-line',
-                    'permission' => 'manage-surat'
-                ],
-
-                [
-                    'title' => 'Import Data Excel',
-                    'route' => 'import-management',
-                    'icon' => 'ri-file-upload-line',
-                    'permission' => 'import-data'
-                ],
-                [
-                    'title' => 'Statistik Sekolah',
-                    'route' => 'statistik-management',
-                    'icon' => 'ri-bar-chart-line',
-                    'permission' => 'view-statistics'
-                ],
-                [
-                    'title' => 'Role & Permission',
-                    'route' => 'role-permission-management',
-                    'icon' => 'ri-user-settings-line',
-                    'permission' => 'manage-roles'
+                    'permission' => 'manage-surat',
+                    'submenu' => [
+                        ['title' => 'Surat Otomatis', 'route' => 'surat-management', 'permission' => 'manage-surat'],
+                        ['title' => 'Import Data Excel', 'route' => 'import-management', 'permission' => 'import-data'],
+                        ['title' => 'Statistik Sekolah', 'route' => 'statistik-management', 'permission' => 'view-statistics']
+                    ]
                 ],
                 [
                     'title' => 'Laporan',
@@ -262,7 +115,7 @@ class MenuHelper
                 ]
             ];
             
-            $menuItems['Keamanan'] = [
+            $menuItems['Tools & QR'] = [
                 [
                     'title' => 'Generator Secure Code',
                     'route' => 'secure-code-generator',
@@ -270,81 +123,58 @@ class MenuHelper
                     'permission' => 'generate-secure-code'
                 ],
                 [
-                    'title' => 'Presensi QR Code',
-                    'route' => 'presensi-qr',
-                    'icon' => 'ri-qr-scan-2-line',
-                    'permission' => 'scan-qr-presensi'
+                    'title' => 'Presensi & Kehadiran',
+                    'icon' => 'ri-user-check-line',
+                    'permission' => 'scan-qr-presensi',
+                    'submenu' => [
+                        ['title' => 'Presensi QR Code', 'route' => 'presensi-qr', 'permission' => 'scan-qr-presensi']
+                    ]
                 ]
             ];
         }
 
         // Guru Menu Items
         if ($user->hasRole('guru')) {
-
-            
-            $menuItems['Pengajaran'] = [
+            $menuItems['Akademik'] = [
                 [
-                    'title' => 'Kelas Saya',
-                    'route' => 'my-classes',
-                    'icon' => 'ri-building-line',
-                    'permission' => 'manage-own-classes'
+                    'title' => 'Pembelajaran',
+                    'icon' => 'ri-book-2-line',
+                    'permission' => 'manage-tugas',
+                    'submenu' => [
+                        ['title' => 'Kelas Saya', 'route' => 'my-classes', 'permission' => 'manage-own-classes'],
+                        ['title' => 'Manajemen Tugas', 'route' => 'tugas-management', 'permission' => 'manage-tugas'],
+                        ['title' => 'Manajemen Nilai', 'route' => 'nilai-management', 'permission' => 'manage-nilai'],
+                        ['title' => 'Jurnal Mengajar', 'route' => 'jurnal-mengajar', 'permission' => 'manage-jurnal-mengajar']
+                    ]
                 ],
                 [
-                    'title' => 'Manajemen Tugas',
-                    'route' => 'tugas-management',
-                    'icon' => 'ri-task-line',
-                    'permission' => 'manage-tugas'
-                ],
-                [
-                    'title' => 'Manajemen Nilai',
-                    'route' => 'nilai-management',
-                    'icon' => 'ri-award-line',
-                    'permission' => 'manage-nilai'
-                ],
-                [
-                    'title' => 'Presensi Siswa',
-                    'route' => 'presensi',
+                    'title' => 'Presensi & Kehadiran',
                     'icon' => 'ri-user-check-line',
-                    'permission' => 'manage-presensi'
-                ],
-                [
-                    'title' => 'Jurnal Mengajar',
-                    'route' => 'jurnal-mengajar',
-                    'icon' => 'ri-file-text-line',
-                    'permission' => 'manage-jurnal-mengajar'
+                    'permission' => 'manage-presensi',
+                    'submenu' => [
+                        ['title' => 'Presensi Siswa', 'route' => 'presensi', 'permission' => 'manage-presensi'],
+                        ['title' => 'Presensi QR Code', 'route' => 'presensi-qr', 'permission' => 'scan-qr-presensi']
+                    ]
                 ]
             ];
             
-            $menuItems['Bimbingan Konseling'] = [
+            $menuItems['Layanan Siswa'] = [
                 [
-                    'title' => 'Curhat Siswa',
-                    'route' => 'guru.curhat-siswa-management',
+                    'title' => 'Bimbingan Konseling',
                     'icon' => 'ri-chat-heart-line',
-                    'permission' => 'manage-curhat'
-                ]
-            ];
-            
-            $menuItems['Laporan'] = [
-                [
-                    'title' => 'Rekap Presensi',
-                    'route' => 'rekap-presensi',
-                    'icon' => 'ri-file-list-3-line',
-                    'permission' => 'view-presensi'
+                    'permission' => 'manage-curhat',
+                    'submenu' => [
+                        ['title' => 'Curhat Siswa', 'route' => 'guru.curhat-siswa-management', 'permission' => 'manage-curhat']
+                    ]
                 ],
                 [
-                    'title' => 'Rekap Nilai',
-                    'route' => 'rekap-nilai',
-                    'icon' => 'ri-file-chart-line',
-                    'permission' => 'view-reports'
-                ]
-            ];
-            
-            $menuItems['Presensi'] = [
-                [
-                    'title' => 'Presensi QR Code',
-                    'route' => 'presensi-qr',
-                    'icon' => 'ri-qr-scan-2-line',
-                    'permission' => 'scan-qr-presensi'
+                    'title' => 'Laporan',
+                    'icon' => 'ri-file-list-3-line',
+                    'permission' => 'view-presensi',
+                    'submenu' => [
+                        ['title' => 'Rekap Presensi', 'route' => 'rekap-presensi', 'permission' => 'view-presensi'],
+                        ['title' => 'Rekap Nilai', 'route' => 'rekap-nilai', 'permission' => 'view-reports']
+                    ]
                 ]
             ];
             
@@ -354,76 +184,46 @@ class MenuHelper
         if ($user->hasRole('siswa')) {
             $menuItems['Akademik'] = [
                 [
-                    'title' => 'Nilai Saya',
-                    'route' => 'my-grades',
-                    'icon' => 'ri-award-line',
-                    'permission' => 'view-own-grades'
+                    'title' => 'Pembelajaran',
+                    'icon' => 'ri-book-2-line',
+                    'permission' => 'view-own-assignments',
+                    'submenu' => [
+                        ['title' => 'Tugas Saya', 'route' => 'my-assignments', 'permission' => 'view-own-assignments'],
+                        ['title' => 'Nilai Saya', 'route' => 'my-grades', 'permission' => 'view-own-grades'],
+                        ['title' => 'Jadwal Pelajaran', 'route' => 'my-schedule', 'permission' => 'view-own-schedule'],
+                        ['title' => 'Rapor Online', 'route' => 'my-report-card', 'permission' => 'view-own-report']
+                    ]
                 ],
                 [
-                    'title' => 'Presensi Saya',
-                    'route' => 'my-attendance',
+                    'title' => 'Kehadiran',
                     'icon' => 'ri-calendar-check-line',
-                    'permission' => 'view-own-attendance'
-                ],
-                [
-                    'title' => 'Tugas Saya',
-                    'route' => 'my-assignments',
-                    'icon' => 'ri-task-line',
-                    'permission' => 'view-own-assignments'
-                ],
-                [
-                    'title' => 'Jadwal Pelajaran',
-                    'route' => 'my-schedule',
-                    'icon' => 'ri-calendar-2-line',
-                    'permission' => 'view-own-schedule'
-                ],
-                [
-                    'title' => 'Rapor Online',
-                    'route' => 'my-report-card',
-                    'icon' => 'ri-file-text-line',
-                    'permission' => 'view-own-report'
+                    'permission' => 'view-own-attendance',
+                    'submenu' => [
+                        ['title' => 'Presensi Saya', 'route' => 'my-attendance', 'permission' => 'view-own-attendance']
+                    ]
                 ]
             ];
             
-            $menuItems['Layanan Siswa'] = [
+            $menuItems['Layanan Sekolah'] = [
                 [
-                    'title' => 'Curhat BK',
-                    'route' => 'curhat-bk',
-                    'icon' => 'ri-chat-heart-line',
-                    'permission' => 'create-curhat'
+                    'title' => 'Fasilitas',
+                    'icon' => 'ri-building-line',
+                    'permission' => 'access-library',
+                    'submenu' => [
+                        ['title' => 'Perpustakaan', 'route' => 'library', 'permission' => 'access-library'],
+                        ['title' => 'Ekstrakurikuler', 'route' => 'extracurricular', 'permission' => 'view-extracurricular']
+                    ]
                 ],
                 [
-                    'title' => 'Perpustakaan',
-                    'route' => 'library',
-                    'icon' => 'ri-book-line',
-                    'permission' => 'access-library'
-                ],
-                [
-                    'title' => 'Ekstrakurikuler',
-                    'route' => 'extracurricular',
-                    'icon' => 'ri-team-line',
-                    'permission' => 'view-extracurricular'
-                ],
-                [
-                    'title' => 'Pengumuman',
-                    'route' => 'announcements',
-                    'icon' => 'ri-megaphone-line',
-                    'permission' => 'view-announcements'
-                ]
-            ];
-            
-            $menuItems['Komunikasi'] = [
-                [
-                    'title' => 'Pesan Guru',
-                    'route' => 'teacher-messages',
-                    'icon' => 'ri-mail-line',
-                    'permission' => 'view-messages'
-                ],
-                [
-                    'title' => 'Forum Diskusi',
-                    'route' => 'discussion-forum',
-                    'icon' => 'ri-discuss-line',
-                    'permission' => 'access-forum'
+                    'title' => 'Komunikasi',
+                    'icon' => 'ri-chat-3-line',
+                    'permission' => 'create-curhat',
+                    'submenu' => [
+                        ['title' => 'Curhat BK', 'route' => 'curhat-bk', 'permission' => 'create-curhat'],
+                        ['title' => 'Pesan Guru', 'route' => 'teacher-messages', 'permission' => 'view-messages'],
+                        ['title' => 'Forum Diskusi', 'route' => 'discussion-forum', 'permission' => 'access-forum'],
+                        ['title' => 'Pengumuman', 'route' => 'announcements', 'permission' => 'view-announcements']
+                    ]
                 ]
             ];
 
@@ -432,76 +232,41 @@ class MenuHelper
         // Tata Usaha Menu Items
         if ($user->hasRole('tata_usaha')) {
             
-            $menuItems['Pengaturan Dasar'] = [
+            $menuItems['Data Master'] = [
                 [
-                    'title' => 'Tahun Pelajaran',
-                    'route' => 'tahun-pelajaran-management',
-                    'icon' => 'ri-calendar-line',
-                    'permission' => 'manage-tahun-pelajaran'
+                    'title' => 'Pengaturan Sekolah',
+                    'icon' => 'ri-settings-3-line',
+                    'permission' => 'manage-tahun-pelajaran',
+                    'submenu' => [
+                        ['title' => 'Tahun Pelajaran', 'route' => 'tahun-pelajaran-management', 'permission' => 'manage-tahun-pelajaran'],
+                        ['title' => 'Mata Pelajaran', 'route' => 'mata-pelajaran-management', 'permission' => 'manage-mata-pelajaran']
+                    ]
                 ],
                 [
-                    'title' => 'Mata Pelajaran',
-                    'route' => 'mata-pelajaran-management',
-                    'icon' => 'ri-book-line',
-                    'permission' => 'manage-mata-pelajaran'
+                    'title' => 'Manajemen Users',
+                    'icon' => 'ri-team-line',
+                    'permission' => 'manage-guru',
+                    'submenu' => [
+                        ['title' => 'Data Guru', 'route' => 'guru-management', 'permission' => 'manage-guru'],
+                        ['title' => 'Data Kelas', 'route' => 'kelas-management', 'permission' => 'manage-kelas'],
+                        ['title' => 'Data Siswa', 'route' => 'class-management', 'permission' => 'manage-siswa'],
+                        ['title' => 'Siswa Tidak Aktif', 'route' => 'inactive-siswa-management', 'permission' => 'manage-siswa'],
+                        ['title' => 'Data Perpustakaan', 'route' => 'perpustakaan-management', 'permission' => 'manage-perpustakaan']
+                    ]
                 ]
             ];
             
-            $menuItems['Manajemen Data'] = [
+            $menuItems['Operasional'] = [
                 [
-                    'title' => 'Data Guru',
-                    'route' => 'guru-management',
-                    'icon' => 'ri-user-3-line',
-                    'permission' => 'manage-guru'
-                ],
-                [
-                    'title' => 'Data Kelas',
-                    'route' => 'kelas-management',
-                    'icon' => 'ri-building-line',
-                    'permission' => 'manage-kelas'
-                ],
-                [
-                    'title' => 'Data Siswa',
-                    'route' => 'class-management',
-                    'icon' => 'ri-group-line',
-                    'permission' => 'manage-siswa'
-                ],
-                [
-                    'title' => 'Siswa Tidak Aktif',
-                    'route' => 'inactive-siswa-management',
-                    'icon' => 'ri-user-unfollow-line',
-                    'permission' => 'manage-siswa'
-                ],
-                [
-                    'title' => 'Data Perpustakaan',
-                    'route' => 'perpustakaan-management',
-                    'icon' => 'ri-book-open-line',
-                    'permission' => 'manage-perpustakaan'
-                ]
-            ];
-            
-            $menuItems['Administrasi'] = [
-                [
-                    'title' => 'Surat Otomatis',
-                    'route' => 'surat-management',
+                    'title' => 'Administrasi',
                     'icon' => 'ri-file-text-line',
-                    'permission' => 'manage-surat'
+                    'permission' => 'manage-surat',
+                    'submenu' => [
+                        ['title' => 'Surat Otomatis', 'route' => 'surat-management', 'permission' => 'manage-surat'],
+                        ['title' => 'Import Data Excel', 'route' => 'import-management', 'permission' => 'import-data'],
+                        ['title' => 'Statistik Sekolah', 'route' => 'statistik-management', 'permission' => 'view-statistics']
+                    ]
                 ],
-                [
-                    'title' => 'Import Data Excel',
-                    'route' => 'import-management',
-                    'icon' => 'ri-file-upload-line',
-                    'permission' => 'import-data'
-                ],
-                [
-                    'title' => 'Statistik Sekolah',
-                    'route' => 'statistik-management',
-                    'icon' => 'ri-bar-chart-line',
-                    'permission' => 'view-statistics'
-                ]
-            ];
-            
-            $menuItems['Presensi'] = [
                 [
                     'title' => 'Presensi QR Code',
                     'route' => 'presensi-qr',
@@ -513,45 +278,26 @@ class MenuHelper
 
         // BK (Bimbingan Konseling) Menu Items
         if ($user->hasRole('bk')) {
-            $menuItems['Manajemen Pelanggaran'] = [
-                [
-                    'title' => 'Kategori Pelanggaran',
-                    'route' => 'kategori-pelanggaran-management',
-                    'icon' => 'ri-folder-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Jenis Pelanggaran',
-                    'route' => 'jenis-pelanggaran-management',
-                    'icon' => 'ri-list-check-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Sanksi Pelanggaran',
-                    'route' => 'sanksi-pelanggaran-management',
-                    'icon' => 'ri-scales-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Data Pelanggaran Siswa',
-                    'route' => 'pelanggaran-management',
-                    'icon' => 'ri-alert-line',
-                    'permission' => 'manage-pelanggaran'
-                ],
-                [
-                    'title' => 'Notifikasi Sanksi Siswa',
-                    'route' => 'notifikasi-sanksi-siswa',
-                    'icon' => 'ri-notification-2-line',
-                    'permission' => 'manage-pelanggaran'
-                ]
-            ];
-            
             $menuItems['Bimbingan Konseling'] = [
                 [
-                    'title' => 'Curhat Siswa',
-                    'route' => 'guru.curhat-siswa-management',
+                    'title' => 'Manajemen Pelanggaran',
+                    'icon' => 'ri-alert-line',
+                    'permission' => 'manage-pelanggaran',
+                    'submenu' => [
+                        ['title' => 'Kategori Pelanggaran', 'route' => 'kategori-pelanggaran-management', 'permission' => 'manage-pelanggaran'],
+                        ['title' => 'Jenis Pelanggaran', 'route' => 'jenis-pelanggaran-management', 'permission' => 'manage-pelanggaran'],
+                        ['title' => 'Sanksi Pelanggaran', 'route' => 'sanksi-pelanggaran-management', 'permission' => 'manage-pelanggaran'],
+                        ['title' => 'Data Pelanggaran Siswa', 'route' => 'pelanggaran-management', 'permission' => 'manage-pelanggaran'],
+                        ['title' => 'Notifikasi Sanksi Siswa', 'route' => 'notifikasi-sanksi-siswa', 'permission' => 'manage-pelanggaran']
+                    ]
+                ],
+                [
+                    'title' => 'Konseling Siswa',
                     'icon' => 'ri-chat-heart-line',
-                    'permission' => 'manage-curhat'
+                    'permission' => 'manage-curhat',
+                    'submenu' => [
+                        ['title' => 'Curhat Siswa', 'route' => 'guru.curhat-siswa-management', 'permission' => 'manage-curhat']
+                    ]
                 ]
             ];
         }

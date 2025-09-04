@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\JamPresensi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class PengaturanJamPresensi extends Component
 {
@@ -75,10 +76,17 @@ class PengaturanJamPresensi extends Component
         
         $this->editingId = $id;
         $this->nama_hari = $jamPresensi->nama_hari;
-        $this->jam_masuk_mulai = $jamPresensi->jam_masuk_mulai;
-        $this->jam_masuk_selesai = $jamPresensi->jam_masuk_selesai;
-        $this->jam_pulang_mulai = $jamPresensi->jam_pulang_mulai;
-        $this->jam_pulang_selesai = $jamPresensi->jam_pulang_selesai;
+        
+        // Konversi format datetime ke H:i untuk input time
+        $this->jam_masuk_mulai = $jamPresensi->jam_masuk_mulai ? 
+            Carbon::parse($jamPresensi->jam_masuk_mulai)->format('H:i') : '';
+        $this->jam_masuk_selesai = $jamPresensi->jam_masuk_selesai ? 
+            Carbon::parse($jamPresensi->jam_masuk_selesai)->format('H:i') : '';
+        $this->jam_pulang_mulai = $jamPresensi->jam_pulang_mulai ? 
+            Carbon::parse($jamPresensi->jam_pulang_mulai)->format('H:i') : '';
+        $this->jam_pulang_selesai = $jamPresensi->jam_pulang_selesai ? 
+            Carbon::parse($jamPresensi->jam_pulang_selesai)->format('H:i') : '';
+            
         $this->is_active = $jamPresensi->is_active;
         $this->keterangan = $jamPresensi->keterangan ?? '';
         

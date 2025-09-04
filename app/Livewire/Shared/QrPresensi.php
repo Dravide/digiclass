@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\PresensiQr;
 use App\Models\SecureCode;
 use App\Models\User;
+use App\Models\JamPresensi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -49,14 +50,44 @@ class QrPresensi extends Component
     
     public function autoDetectJenisPresensi(): void
     {
-        $currentHour = Carbon::now('Asia/Jakarta')->format('H');
+        // Get attendance time settings for today
+        $jamPresensi = JamPresensi::getJamPresensiHari();
         
-        // Jam 06:00 - 13:59 = masuk
-        // Jam 14:00 - 23:59 = pulang
-        if ($currentHour >= 6 && $currentHour < 14) {
+        if (!$jamPresensi) {
+            // Fallback to default time ranges if no settings found
+            $currentHour = Carbon::now('Asia/Jakarta')->format('H');
+            if ($currentHour >= 6 && $currentHour < 14) {
+                $this->jenis_presensi = 'masuk';
+            } else {
+                $this->jenis_presensi = 'pulang';
+            }
+            return;
+        }
+        
+        $currentTime = Carbon::now('Asia/Jakarta');
+        $currentTimeFormatted = $currentTime->format('H:i');
+        
+        // Get configured time ranges
+        $jamMasukMulai = Carbon::parse($jamPresensi->jam_masuk_mulai)->format('H:i');
+        $jamMasukSelesai = Carbon::parse($jamPresensi->jam_masuk_selesai)->format('H:i');
+        $jamPulangMulai = Carbon::parse($jamPresensi->jam_pulang_mulai)->format('H:i');
+        $jamPulangSelesai = Carbon::parse($jamPresensi->jam_pulang_selesai)->format('H:i');
+        
+        // Determine attendance type based on configured times
+        if ($currentTimeFormatted >= $jamMasukMulai && $currentTimeFormatted <= $jamMasukSelesai) {
             $this->jenis_presensi = 'masuk';
-        } else {
+        } elseif ($currentTimeFormatted >= $jamPulangMulai && $currentTimeFormatted <= $jamPulangSelesai) {
             $this->jenis_presensi = 'pulang';
+        } else {
+            // Outside both ranges, determine by proximity
+            $masukStart = Carbon::parse($jamMasukMulai);
+            $pulangStart = Carbon::parse($jamPulangMulai);
+            $now = Carbon::parse($currentTimeFormatted);
+            
+            $diffToMasuk = abs($now->diffInMinutes($masukStart));
+            $diffToPulang = abs($now->diffInMinutes($pulangStart));
+            
+            $this->jenis_presensi = ($diffToMasuk <= $diffToPulang) ? 'masuk' : 'pulang';
         }
     }
 
@@ -84,10 +115,19 @@ class QrPresensi extends Component
             
             // Bersihkan QR code dari whitespace dan karakter tidak terlihat
             $cleanQrCode = trim($this->qr_code);
+            // Hapus semua spasi (termasuk yang di tengah)
+            $cleanQrCode = str_replace(' ', '', $cleanQrCode);
             // Hapus karakter non-printable dan newline
             $cleanQrCode = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $cleanQrCode);
             // Pastikan hanya karakter alphanumeric dan beberapa simbol yang diizinkan
             $cleanQrCode = preg_replace('/[^A-Z0-9]/', '', $cleanQrCode);
+            
+            \Log::info('QR Code cleaning process', [
+                'original' => $this->qr_code,
+                'original_length' => strlen($this->qr_code),
+                'cleaned' => $cleanQrCode,
+                'cleaned_length' => strlen($cleanQrCode)
+            ]);
             
             // Simpan foto webcam jika ada (sebelum validasi QR)
         $fotoPath = null;

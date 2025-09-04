@@ -3,24 +3,21 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
-use App\Models\Presensi;
-use App\Models\Kelas;
-use App\Models\Siswa;
+use App\Models\PresensiQr;
+use App\Models\TataUsaha;
 use App\Models\TahunPelajaran;
-use App\Models\MataPelajaran;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class RekapPresensi extends Component
+class RekapPresensiTataUsaha extends Component
 {
-    public $selectedKelas = null;
     public $selectedTahunPelajaran = null;
-    public $selectedMataPelajaran = null;
     public $selectedBulan = null;
     public $selectedTahun = null;
     public $tanggalMulai = null;
     public $tanggalSelesai = null;
     public $filterType = 'bulan'; // bulan, rentang
+    public $searchTataUsaha = '';
     
     public $rekapData = [];
     public $statistik = [];
@@ -32,15 +29,6 @@ class RekapPresensi extends Component
         $this->selectedTahunPelajaran = TahunPelajaran::where('is_active', true)->first()?->id;
         $this->tanggalMulai = date('Y-m-01');
         $this->tanggalSelesai = date('Y-m-t');
-    }
-    
-    public function updatedSelectedKelas()
-    {
-        $this->loadRekapData();
-    }
-    
-    public function updatedSelectedMataPelajaran()
-    {
         $this->loadRekapData();
     }
     
@@ -63,6 +51,11 @@ class RekapPresensi extends Component
         $this->loadRekapData();
     }
     
+    public function updatedSearchTataUsaha()
+    {
+        $this->loadRekapData();
+    }
+    
     public function applyFilter()
     {
         $this->loadRekapData();
@@ -70,12 +63,6 @@ class RekapPresensi extends Component
     
     public function loadRekapData()
     {
-        if (!$this->selectedKelas) {
-            $this->rekapData = [];
-            $this->statistik = [];
-            return;
-        }
-        
         // Tentukan rentang tanggal berdasarkan filter type
         if ($this->filterType === 'bulan') {
             $startDate = Carbon::createFromDate($this->selectedTahun, $this->selectedBulan, 1)->startOfMonth();
@@ -85,51 +72,86 @@ class RekapPresensi extends Component
             $endDate = Carbon::parse($this->tanggalSelesai);
         }
         
-        // Query dasar untuk presensi
-        $query = Presensi::with(['siswa', 'jadwal.mataPelajaran'])
-            ->whereHas('jadwal', function($q) {
-                $q->where('kelas_id', $this->selectedKelas);
-                if ($this->selectedMataPelajaran) {
-                    $q->where('mata_pelajaran_id', $this->selectedMataPelajaran);
-                }
-            })
-            ->whereBetween('waktu_presensi', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+        // Ambil semua tata usaha dengan user
+        $tataUsahaQuery = TataUsaha::with('user')
+            ->whereHas('user', function($q) {
+                $q->where('role', 'tata_usaha');
+            });
             
-        $presensiData = $query->get();
+        if ($this->searchTataUsaha) {
+            $tataUsahaQuery->where(function($q) {
+                $q->where('nama_tata_usaha', 'like', '%' . $this->searchTataUsaha . '%')
+                  ->orWhere('nip', 'like', '%' . $this->searchTataUsaha . '%')
+                  ->orWhere('email', 'like', '%' . $this->searchTataUsaha . '%')
+                  ->orWhereHas('user', function($subQ) {
+                      $subQ->where('name', 'like', '%' . $this->searchTataUsaha . '%')
+                           ->orWhere('username', 'like', '%' . $this->searchTataUsaha . '%');
+                  });
+            });
+        }
+        $tataUsahaList = $tataUsahaQuery->get();
         
-        // Ambil semua siswa di kelas
-        $siswaList = Siswa::whereHas('kelasSiswa', function($q) {
-            $q->where('kelas_id', $this->selectedKelas);
-        })->get();
+        // Ambil user IDs dari tata usaha
+        $userIds = $tataUsahaList->pluck('user.id')->filter();
         
-        // Proses data rekap per siswa
+        // Query untuk presensi berdasarkan user IDs
+        $presensiData = PresensiQr::with(['user'])
+            ->whereIn('user_id', $userIds)
+            ->whereBetween('waktu_presensi', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
+        
+        // Proses data rekap per tata usaha
         $this->rekapData = [];
-        foreach ($siswaList as $siswa) {
-            $presensiSiswa = $presensiData->where('siswa_id', $siswa->id);
+        foreach ($tataUsahaList as $tataUsaha) {
+            if (!$tataUsaha->user) continue;
             
-            $hadir = $presensiSiswa->where('status', 'hadir')->count();
-            $terlambat = $presensiSiswa->where('status', 'terlambat')->count();
-            $izin = $presensiSiswa->where('status', 'izin')->count();
-            $sakit = $presensiSiswa->where('status', 'sakit')->count();
-            $alpha = $presensiSiswa->where('status', 'alpha')->count();
+            $presensiTataUsaha = $presensiData->where('user_id', $tataUsaha->user->id);
             
-            $totalPertemuan = $presensiSiswa->count();
-            $persentaseKehadiran = $totalPertemuan > 0 ? round((($hadir + $terlambat) / $totalPertemuan) * 100, 1) : 0;
+            // Hitung hari kerja dalam periode
+            $hariKerja = $this->getHariKerja($startDate, $endDate);
+            
+            // Hitung presensi masuk dan pulang
+            $masuk = $presensiTataUsaha->where('jenis_presensi', 'masuk')->count();
+            $pulang = $presensiTataUsaha->where('jenis_presensi', 'pulang')->count();
+            
+            // Hitung keterlambatan (asumsi jam masuk 07:00)
+            $terlambat = $presensiTataUsaha->where('jenis_presensi', 'masuk')
+                ->filter(function($item) {
+                    return Carbon::parse($item->waktu_presensi)->format('H:i') > '07:30';
+                })->count();
+            
+            $alpha = $hariKerja - $masuk;
+            $persentaseKehadiran = $hariKerja > 0 ? round(($masuk / $hariKerja) * 100, 1) : 0;
             
             $this->rekapData[] = [
-                'siswa' => $siswa,
-                'hadir' => $hadir,
+                'tata_usaha' => $tataUsaha,
+                'masuk' => $masuk,
+                'pulang' => $pulang,
                 'terlambat' => $terlambat,
-                'izin' => $izin,
-                'sakit' => $sakit,
                 'alpha' => $alpha,
-                'total_pertemuan' => $totalPertemuan,
+                'hari_kerja' => $hariKerja,
                 'persentase_kehadiran' => $persentaseKehadiran
             ];
         }
         
         // Hitung statistik keseluruhan
         $this->calculateStatistik();
+    }
+    
+    private function getHariKerja($startDate, $endDate)
+    {
+        $count = 0;
+        $current = $startDate->copy();
+        
+        while ($current->lte($endDate)) {
+            // Hitung hari Senin-Jumat (1-5)
+            if ($current->dayOfWeek >= 1 && $current->dayOfWeek <= 5) {
+                $count++;
+            }
+            $current->addDay();
+        }
+        
+        return $count;
     }
     
     private function calculateStatistik()
@@ -139,24 +161,22 @@ class RekapPresensi extends Component
             return;
         }
         
-        $totalSiswa = count($this->rekapData);
-        $totalHadir = array_sum(array_column($this->rekapData, 'hadir'));
+        $totalTataUsaha = count($this->rekapData);
+        $totalMasuk = array_sum(array_column($this->rekapData, 'masuk'));
+        $totalPulang = array_sum(array_column($this->rekapData, 'pulang'));
         $totalTerlambat = array_sum(array_column($this->rekapData, 'terlambat'));
-        $totalIzin = array_sum(array_column($this->rekapData, 'izin'));
-        $totalSakit = array_sum(array_column($this->rekapData, 'sakit'));
         $totalAlpha = array_sum(array_column($this->rekapData, 'alpha'));
-        $totalPertemuan = array_sum(array_column($this->rekapData, 'total_pertemuan'));
+        $totalHariKerja = array_sum(array_column($this->rekapData, 'hari_kerja'));
         
-        $rataRataKehadiran = $totalSiswa > 0 ? round(array_sum(array_column($this->rekapData, 'persentase_kehadiran')) / $totalSiswa, 1) : 0;
+        $rataRataKehadiran = $totalTataUsaha > 0 ? round(array_sum(array_column($this->rekapData, 'persentase_kehadiran')) / $totalTataUsaha, 1) : 0;
         
         $this->statistik = [
-            'total_siswa' => $totalSiswa,
-            'total_hadir' => $totalHadir,
+            'total_tata_usaha' => $totalTataUsaha,
+            'total_masuk' => $totalMasuk,
+            'total_pulang' => $totalPulang,
             'total_terlambat' => $totalTerlambat,
-            'total_izin' => $totalIzin,
-            'total_sakit' => $totalSakit,
             'total_alpha' => $totalAlpha,
-            'total_pertemuan' => $totalPertemuan,
+            'total_hari_kerja' => $totalHariKerja,
             'rata_rata_kehadiran' => $rataRataKehadiran
         ];
     }
@@ -175,12 +195,7 @@ class RekapPresensi extends Component
     
     public function render()
     {
-        $kelasList = Kelas::where('tahun_pelajaran_id', $this->selectedTahunPelajaran)
-            ->orderBy('nama_kelas')
-            ->get();
-            
         $tahunPelajaranList = TahunPelajaran::orderBy('tanggal_mulai', 'desc')->get();
-        $mataPelajaranList = MataPelajaran::orderBy('nama_mapel')->get();
         
         $bulanList = [
             '01' => 'Januari',
@@ -199,10 +214,8 @@ class RekapPresensi extends Component
         
         $tahunList = range(date('Y') - 2, date('Y') + 1);
         
-        return view('livewire.admin.rekap-presensi', [
-            'kelasList' => $kelasList,
+        return view('livewire.admin.rekap-presensi-tata-usaha', [
             'tahunPelajaranList' => $tahunPelajaranList,
-            'mataPelajaranList' => $mataPelajaranList,
             'bulanList' => $bulanList,
             'tahunList' => $tahunList
         ])->layout('layouts.app');
