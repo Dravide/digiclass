@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Auth;
 
 // Public pages (accessible to everyone)
 Route::get('/main', MainPage::class)->name('main-page');
+Route::get('/license-invalid', function () {
+    return view('license.invalid');
+})->name('license-invalid');
 Route::get('/pengumuman', AnnouncementPage::class)->name('announcement'); // Keep for backward compatibility
 Route::get('/cek-data-siswa', \App\Livewire\Shared\StudentCheckPage::class)->name('student-check');
 Route::get('/surat/validate/{id}', \App\Livewire\Shared\SuratValidation::class)->name('surat.validate');

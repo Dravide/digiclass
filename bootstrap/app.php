@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.redirect' => \App\Http\Middleware\RoleRedirect::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'cors' => \App\Http\Middleware\CorsMiddleware::class,
+            'license.validation' => \App\Http\Middleware\LicenseValidation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
