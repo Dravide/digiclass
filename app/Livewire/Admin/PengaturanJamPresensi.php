@@ -19,6 +19,8 @@ class PengaturanJamPresensi extends Component
     public string $jam_masuk_selesai = '';
     public string $jam_pulang_mulai = '';
     public string $jam_pulang_selesai = '';
+    public string $jam_lembur_mulai = '';
+    public string $jam_lembur_selesai = '';
     public bool $is_active = true;
     public string $keterangan = '';
 
@@ -35,6 +37,8 @@ class PengaturanJamPresensi extends Component
         'jam_masuk_selesai' => 'required|date_format:H:i|after:jam_masuk_mulai',
         'jam_pulang_mulai' => 'required|date_format:H:i|after:jam_masuk_selesai',
         'jam_pulang_selesai' => 'required|date_format:H:i|after:jam_pulang_mulai',
+        'jam_lembur_mulai' => 'nullable|date_format:H:i',
+        'jam_lembur_selesai' => 'nullable|date_format:H:i|after_or_equal:jam_lembur_mulai',
         'is_active' => 'boolean',
         'keterangan' => 'nullable|string|max:500',
     ];
@@ -52,6 +56,9 @@ class PengaturanJamPresensi extends Component
         'jam_pulang_selesai.required' => 'Jam pulang selesai harus diisi.',
         'jam_pulang_selesai.date_format' => 'Format jam pulang selesai tidak valid (HH:MM).',
         'jam_pulang_selesai.after' => 'Jam pulang selesai harus setelah jam pulang mulai.',
+        'jam_lembur_mulai.date_format' => 'Format jam lembur mulai tidak valid (HH:MM).',
+        'jam_lembur_selesai.date_format' => 'Format jam lembur selesai tidak valid (HH:MM).',
+        'jam_lembur_selesai.after_or_equal' => 'Jam lembur selesai harus setelah atau sama dengan jam lembur mulai.',
     ];
 
     public function mount(): void
@@ -86,6 +93,10 @@ class PengaturanJamPresensi extends Component
             Carbon::parse($jamPresensi->jam_pulang_mulai)->format('H:i') : '';
         $this->jam_pulang_selesai = $jamPresensi->jam_pulang_selesai ? 
             Carbon::parse($jamPresensi->jam_pulang_selesai)->format('H:i') : '';
+        $this->jam_lembur_mulai = $jamPresensi->jam_lembur_mulai ? 
+            Carbon::parse($jamPresensi->jam_lembur_mulai)->format('H:i') : '';
+        $this->jam_lembur_selesai = $jamPresensi->jam_lembur_selesai ? 
+            Carbon::parse($jamPresensi->jam_lembur_selesai)->format('H:i') : '';
             
         $this->is_active = $jamPresensi->is_active;
         $this->keterangan = $jamPresensi->keterangan ?? '';
@@ -97,6 +108,17 @@ class PengaturanJamPresensi extends Component
     public function simpanJamPresensi(): void
     {
         $this->validate();
+        
+        // Validasi khusus untuk jam lembur
+        if (!empty($this->jam_lembur_mulai) && empty($this->jam_lembur_selesai)) {
+            $this->addError('jam_lembur_selesai', 'Jam lembur selesai harus diisi jika jam lembur mulai diisi.');
+            return;
+        }
+        
+        if (empty($this->jam_lembur_mulai) && !empty($this->jam_lembur_selesai)) {
+            $this->addError('jam_lembur_mulai', 'Jam lembur mulai harus diisi jika jam lembur selesai diisi.');
+            return;
+        }
 
         try {
             // Cek duplikasi nama hari (kecuali saat edit)
@@ -116,6 +138,8 @@ class PengaturanJamPresensi extends Component
                 'jam_masuk_selesai' => $this->jam_masuk_selesai,
                 'jam_pulang_mulai' => $this->jam_pulang_mulai,
                 'jam_pulang_selesai' => $this->jam_pulang_selesai,
+                'jam_lembur_mulai' => $this->jam_lembur_mulai ?: null,
+                'jam_lembur_selesai' => $this->jam_lembur_selesai ?: null,
                 'is_active' => $this->is_active,
                 'keterangan' => $this->keterangan,
             ];
@@ -254,6 +278,8 @@ class PengaturanJamPresensi extends Component
             'jam_masuk_selesai',
             'jam_pulang_mulai',
             'jam_pulang_selesai',
+            'jam_lembur_mulai',
+            'jam_lembur_selesai',
             'is_active',
             'keterangan',
             'editingId'

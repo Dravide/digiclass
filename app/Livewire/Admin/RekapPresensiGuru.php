@@ -113,15 +113,20 @@ class RekapPresensiGuru extends Component
             // Hitung hari kerja dalam periode
             $hariKerja = $this->getHariKerja($startDate, $endDate);
             
-            // Hitung presensi masuk dan pulang
+            // Hitung presensi masuk, pulang, dan lembur
             $masuk = $presensiGuru->where('jenis_presensi', 'masuk')->count();
             $pulang = $presensiGuru->where('jenis_presensi', 'pulang')->count();
+            $lembur = $presensiGuru->where('jenis_presensi', 'lembur')->count();
             
             // Hitung keterlambatan (asumsi jam masuk 07:00)
             $terlambat = $presensiGuru->where('jenis_presensi', 'masuk')
                 ->filter(function($item) {
                     return Carbon::parse($item->waktu_presensi)->format('H:i') > '07:30';
                 })->count();
+            
+            // Hitung total menit lembur
+            $totalMenitLembur = $presensiGuru->where('jenis_presensi', 'lembur')
+                ->sum('menit_lembur') ?? 0;
             
             $alpha = $hariKerja - $masuk;
             $persentaseKehadiran = $hariKerja > 0 ? round(($masuk / $hariKerja) * 100, 1) : 0;
@@ -130,6 +135,8 @@ class RekapPresensiGuru extends Component
                 'guru' => $guru,
                 'masuk' => $masuk,
                 'pulang' => $pulang,
+                'lembur' => $lembur,
+                'total_menit_lembur' => $totalMenitLembur,
                 'terlambat' => $terlambat,
                 'alpha' => $alpha,
                 'hari_kerja' => $hariKerja,
@@ -167,6 +174,8 @@ class RekapPresensiGuru extends Component
         $totalGuru = count($this->rekapData);
         $totalMasuk = array_sum(array_column($this->rekapData, 'masuk'));
         $totalPulang = array_sum(array_column($this->rekapData, 'pulang'));
+        $totalLembur = array_sum(array_column($this->rekapData, 'lembur'));
+        $totalMenitLembur = array_sum(array_column($this->rekapData, 'total_menit_lembur'));
         $totalTerlambat = array_sum(array_column($this->rekapData, 'terlambat'));
         $totalAlpha = array_sum(array_column($this->rekapData, 'alpha'));
         $totalHariKerja = array_sum(array_column($this->rekapData, 'hari_kerja'));
@@ -177,6 +186,9 @@ class RekapPresensiGuru extends Component
             'total_guru' => $totalGuru,
             'total_masuk' => $totalMasuk,
             'total_pulang' => $totalPulang,
+            'total_lembur' => $totalLembur,
+            'total_menit_lembur' => $totalMenitLembur,
+            'total_jam_lembur' => round($totalMenitLembur / 60, 1),
             'total_terlambat' => $totalTerlambat,
             'total_alpha' => $totalAlpha,
             'total_hari_kerja' => $totalHariKerja,

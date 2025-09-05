@@ -144,6 +144,7 @@
                                     <th>Hari</th>
                                     <th>Jam Masuk</th>
                                     <th>Jam Pulang</th>
+                                    <th>Jam Lembur</th>
                                     <th>Status</th>
                                     <th>Keterangan</th>
                                     <th>Aksi</th>
@@ -164,6 +165,15 @@
                                             <span class="badge bg-info-subtle text-info">
                                                 {{ $jamPresensi->jam_pulang_mulai }} - {{ $jamPresensi->jam_pulang_selesai }}
                                             </span>
+                                        </td>
+                                        <td>
+                                            @if($jamPresensi->jam_lembur_mulai && $jamPresensi->jam_lembur_selesai)
+                                                <span class="badge bg-warning-subtle text-warning">
+                                                    {{ $jamPresensi->jam_lembur_mulai }} - {{ $jamPresensi->jam_lembur_selesai }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                         <td>
                                             @if($jamPresensi->is_active)
@@ -207,7 +217,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
+                                        <td colspan="7" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="ri-time-line fs-1 text-muted mb-2"></i>
                                                 <h5 class="text-muted">Belum ada pengaturan jam presensi</h5>
@@ -309,6 +319,29 @@
                                         @error('jam_pulang_selesai')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Jam Lembur Mulai</label>
+                                        <input type="time" class="form-control" wire:model="jam_lembur_mulai">
+                                        @error('jam_lembur_mulai')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Kosongkan jika tidak ada jam lembur</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Jam Lembur Selesai</label>
+                                        <input type="time" class="form-control" wire:model="jam_lembur_selesai">
+                                        @error('jam_lembur_selesai')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Kosongkan jika tidak ada jam lembur</div>
                                     </div>
                                 </div>
                             </div>

@@ -18,15 +18,19 @@ class JamPresensi extends Model
         'jam_masuk_selesai',
         'jam_pulang_mulai',
         'jam_pulang_selesai',
+        'jam_lembur_mulai',
+        'jam_lembur_selesai',
         'is_active',
         'keterangan',
     ];
 
     protected $casts = [
-        'jam_masuk_mulai' => 'datetime:H:i',
-        'jam_masuk_selesai' => 'datetime:H:i',
-        'jam_pulang_mulai' => 'datetime:H:i',
-        'jam_pulang_selesai' => 'datetime:H:i',
+        'jam_masuk_mulai' => 'datetime:H:i:s',
+        'jam_masuk_selesai' => 'datetime:H:i:s',
+        'jam_pulang_mulai' => 'datetime:H:i:s',
+        'jam_pulang_selesai' => 'datetime:H:i:s',
+        'jam_lembur_mulai' => 'datetime:H:i:s',
+        'jam_lembur_selesai' => 'datetime:H:i:s',
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -117,6 +121,22 @@ class JamPresensi extends Model
     }
 
     /**
+     * Cek apakah waktu saat ini dalam rentang presensi lembur
+     */
+    public function bisaPresensiLembur(): bool
+    {
+        if (!$this->jam_lembur_mulai || !$this->jam_lembur_selesai) {
+            return false;
+        }
+
+        $sekarang = Carbon::now()->format('H:i');
+        $jamLemburMulai = Carbon::parse($this->jam_lembur_mulai)->format('H:i');
+        $jamLemburSelesai = Carbon::parse($this->jam_lembur_selesai)->format('H:i');
+
+        return $sekarang >= $jamLemburMulai && $sekarang <= $jamLemburSelesai;
+    }
+
+    /**
      * Validasi jam presensi berdasarkan jenis
      */
     public static function validasiJamPresensi(string $jenisPresensi): array
@@ -151,6 +171,23 @@ class JamPresensi extends Model
                 return [
                     'valid' => false,
                     'pesan' => "Presensi pulang hanya dapat dilakukan antara jam {$jamMulai} - {$jamSelesai}. Waktu sekarang: {$waktuSekarang}"
+                ];
+            }
+        } elseif ($jenisPresensi === 'lembur') {
+            if (!$jamPresensi->bisaPresensiLembur()) {
+                if (!$jamPresensi->jam_lembur_mulai || !$jamPresensi->jam_lembur_selesai) {
+                    return [
+                        'valid' => false,
+                        'pesan' => 'Jam lembur belum dikonfigurasi untuk hari ini.'
+                    ];
+                }
+                
+                $jamMulai = Carbon::parse($jamPresensi->jam_lembur_mulai)->format('H:i');
+                $jamSelesai = Carbon::parse($jamPresensi->jam_lembur_selesai)->format('H:i');
+                
+                return [
+                    'valid' => false,
+                    'pesan' => "Presensi lembur hanya dapat dilakukan antara jam {$jamMulai} - {$jamSelesai}. Waktu sekarang: {$waktuSekarang}"
                 ];
             }
         }

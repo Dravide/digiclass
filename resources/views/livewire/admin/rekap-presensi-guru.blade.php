@@ -89,7 +89,7 @@
     <!-- Statistik Section -->
     @if(!empty($statistik))
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card widget-flat">
                 <div class="card-body">
                     <div class="float-end">
@@ -100,7 +100,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card widget-flat">
                 <div class="card-body">
                     <div class="float-end">
@@ -111,7 +111,29 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="card widget-flat">
+                <div class="card-body">
+                    <div class="float-end">
+                        <i class="mdi mdi-briefcase-clock widget-icon bg-primary-lighten text-primary"></i>
+                    </div>
+                    <h5 class="text-muted fw-normal mt-0" title="Total Lembur">Total Lembur</h5>
+                    <h3 class="mt-3 mb-3">{{ $statistik['total_lembur'] ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card widget-flat">
+                <div class="card-body">
+                    <div class="float-end">
+                        <i class="mdi mdi-clock widget-icon bg-primary-lighten text-primary"></i>
+                    </div>
+                    <h5 class="text-muted fw-normal mt-0" title="Total Jam Lembur">Jam Lembur</h5>
+                    <h3 class="mt-3 mb-3">{{ $statistik['total_jam_lembur'] ?? 0 }} jam</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
             <div class="card widget-flat">
                 <div class="card-body">
                     <div class="float-end">
@@ -122,7 +144,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card widget-flat">
                 <div class="card-body">
                     <div class="float-end">
@@ -164,6 +186,8 @@
                                         <th>Hari Kerja</th>
                                         <th>Masuk</th>
                                         <th>Pulang</th>
+                                        <th>Lembur</th>
+                                        <th>Jam Lembur</th>
                                         <th>Terlambat</th>
                                         <th>Alpha</th>
                                         <th>Kehadiran (%)</th>
@@ -191,6 +215,20 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">{{ $data['pulang'] }}</span>
+                                            </td>
+                                            <td>
+                                                @if($data['lembur'] > 0)
+                                                    <span class="badge bg-primary">{{ $data['lembur'] }}</span>
+                                                @else
+                                                    <span class="badge bg-light text-dark">0</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($data['total_menit_lembur'] > 0)
+                                                    <span class="badge bg-primary">{{ number_format($data['total_menit_lembur'] / 60, 1) }} jam</span>
+                                                @else
+                                                    <span class="badge bg-light text-dark">0 jam</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 @if($data['terlambat'] > 0)

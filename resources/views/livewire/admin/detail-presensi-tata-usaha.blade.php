@@ -132,6 +132,32 @@
             </div>
         </div>
     </div>
+    
+    <!-- Statistik Lembur -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card widget-flat">
+                <div class="card-body text-center">
+                    <div class="float-end">
+                        <i class="mdi mdi-clock-plus widget-icon bg-warning-lighten text-warning"></i>
+                    </div>
+                    <h5 class="text-muted fw-normal mt-0">Total Lembur</h5>
+                    <h3 class="mt-3 mb-3 text-warning">{{ $statistikDetail['total_lembur'] ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card widget-flat">
+                <div class="card-body text-center">
+                    <div class="float-end">
+                        <i class="mdi mdi-timer widget-icon bg-orange-lighten text-orange"></i>
+                    </div>
+                    <h5 class="text-muted fw-normal mt-0">Jam Lembur</h5>
+                    <h3 class="mt-3 mb-3 text-orange">{{ $statistikDetail['total_jam_lembur'] ?? 0 }} jam</h3>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 
     <!-- Filter & Data Section -->
@@ -158,6 +184,7 @@
                                 <option value="semua">Semua</option>
                                 <option value="masuk">Masuk</option>
                                 <option value="pulang">Pulang</option>
+                                <option value="lembur">Lembur</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -191,6 +218,8 @@
                                         <th>Waktu Masuk</th>
                                         <th>Status Masuk</th>
                                         <th>Waktu Pulang</th>
+                                        <th>Waktu Lembur</th>
+                                        <th>Jam Lembur</th>
                                         <th>Lokasi</th>
                                         <th>Keterangan</th>
                                     </tr>
@@ -201,6 +230,7 @@
                                             $tanggal = Carbon\Carbon::parse($data->tanggal);
                                             $masuk = $data->masuk;
                                             $pulang = $data->pulang;
+                                            $lembur = $data->lembur;
                                             $isLate = $masuk && Carbon\Carbon::parse($masuk->waktu_presensi)->format('H:i') > '07:30';
                                         @endphp
                                         <tr>
@@ -233,10 +263,26 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                @if($lembur)
+                                                    <strong class="text-warning">{{ Carbon\Carbon::parse($lembur->waktu_presensi)->format('H:i:s') }}</strong>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($lembur && $lembur->menit_lembur > 0)
+                                                    <span class="badge bg-warning">{{ round($lembur->menit_lembur / 60, 1) }} jam</span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
                                                 @if($masuk && $masuk->lokasi)
                                                     <small class="text-muted">{{ Str::limit($masuk->lokasi, 30) }}</small>
                                                 @elseif($pulang && $pulang->lokasi)
                                                     <small class="text-muted">{{ Str::limit($pulang->lokasi, 30) }}</small>
+                                                @elseif($lembur && $lembur->lokasi)
+                                                    <small class="text-muted">{{ Str::limit($lembur->lokasi, 30) }}</small>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif

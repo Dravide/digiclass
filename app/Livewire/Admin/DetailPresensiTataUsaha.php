@@ -90,23 +90,32 @@ class DetailPresensiTataUsaha extends Component
         // Hitung statistik
         $totalMasuk = $presensiData->where('jenis_presensi', 'masuk')->count();
         $totalPulang = $presensiData->where('jenis_presensi', 'pulang')->count();
+        $totalLembur = $presensiData->where('jenis_presensi', 'lembur')->count();
         
-        // Hitung keterlambatan (jam masuk 07:30)
-        $totalTerlambat = $presensiData->where('jenis_presensi', 'masuk')
+        // Hitung keterlambatan (asumsi jam masuk 07:30)
+        $terlambat = $presensiData->where('jenis_presensi', 'masuk')
             ->filter(function($item) {
                 return Carbon::parse($item->waktu_presensi)->format('H:i') > '07:30';
             })->count();
         
+        // Hitung total menit lembur
+        $totalMenitLembur = $presensiData->where('jenis_presensi', 'lembur')
+            ->sum('menit_lembur');
+        
+        $tepatWaktu = $totalMasuk - $terlambat;
         $totalAlpha = $hariKerja - $totalMasuk;
         $persentaseKehadiran = $hariKerja > 0 ? round(($totalMasuk / $hariKerja) * 100, 1) : 0;
         
         $this->statistikDetail = [
-            'total_hari_kerja' => $hariKerja,
+            'hari_kerja' => $hariKerja,
             'total_masuk' => $totalMasuk,
             'total_pulang' => $totalPulang,
-            'total_terlambat' => $totalTerlambat,
-            'total_tepat_waktu' => $totalMasuk - $totalTerlambat,
-            'total_alpha' => $totalAlpha,
+            'total_lembur' => $totalLembur,
+            'total_menit_lembur' => $totalMenitLembur,
+            'total_jam_lembur' => round($totalMenitLembur / 60, 1),
+            'tepat_waktu' => $tepatWaktu,
+            'terlambat' => $terlambat,
+            'alpha' => $totalAlpha,
             'persentase_kehadiran' => $persentaseKehadiran
         ];
     }
@@ -138,7 +147,7 @@ class DetailPresensiTataUsaha extends Component
             ->orderBy('waktu_presensi', 'asc')
             ->get();
         
-        // Group by date dan gabungkan masuk/pulang
+        // Group by date dan gabungkan masuk/pulang/lembur
         $groupedData = [];
         $dates = [];
         
@@ -159,11 +168,13 @@ class DetailPresensiTataUsaha extends Component
             
             $masuk = $dayPresensi->where('jenis_presensi', 'masuk')->first();
             $pulang = $dayPresensi->where('jenis_presensi', 'pulang')->first();
+            $lembur = $dayPresensi->where('jenis_presensi', 'lembur')->first();
             
             $combinedData = (object) [
                 'tanggal' => $date,
                 'masuk' => $masuk,
-                'pulang' => $pulang
+                'pulang' => $pulang,
+                'lembur' => $lembur
             ];
             
             $groupedData[] = $combinedData;
@@ -180,6 +191,10 @@ class DetailPresensiTataUsaha extends Component
         } elseif ($this->jenisPresensi === 'pulang') {
             $filteredData = $filteredData->filter(function($item) {
                 return $item->pulang !== null;
+            });
+        } elseif ($this->jenisPresensi === 'lembur') {
+            $filteredData = $filteredData->filter(function($item) {
+                return $item->lembur !== null;
             });
         }
         

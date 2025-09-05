@@ -92,12 +92,17 @@ class DetailPresensiGuru extends Component
         // Hitung statistik
         $totalMasuk = $presensiData->where('jenis_presensi', 'masuk')->count();
         $totalPulang = $presensiData->where('jenis_presensi', 'pulang')->count();
+        $totalLembur = $presensiData->where('jenis_presensi', 'lembur')->count();
         
         // Hitung keterlambatan (asumsi jam masuk 07:30)
         $terlambat = $presensiData->where('jenis_presensi', 'masuk')
             ->filter(function($item) {
                 return Carbon::parse($item->waktu_presensi)->format('H:i') > '07:30';
             })->count();
+        
+        // Hitung total menit lembur
+        $totalMenitLembur = $presensiData->where('jenis_presensi', 'lembur')
+            ->sum('menit_lembur');
         
         $tepatWaktu = $totalMasuk - $terlambat;
         $alpha = $hariKerja - $totalMasuk;
@@ -107,6 +112,9 @@ class DetailPresensiGuru extends Component
             'hari_kerja' => $hariKerja,
             'total_masuk' => $totalMasuk,
             'total_pulang' => $totalPulang,
+            'total_lembur' => $totalLembur,
+            'total_menit_lembur' => $totalMenitLembur,
+            'total_jam_lembur' => round($totalMenitLembur / 60, 1),
             'tepat_waktu' => $tepatWaktu,
             'terlambat' => $terlambat,
             'alpha' => $alpha,
@@ -156,6 +164,7 @@ class DetailPresensiGuru extends Component
         foreach ($groupedPresensi as $tanggal => $presensiHari) {
             $masuk = $presensiHari->where('jenis_presensi', 'masuk')->first();
             $pulang = $presensiHari->where('jenis_presensi', 'pulang')->first();
+            $lembur = $presensiHari->where('jenis_presensi', 'lembur')->first();
             
             // Apply filters
             $shouldInclude = true;
@@ -163,6 +172,8 @@ class DetailPresensiGuru extends Component
             if ($this->filterJenis === 'masuk' && !$masuk) {
                 $shouldInclude = false;
             } elseif ($this->filterJenis === 'pulang' && !$pulang) {
+                $shouldInclude = false;
+            } elseif ($this->filterJenis === 'lembur' && !$lembur) {
                 $shouldInclude = false;
             }
             
@@ -182,7 +193,8 @@ class DetailPresensiGuru extends Component
                 $presensiData->push((object) [
                     'tanggal' => $tanggal,
                     'masuk' => $masuk,
-                    'pulang' => $pulang
+                    'pulang' => $pulang,
+                    'lembur' => $lembur
                 ]);
             }
         }

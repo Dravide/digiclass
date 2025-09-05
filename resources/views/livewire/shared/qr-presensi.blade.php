@@ -1,4 +1,104 @@
 <div>
+    <!-- Presensi Hari Ini - Dipindahkan ke atas dengan ukuran diperkecil -->
+    <div class="row justify-content-center mb-3">
+        <div class="col-lg-12 col-md-12">
+            <div class="card">
+                <div class="card-header py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="header-title mb-0">
+                            <i class="mdi mdi-account-check"></i> Presensi Hari Ini
+                        </h6>
+                        <span class="badge bg-info">{{ count($presensiHariIni) }} orang</span>
+                    </div>
+                    <small class="text-muted">{{ now()->setTimezone('Asia/Jakarta')->format('d M Y') }}</small>
+                </div>
+                <div class="card-body py-2">
+                    @if(count($presensiHariIni) > 0)
+                        @php
+                            $latestPresensi = $presensiHariIni[0]; // Ambil presensi terakhir (sudah diurutkan desc)
+                        @endphp
+                        <div class="d-flex align-items-center p-2 border rounded-2 shadow-sm bg-light">
+                            <!-- Foto Presensi -->
+                            <div class="me-3">
+                                @if(isset($latestPresensi['foto_path']) && $latestPresensi['foto_path'])
+                                    <div class="position-relative">
+                                        <img src="{{ asset('storage/' . $latestPresensi['foto_path']) }}" 
+                                              alt="Foto Presensi" 
+                                              class="foto-presensi rounded-2 border border-2 border-primary" 
+                                              style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
+                                              data-bs-toggle="modal" 
+                                              data-bs-target="#fotoModalLatest">
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" style="font-size: 0.6rem;">
+                                            <i class="mdi mdi-camera" style="font-size: 0.7rem;"></i>
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-{{ $latestPresensi['jenis_presensi'] === 'masuk' ? 'success' : ($latestPresensi['jenis_presensi'] === 'lembur' ? 'warning' : 'danger') }} text-white rounded-circle">
+                                            {{ strtoupper(substr($latestPresensi['user']['name'], 0, 1)) }}
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="flex-grow-1">
+                                <div class="fw-bold mb-1">{{ $latestPresensi['user']['name'] }}</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-{{ $latestPresensi['jenis_presensi'] === 'masuk' ? 'success' : ($latestPresensi['jenis_presensi'] === 'lembur' ? 'warning' : 'danger') }} small">
+                                        {{ ucfirst($latestPresensi['jenis_presensi']) }}
+                                    </span>
+                                    @if(isset($latestPresensi['is_terlambat']) && $latestPresensi['is_terlambat'])
+                                        <span class="badge bg-warning text-dark small">Terlambat</span>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <div class="fw-bold text-primary">
+                                    {{ \Carbon\Carbon::parse($latestPresensi['created_at'])->setTimezone('Asia/Jakarta')->format('H:i') }}
+                                </div>
+                                <small class="text-muted">Terakhir</small>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <!-- Modal untuk foto presensi terakhir -->
+                        @if(isset($latestPresensi['foto_path']) && $latestPresensi['foto_path'])
+                            <div class="modal fade" id="fotoModalLatest" tabindex="-1" aria-labelledby="fotoModalLatestLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="fotoModalLatestLabel">
+                                                <i class="mdi mdi-camera me-2"></i>Foto Presensi - {{ $latestPresensi['user']['name'] }}
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="{{ asset('storage/' . $latestPresensi['foto_path']) }}" 
+                                                 alt="Foto Presensi" 
+                                                 class="img-fluid rounded-3 border">
+                                            <div class="mt-3">
+                                                <p class="mb-1"><strong>Nama:</strong> {{ $latestPresensi['user']['name'] }}</p>
+                                                <p class="mb-1"><strong>Jenis Presensi:</strong> {{ ucfirst($latestPresensi['jenis_presensi']) }}</p>
+                                                <p class="mb-0"><strong>Waktu:</strong> {{ \Carbon\Carbon::parse($latestPresensi['created_at'])->setTimezone('Asia/Jakarta')->format('d M Y H:i:s') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @else
+                        <div class="text-center py-2">
+                            <i class="mdi mdi-calendar-times text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">Belum ada presensi hari ini</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content - Presensi QR Scanner -->
     <div class="row justify-content-center">
         <div class="col-lg-12 col-md-12">
@@ -7,8 +107,7 @@
                     <div class="text-center">
                         <h4 class="header-title mb-1">Presensi QR Scanner</h4>
                         <small class="text-muted">
-                            <i class="mdi mdi-clock-outline"></i> {{ now()->setTimezone('Asia/Jakarta')->format('H:i:s') }} - 
-                            <span class="badge bg-{{ $jenis_presensi === 'masuk' ? 'success' : 'danger' }} badge-sm">
+                            <span class="badge bg-{{ $jenis_presensi === 'masuk' ? 'success' : ($jenis_presensi === 'lembur' ? 'warning' : 'danger') }} badge-sm">
                                 {{ ucfirst($jenis_presensi) }}
                             </span>
                         </small>
@@ -35,13 +134,19 @@
                         </div>
 
                         <form wire:submit="prosesQrCode">
-                            <!-- Hidden input for QR scanner -->
+                            <!-- Hidden input for QR scanner - Optimized for Fully Kiosk Browser -->
                             <input type="text" 
                                    class="form-control" 
                                    id="qr_code" 
                                    wire:model="qr_code" 
-                                   style="position: absolute; left: -9999px; opacity: 0; height: 1px; width: 1px;"
-                                   autofocus>
+                                   style="position: absolute; left: -9999px; opacity: 0; height: 1px; width: 1px; z-index: 9999;"
+                                   autofocus
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   autocapitalize="off"
+                                   autocorrect="off"
+                                   inputmode="text"
+                                   tabindex="1">
 
                             <div class="row">
                                 <!-- Kolom Kiri: Foto Presensi -->
@@ -80,6 +185,39 @@
                                                     <div class="d-flex align-items-center mt-2">
                                                         <div class="spinner-grow spinner-grow-sm text-primary me-2" role="status"></div>
                                                         <small class="text-muted">Siap untuk scan</small>
+                                                    </div>
+                                                    
+                                                    <!-- Fully Kiosk Browser Status -->
+                                                    <div id="fully-kiosk-status" class="mt-3 text-center" style="display: none;">
+                                                        <div class="badge bg-info mb-2">
+                                                            <i class="mdi mdi-tablet"></i> Fully Kiosk Browser Terdeteksi
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            Scanner terintegrasi dengan hardware
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- QR Scanner Instructions -->
+                                                    <div id="scanner-instructions" class="mt-3 text-center">
+                                                        <div class="small text-muted">
+                                                            <i class="mdi mdi-information-outline"></i>
+                                                            Gunakan QR scanner hardware atau ketik manual
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- USB Scanner Debug Info -->
+                                                    <div id="usb-debug-info" class="mt-2 text-center" style="display: none;">
+                                                        <div class="small text-info">
+                                                            <i class="mdi mdi-bug"></i> Debug: <span id="debug-text">Mendeteksi USB scanner...</span>
+                                                        </div>
+                                                        <div class="mt-2">
+                                                            <button type="button" class="btn btn-sm btn-outline-info" onclick="testScannerInput()">
+                                                                <i class="mdi mdi-test-tube"></i> Test Scanner
+                                                            </button>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleDebugMode()">
+                                                                <i class="mdi mdi-eye"></i> <span id="debug-toggle-text">Hide Debug</span>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>
@@ -139,7 +277,7 @@
                                             </div>
 
                                             <!-- Card Jadwal Pulang -->
-                                            <div class="card border-danger" style="border-width: 2px !important;">
+                                            <div class="card border-danger mb-3" style="border-width: 2px !important;">
                                                 <div class="card-body p-3">
                                                     <div class="d-flex align-items-center">
                                                         <div class="avatar-sm bg-danger rounded-circle d-flex align-items-center justify-content-center me-3">
@@ -169,6 +307,40 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Card Jadwal Lembur -->
+                                            @if($jamPresensi->jam_lembur_mulai && $jamPresensi->jam_lembur_selesai)
+                                                <div class="card border-warning" style="border-width: 2px !important;">
+                                                    <div class="card-body p-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm bg-warning rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                                <i class="mdi mdi-clock-plus text-white"></i>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mb-1 text-warning fw-bold">Presensi Lembur</h6>
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="mdi mdi-clock-outline text-muted me-1"></i>
+                                                                    <span class="text-muted small">
+                                                                        {{ \Carbon\Carbon::parse($jamPresensi->jam_lembur_mulai)->format('H:i') }} - 
+                                                                        {{ \Carbon\Carbon::parse($jamPresensi->jam_lembur_selesai)->format('H:i') }} WIB
+                                                                    </span>
+                                                                </div>
+                                                                <div class="mt-1">
+                                                                    @if($jamPresensi->bisaPresensiLembur())
+                                                                        <span class="badge bg-warning-subtle text-warning">
+                                                                            <i class="mdi mdi-check-circle me-1"></i>Aktif Sekarang
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary-subtle text-secondary">
+                                                                            <i class="mdi mdi-clock-outline me-1"></i>Tidak Aktif
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         @else
                                             <!-- Fallback jika tidak ada pengaturan jam presensi -->
                                             <div class="card border-warning" style="border-width: 2px !important;">
@@ -185,15 +357,7 @@
                                             </div>
                                         @endif
 
-                                        <!-- Info Tambahan -->
-                                        <div class="mt-3 p-3 bg-light rounded">
-                                            <div class="text-center">
-                                                <i class="mdi mdi-information-outline text-info mb-2" style="font-size: 1.5rem;"></i>
-                                                <p class="mb-1 small text-muted"><strong>Waktu Saat Ini:</strong></p>
-                                                <p class="mb-1 fw-bold text-primary">{{ now()->setTimezone('Asia/Jakarta')->format('H:i:s') }}</p>
-                                                <p class="mb-0 small text-muted">{{ now()->setTimezone('Asia/Jakarta')->format('d M Y') }}</p>
-                                            </div>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -203,218 +367,7 @@
             </div>
     </div>
 
-    <!-- Presensi Hari Ini -->
-    <div class="row justify-content-center mt-2">
-        <div class="col-lg-12 col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="header-title mb-0">
-                            <i class="mdi mdi-account-check"></i> Presensi Hari Ini
-                        </h5>
-                        <span class="badge bg-info">{{ count($presensiHariIni) }} orang</span>
-                    </div>
-                    <small class="text-muted">{{ now()->setTimezone('Asia/Jakarta')->format('d M Y') }}</small>
-                </div>
-                    <div class="card-body">
-                        @if(count($presensiHariIni) > 0)
-                            @php
-                                $latestPresensi = $presensiHariIni[0]; // Ambil presensi terakhir (sudah diurutkan desc)
-                            @endphp
-                            <div class="row justify-content-center">
-                                <div class="col-lg-10 col-md-12">
-                                    <div class="d-flex align-items-center p-4 border rounded-3 shadow-sm bg-light">
-                                        <!-- Foto Presensi -->
-                                        <div class="me-4">
-                                            @if(isset($latestPresensi['foto_path']) && $latestPresensi['foto_path'])
-                                                <div class="position-relative">
-                                                    <img src="{{ asset('storage/' . $latestPresensi['foto_path']) }}" 
-                                                          alt="Foto Presensi" 
-                                                          class="foto-presensi rounded-3 border border-2 border-primary" 
-                                                          style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                                                          data-bs-toggle="modal" 
-                                                          data-bs-target="#fotoModal{{ $loop->index ?? 0 }}">
-                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
-                                                        <i class="mdi mdi-camera"></i>
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="avatar-lg">
-                                                    <span class="avatar-title bg-{{ $latestPresensi['jenis_presensi'] === 'masuk' ? 'success' : 'danger' }} text-white rounded-circle fs-2">
-                                                        {{ strtoupper(substr($latestPresensi['user']['name'], 0, 1)) }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="flex-grow-1">
-                                            <div class="fs-4 fw-bold mb-1">{{ $latestPresensi['user']['name'] }}</div>
-                                            <div class="text-muted mb-2">{{ ucfirst($latestPresensi['user']['role']) }}</div>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <span class="badge bg-{{ $latestPresensi['jenis_presensi'] === 'masuk' ? 'success' : 'danger' }} fs-6 px-3 py-2">
-                                                    {{ ucfirst($latestPresensi['jenis_presensi']) }}
-                                                </span>
-                                                @if(isset($latestPresensi['is_terlambat']) && $latestPresensi['is_terlambat'])
-                                                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">Terlambat</span>
-                                                @endif
-                                                @if(isset($latestPresensi['foto_path']) && $latestPresensi['foto_path'])
-                                                    <span class="badge bg-info fs-6 px-3 py-2">
-                                                        <i class="mdi mdi-camera me-1"></i>Dengan Foto
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="text-end">
-                                            <div class="fs-3 fw-bold text-primary">
-                                                {{ \Carbon\Carbon::parse($latestPresensi['created_at'])->setTimezone('Asia/Jakarta')->format('H:i') }}
-                                            </div>
-                                            <small class="text-muted">Presensi Terakhir</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Modal untuk foto presensi terakhir -->
-                            @if(isset($latestPresensi['foto_path']) && $latestPresensi['foto_path'])
-                                <div class="modal fade" id="fotoModal0" tabindex="-1" aria-labelledby="fotoModalLabel0" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="fotoModalLabel0">
-                                                    <i class="mdi mdi-camera me-2"></i>Foto Presensi - {{ $latestPresensi['user']['name'] }}
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body text-center">
-                                                <img src="{{ asset('storage/' . $latestPresensi['foto_path']) }}" 
-                                                     alt="Foto Presensi" 
-                                                     class="img-fluid rounded-3 border">
-                                                <div class="mt-3">
-                                                    <p class="mb-1"><strong>Nama:</strong> {{ $latestPresensi['user']['name'] }}</p>
-                                                    <p class="mb-1"><strong>Jenis Presensi:</strong> {{ ucfirst($latestPresensi['jenis_presensi']) }}</p>
-                                                    <p class="mb-0"><strong>Waktu:</strong> {{ \Carbon\Carbon::parse($latestPresensi['created_at'])->setTimezone('Asia/Jakarta')->format('d M Y H:i:s') }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                            @if(count($presensiHariIni) > 1)
-                                <div class="text-center mt-4">
-                                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#semuaPresensi" aria-expanded="false" aria-controls="semuaPresensi">
-                                        <i class="mdi mdi-eye"></i> Lihat Semua Presensi Hari Ini ({{ count($presensiHariIni) }})
-                                    </button>
-                                </div>
-                                
-                                <!-- Daftar Semua Presensi Hari Ini -->
-                                <div class="collapse mt-3" id="semuaPresensi">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h6 class="mb-0"><i class="mdi mdi-account-multiple"></i> Semua Presensi Hari Ini</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                @foreach($presensiHariIni as $index => $presensi)
-                                                    <div class="col-lg-6 col-md-12 mb-3">
-                                                        <div class="d-flex align-items-center p-3 border rounded-2 {{ $index === 0 ? 'bg-light border-primary' : 'bg-white' }}">
-                                                            <!-- Foto Presensi -->
-                                                            <div class="me-3">
-                                                                @if(isset($presensi['foto_path']) && $presensi['foto_path'])
-                                                                    <div class="position-relative">
-                                                                        <img src="{{ asset('storage/' . $presensi['foto_path']) }}" 
-                                                              alt="Foto Presensi" 
-                                                              class="foto-presensi rounded-2 border" 
-                                                              style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"
-                                                              data-bs-toggle="modal" 
-                                                              data-bs-target="#fotoModal{{ $index }}">
-                                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" style="font-size: 0.6rem;">
-                                                                            <i class="mdi mdi-camera" style="font-size: 0.7rem;"></i>
-                                                                        </span>
-                                                                    </div>
-                                                                @else
-                                                                    <div class="avatar-md">
-                                                                        <span class="avatar-title bg-{{ $presensi['jenis_presensi'] === 'masuk' ? 'success' : 'danger' }} text-white rounded-2 fs-4">
-                                                                            {{ strtoupper(substr($presensi['user']['name'], 0, 1)) }}
-                                                                        </span>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                            
-                                                            <div class="flex-grow-1">
-                                                                <div class="fw-bold mb-1">{{ $presensi['user']['name'] }}</div>
-                                                                <div class="text-muted small mb-1">{{ ucfirst($presensi['user']['role']) }}</div>
-                                                                <div class="d-flex align-items-center gap-1 flex-wrap">
-                                                                    <span class="badge bg-{{ $presensi['jenis_presensi'] === 'masuk' ? 'success' : 'danger' }} small">
-                                                                        {{ ucfirst($presensi['jenis_presensi']) }}
-                                                                    </span>
-                                                                    @if(isset($presensi['is_terlambat']) && $presensi['is_terlambat'])
-                                                                        <span class="badge bg-warning text-dark small">Terlambat</span>
-                                                                    @endif
-                                                                    @if(isset($presensi['foto_path']) && $presensi['foto_path'])
-                                                                        <span class="badge bg-info small">
-                                                                            <i class="mdi mdi-camera"></i>
-                                                                        </span>
-                                                                    @endif
-                                                                    @if($index === 0)
-                                                                        <span class="badge bg-primary small">Terbaru</span>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <div class="text-end">
-                                                                <div class="fw-bold text-primary">
-                                                                    {{ \Carbon\Carbon::parse($presensi['created_at'])->setTimezone('Asia/Jakarta')->format('H:i') }}
-                                                                </div>
-                                                                <small class="text-muted">
-                                                                    {{ \Carbon\Carbon::parse($presensi['created_at'])->setTimezone('Asia/Jakarta')->format('d/m') }}
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Modal untuk setiap foto presensi -->
-                                                    @if(isset($presensi['foto_path']) && $presensi['foto_path'])
-                                                        <div class="modal fade" id="fotoModal{{ $index }}" tabindex="-1" aria-labelledby="fotoModalLabel{{ $index }}" aria-hidden="true">
-                                                            <div class="modal-dialog modal-dialog-centered">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="fotoModalLabel{{ $index }}">
-                                                                            <i class="mdi mdi-camera me-2"></i>Foto Presensi - {{ $presensi['user']['name'] }}
-                                                                        </h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <div class="modal-body text-center">
-                                                                        <img src="{{ asset('storage/' . $presensi['foto_path']) }}" 
-                                                                             alt="Foto Presensi" 
-                                                                             class="img-fluid rounded-3 border">
-                                                                        <div class="mt-3">
-                                                                            <p class="mb-1"><strong>Nama:</strong> {{ $presensi['user']['name'] }}</p>
-                                                                            <p class="mb-1"><strong>Role:</strong> {{ ucfirst($presensi['user']['role']) }}</p>
-                                                                            <p class="mb-1"><strong>Jenis Presensi:</strong> {{ ucfirst($presensi['jenis_presensi']) }}</p>
-                                                                            <p class="mb-0"><strong>Waktu:</strong> {{ \Carbon\Carbon::parse($presensi['created_at'])->setTimezone('Asia/Jakarta')->format('d M Y H:i:s') }}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        @else
-                            <div class="text-center py-4">
-                                <i class="mdi mdi-account-off text-muted" style="font-size: 3rem;"></i>
-                                <p class="text-muted mt-2">Belum ada presensi hari ini</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Storage Management (Admin Only) -->
         @if(Auth::check() && Auth::user()->role === 'admin')
@@ -708,6 +661,18 @@
             webcamCanvas.height = 200;
         }
         
+        // Detect Fully Kiosk Browser
+        const isFullyKiosk = navigator.userAgent.includes('Fully') || 
+                           window.fully !== undefined || 
+                           window.Android !== undefined;
+        
+        console.log('Fully Kiosk Browser detected:', isFullyKiosk);
+        
+        if (isFullyKiosk) {
+            // Fully Kiosk Browser specific optimizations
+            setupFullyKioskOptimizations();
+        }
+        
         // Auto-start camera
         initializeCamera().catch(error => {
             console.error('Failed to initialize camera:', error);
@@ -715,7 +680,13 @@
         
         // Keep QR input focused for scanner and add event listeners
         if (qrInput) {
-            qrInput.focus();
+            // Initial focus with delay
+            setTimeout(() => {
+                qrInput.focus();
+                if (isFullyKiosk) {
+                    qrInput.click();
+                }
+            }, 1000);
             
             // Capture photo when QR code is detected
             qrInput.addEventListener('input', function() {
@@ -725,12 +696,285 @@
                 }
             });
             
-            // Refocus when clicked elsewhere
-            document.addEventListener('click', function() {
-                setTimeout(() => qrInput.focus(), 100);
-            });
+            // Enhanced focus management
+            maintainQrInputFocus();
         }
     });
+    
+    // Fully Kiosk Browser specific optimizations
+    function setupFullyKioskOptimizations() {
+        console.log('Setting up Fully Kiosk Browser optimizations...');
+        
+        // Disable screen saver if available
+        if (window.fully && window.fully.setScreenSaverEnabled) {
+            window.fully.setScreenSaverEnabled(false);
+        }
+        
+        // Keep screen on if available
+        if (window.fully && window.fully.setScreenOn) {
+            window.fully.setScreenOn(true);
+        }
+        
+        // Enable hardware keyboard if available
+        if (window.fully && window.fully.setKeyboardEnabled) {
+            window.fully.setKeyboardEnabled(true);
+        }
+        
+        // Set up barcode scanner integration if available
+        if (window.fully && window.fully.startBarcodeScanner) {
+            setupFullyBarcodeScanner();
+        }
+        
+        // Enhanced input handling for Fully Kiosk
+        document.addEventListener('keydown', function(e) {
+            const qrInput = document.getElementById('qr_code');
+            if (qrInput && document.activeElement !== qrInput) {
+                // Redirect all keyboard input to QR input
+                qrInput.focus();
+                // Simulate the key press on the QR input
+                setTimeout(() => {
+                    qrInput.value += e.key;
+                    qrInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }, 10);
+            }
+        });
+    }
+    
+    // Fully Kiosk Browser barcode scanner integration
+    function setupFullyBarcodeScanner() {
+        console.log('Setting up Fully Kiosk barcode scanner...');
+        
+        // Update UI based on Fully Kiosk Browser detection
+        const fullyStatus = document.getElementById('fully-kiosk-status');
+        const scannerInstructions = document.getElementById('scanner-instructions');
+        
+        if (window.fully) {
+            console.log('Fully Kiosk Browser detected');
+            
+            // Show Fully Kiosk status indicator
+            if (fullyStatus) {
+                fullyStatus.style.display = 'block';
+            }
+            if (scannerInstructions) {
+                scannerInstructions.innerHTML = '<div class="small text-success"><i class="mdi mdi-check-circle"></i> Hardware scanner siap digunakan</div>';
+            }
+            
+            // Disable screen saver and keep screen on
+            if (window.fully.setScreensaverEnabled) {
+                window.fully.setScreensaverEnabled(false);
+            }
+            if (window.fully.turnScreenOn) {
+                window.fully.turnScreenOn(true);
+            }
+            
+            // Enable USB scanner support
+            if (window.fully.setUsbScannerEnabled) {
+                window.fully.setUsbScannerEnabled(true);
+                console.log('USB scanner enabled');
+            }
+            
+            // Configure barcode scanner settings
+            if (window.fully.setBarcodeReaderEnabled) {
+                window.fully.setBarcodeReaderEnabled(true);
+                console.log('Barcode reader enabled');
+            }
+            
+            // Set scanner to continuous mode
+            if (window.fully.setScannerContinuousMode) {
+                window.fully.setScannerContinuousMode(true);
+                console.log('Scanner continuous mode enabled');
+            }
+            
+            // Configure barcode scanner if available
+            if (window.fully.bind) {
+                // Bind multiple scanner events
+                window.fully.bind('onBarcodeScanned', 'onBarcodeScanned(result)');
+                window.fully.bind('onUsbScannerData', 'onUsbScannerData(data)');
+                window.fully.bind('onScannerConnected', 'onScannerConnected()');
+                window.fully.bind('onScannerDisconnected', 'onScannerDisconnected()');
+                console.log('Scanner event bindings configured');
+            }
+        } else {
+            // Update instructions for non-Fully Kiosk browsers
+            if (scannerInstructions) {
+                scannerInstructions.innerHTML = '<div class="small text-warning"><i class="mdi mdi-alert-circle"></i> Gunakan QR scanner eksternal atau ketik kode manual</div>';
+            }
+        }
+        
+        // Global function to handle barcode scan results
+        window.onBarcodeScanned = function(result) {
+            console.log('Barcode scanned via Fully Kiosk:', result);
+            handleScanResult(result);
+        };
+        
+        // Global function to handle USB scanner data
+        window.onUsbScannerData = function(data) {
+            console.log('USB Scanner data received:', data);
+            handleScanResult(data);
+        };
+        
+        // Global function to handle scanner connection
+        window.onScannerConnected = function() {
+            console.log('Scanner connected');
+            const fullyStatus = document.getElementById('fully-kiosk-status');
+            const scannerInstructions = document.getElementById('scanner-instructions');
+            
+            if (fullyStatus) {
+                fullyStatus.innerHTML = '<div class="badge bg-success mb-2"><i class="mdi mdi-usb"></i> USB Scanner Terhubung</div><div class="small text-muted">Scanner siap digunakan</div>';
+            }
+            if (scannerInstructions) {
+                scannerInstructions.innerHTML = '<div class="small text-success"><i class="mdi mdi-check-circle"></i> USB QR Scanner aktif dan siap</div>';
+            }
+        };
+        
+        // Global function to handle scanner disconnection
+        window.onScannerDisconnected = function() {
+            console.log('Scanner disconnected');
+            const fullyStatus = document.getElementById('fully-kiosk-status');
+            const scannerInstructions = document.getElementById('scanner-instructions');
+            
+            if (fullyStatus) {
+                fullyStatus.innerHTML = '<div class="badge bg-warning mb-2"><i class="mdi mdi-usb-off"></i> USB Scanner Terputus</div><div class="small text-muted">Periksa koneksi USB</div>';
+            }
+            if (scannerInstructions) {
+                scannerInstructions.innerHTML = '<div class="small text-warning"><i class="mdi mdi-alert-circle"></i> USB Scanner tidak terhubung</div>';
+            }
+        };
+        
+        // Unified function to handle scan results from any source
+        function handleScanResult(result) {
+            if (!result || result.trim() === '') {
+                console.log('Empty scan result, ignoring');
+                return;
+            }
+            
+            const cleanResult = result.trim();
+            console.log('Processing scan result:', cleanResult);
+            
+            // Show scanning feedback
+            const fullyStatus = document.getElementById('fully-kiosk-status');
+            if (fullyStatus && window.fully) {
+                fullyStatus.innerHTML = '<div class="badge bg-success mb-2"><i class="mdi mdi-check-circle"></i> QR Code Terbaca!</div><div class="small text-muted">Memproses data...</div>';
+            }
+            
+            const qrInput = document.getElementById('qr_code');
+            if (qrInput) {
+                qrInput.value = cleanResult;
+                qrInput.focus();
+                qrInput.dispatchEvent(new Event('input', { bubbles: true }));
+                // Trigger Livewire update
+                @this.set('qr_code', cleanResult);
+            }
+            
+            // Reset status after processing
+            setTimeout(() => {
+                if (fullyStatus && window.fully) {
+                    fullyStatus.innerHTML = '<div class="badge bg-info mb-2"><i class="mdi mdi-tablet"></i> Fully Kiosk Browser Terdeteksi</div><div class="small text-muted">Scanner terintegrasi dengan hardware</div>';
+                }
+            }, 3000);
+        }
+        
+        // Auto-start barcode scanner and USB scanner detection
+        setTimeout(() => {
+            if (window.fully) {
+                updateDebugInfo('Fully Kiosk terdeteksi, mengkonfigurasi scanner...');
+                
+                // Start built-in barcode scanner
+                if (window.fully.startBarcodeScanner) {
+                    window.fully.startBarcodeScanner();
+                    console.log('Fully Kiosk barcode scanner started');
+                    updateDebugInfo('Built-in scanner diaktifkan');
+                }
+                
+                // Check for USB scanner
+                if (window.fully.getUsbDevices) {
+                    const usbDevices = window.fully.getUsbDevices();
+                    console.log('USB devices detected:', usbDevices);
+                    updateDebugInfo(`USB devices: ${usbDevices ? usbDevices.length : 0} ditemukan`);
+                    
+                    // Look for scanner devices
+                    const scannerFound = usbDevices && usbDevices.some(device => 
+                        device.toLowerCase().includes('scanner') || 
+                        device.toLowerCase().includes('barcode') ||
+                        device.toLowerCase().includes('qr')
+                    );
+                    
+                    if (scannerFound) {
+                        console.log('USB Scanner device detected');
+                        updateDebugInfo('USB Scanner terdeteksi!');
+                        window.onScannerConnected();
+                    } else {
+                        updateDebugInfo('USB Scanner tidak terdeteksi dalam daftar perangkat');
+                    }
+                } else {
+                    updateDebugInfo('API getUsbDevices tidak tersedia');
+                }
+                
+                // Enable keyboard wedge mode for USB scanners
+                if (window.fully.setKeyboardWedgeEnabled) {
+                    window.fully.setKeyboardWedgeEnabled(true);
+                    console.log('Keyboard wedge mode enabled for USB scanners');
+                    updateDebugInfo('Keyboard wedge mode diaktifkan');
+                } else {
+                    updateDebugInfo('Keyboard wedge mode tidak tersedia');
+                }
+                
+                // Set scanner timeout
+                if (window.fully.setScannerTimeout) {
+                    window.fully.setScannerTimeout(30000); // 30 seconds
+                    console.log('Scanner timeout set to 30 seconds');
+                    updateDebugInfo('Scanner timeout diatur ke 30 detik');
+                }
+                
+                // Show debug info
+                const debugDiv = document.getElementById('usb-debug-info');
+                if (debugDiv) {
+                    debugDiv.style.display = 'block';
+                }
+            } else {
+                updateDebugInfo('Fully Kiosk Browser tidak terdeteksi');
+            }
+        }, 2000);
+        
+        // Additional USB scanner detection via keyboard events
+        setupUsbScannerKeyboardDetection();
+    }
+    
+    // Function to detect USB scanner via keyboard input patterns
+    function setupUsbScannerKeyboardDetection() {
+        let scanBuffer = '';
+        let scanTimeout;
+        
+        document.addEventListener('keydown', function(e) {
+            // Clear timeout on any key press
+            clearTimeout(scanTimeout);
+            
+            // Check if this might be from a USB scanner (rapid input)
+            if (e.key.length === 1) {
+                scanBuffer += e.key;
+                
+                // Set timeout to process buffer
+                scanTimeout = setTimeout(() => {
+                    if (scanBuffer.length >= 8) {
+                        console.log('Potential USB scanner input detected:', scanBuffer);
+                        
+                        // Check if QR input is focused or if this looks like scanner input
+                        const qrInput = document.getElementById('qr_code');
+                        if (qrInput && (document.activeElement === qrInput || scanBuffer.match(/^[A-Za-z0-9]+$/))) {
+                            handleScanResult(scanBuffer);
+                        }
+                    }
+                    scanBuffer = '';
+                }, 100); // 100ms delay to capture full scan
+            } else if (e.key === 'Enter' && scanBuffer.length >= 8) {
+                // Enter key often signals end of USB scanner input
+                console.log('USB scanner input completed with Enter:', scanBuffer);
+                handleScanResult(scanBuffer);
+                scanBuffer = '';
+                clearTimeout(scanTimeout);
+            }
+        });
+    }
     
     async function initializeCamera() {
         try {
@@ -802,19 +1046,43 @@
         const qrInput = document.getElementById('qr_code');
         if (!qrInput) return;
         
-        // Initial focus
-        qrInput.focus();
+        // Initial focus with delay for Fully Kiosk Browser
+        setTimeout(() => {
+            qrInput.focus();
+            qrInput.click(); // Additional trigger for Fully Kiosk
+        }, 500);
         
-        // Maintain focus
+        // Aggressive focus maintenance for Fully Kiosk Browser
         setInterval(() => {
             if (document.activeElement !== qrInput) {
                 qrInput.focus();
+                qrInput.click();
             }
-        }, 1000);
+        }, 500); // More frequent checks
         
-        // Re-focus on any click
+        // Re-focus on any interaction
         document.addEventListener('click', () => {
-            setTimeout(() => qrInput.focus(), 10);
+            setTimeout(() => {
+                qrInput.focus();
+                qrInput.click();
+            }, 10);
+        });
+        
+        document.addEventListener('touchstart', () => {
+            setTimeout(() => {
+                qrInput.focus();
+                qrInput.click();
+            }, 10);
+        });
+        
+        // Fully Kiosk Browser specific events
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(() => {
+                    qrInput.focus();
+                    qrInput.click();
+                }, 100);
+            }
         });
     }
     
@@ -994,8 +1262,103 @@
         @this.call('autoDetectJenisPresensi');
     }, 60000); // 60 detik
     
+    // Debug info update function
+     function updateDebugInfo(message) {
+         const debugText = document.getElementById('debug-text');
+         if (debugText) {
+             debugText.textContent = message;
+             console.log('Debug:', message);
+         }
+     }
+     
+     // Test scanner input function
+     function testScannerInput() {
+         const qrInput = document.getElementById('qr_code');
+         if (qrInput) {
+             updateDebugInfo('Testing scanner input...');
+             
+             // Simulate scanner input
+             const testQR = 'TEST123456789';
+             qrInput.value = testQR;
+             qrInput.focus();
+             
+             // Trigger input event
+             const inputEvent = new Event('input', { bubbles: true });
+             qrInput.dispatchEvent(inputEvent);
+             
+             updateDebugInfo(`Test QR code: ${testQR}`);
+             
+             // Clear after 3 seconds
+             setTimeout(() => {
+                 qrInput.value = '';
+                 updateDebugInfo('Test selesai, field dikosongkan');
+             }, 3000);
+         }
+     }
+     
+     // Toggle debug mode
+     function toggleDebugMode() {
+         const debugDiv = document.getElementById('usb-debug-info');
+         const toggleText = document.getElementById('debug-toggle-text');
+         
+         if (debugDiv && toggleText) {
+             if (debugDiv.style.display === 'none') {
+                 debugDiv.style.display = 'block';
+                 toggleText.textContent = 'Hide Debug';
+                 updateDebugInfo('Debug mode diaktifkan');
+             } else {
+                 debugDiv.style.display = 'none';
+                 toggleText.textContent = 'Show Debug';
+             }
+         }
+     }
+    
+    // Monitor all keyboard events for debugging
+    function setupKeyboardMonitoring() {
+        document.addEventListener('keydown', function(e) {
+            // Log all key events for debugging
+            console.log('Key event:', {
+                key: e.key,
+                code: e.code,
+                keyCode: e.keyCode,
+                target: e.target.tagName,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Update debug info for scanner-like input
+            if (e.target.id === 'qr_code' && e.key.length === 1) {
+                updateDebugInfo(`Input terdeteksi: ${e.key}`);
+            }
+        });
+        
+        // Monitor input changes
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'qr_code') {
+                const value = e.target.value;
+                updateDebugInfo(`QR Code input: ${value.length} karakter`);
+                
+                if (value.length >= 8) {
+                    updateDebugInfo('QR Code lengkap terdeteksi, memproses...');
+                }
+            }
+        });
+    }
+    
     // Juga refresh saat halaman pertama kali dimuat
     document.addEventListener('DOMContentLoaded', function() {
+        // Setup Fully Kiosk Browser integration
+        setupFullyBarcodeScanner();
+        
+        // Setup keyboard monitoring for debugging
+        setupKeyboardMonitoring();
+        
+        // Show debug info for troubleshooting
+        const debugDiv = document.getElementById('usb-debug-info');
+        if (debugDiv) {
+            debugDiv.style.display = 'block';
+        }
+        updateDebugInfo('Sistem siap, menunggu input scanner...');
+        
         setTimeout(function() {
             @this.call('autoDetectJenisPresensi');
         }, 2000); // Delay 2 detik untuk memastikan komponen sudah siap

@@ -26,7 +26,7 @@ class QrPresensi extends Component
 
     protected array $rules = [
         'qr_code' => 'required|string',
-        'jenis_presensi' => 'required|in:masuk,pulang',
+        'jenis_presensi' => 'required|in:masuk,pulang,lembur',
     ];
 
     protected array $messages = [
@@ -73,13 +73,23 @@ class QrPresensi extends Component
         $jamPulangMulai = Carbon::parse($jamPresensi->jam_pulang_mulai)->format('H:i');
         $jamPulangSelesai = Carbon::parse($jamPresensi->jam_pulang_selesai)->format('H:i');
         
+        // Check for overtime range if configured
+        $jamLemburMulai = null;
+        $jamLemburSelesai = null;
+        if ($jamPresensi->jam_lembur_mulai && $jamPresensi->jam_lembur_selesai) {
+            $jamLemburMulai = Carbon::parse($jamPresensi->jam_lembur_mulai)->format('H:i');
+            $jamLemburSelesai = Carbon::parse($jamPresensi->jam_lembur_selesai)->format('H:i');
+        }
+        
         // Determine attendance type based on configured times
         if ($currentTimeFormatted >= $jamMasukMulai && $currentTimeFormatted <= $jamMasukSelesai) {
             $this->jenis_presensi = 'masuk';
         } elseif ($currentTimeFormatted >= $jamPulangMulai && $currentTimeFormatted <= $jamPulangSelesai) {
             $this->jenis_presensi = 'pulang';
+        } elseif ($jamLemburMulai && $jamLemburSelesai && $currentTimeFormatted >= $jamLemburMulai && $currentTimeFormatted <= $jamLemburSelesai) {
+            $this->jenis_presensi = 'lembur';
         } else {
-            // Outside both ranges, determine by proximity
+            // Outside all ranges, determine by proximity
             $masukStart = Carbon::parse($jamMasukMulai);
             $pulangStart = Carbon::parse($jamPulangMulai);
             $now = Carbon::parse($currentTimeFormatted);
@@ -87,7 +97,20 @@ class QrPresensi extends Component
             $diffToMasuk = abs($now->diffInMinutes($masukStart));
             $diffToPulang = abs($now->diffInMinutes($pulangStart));
             
-            $this->jenis_presensi = ($diffToMasuk <= $diffToPulang) ? 'masuk' : 'pulang';
+            // Check proximity to overtime if configured
+            if ($jamLemburMulai) {
+                $lemburStart = Carbon::parse($jamLemburMulai);
+                $diffToLembur = abs($now->diffInMinutes($lemburStart));
+                
+                // Find the closest time range
+                if ($diffToLembur <= $diffToMasuk && $diffToLembur <= $diffToPulang) {
+                    $this->jenis_presensi = 'lembur';
+                } else {
+                    $this->jenis_presensi = ($diffToMasuk <= $diffToPulang) ? 'masuk' : 'pulang';
+                }
+            } else {
+                $this->jenis_presensi = ($diffToMasuk <= $diffToPulang) ? 'masuk' : 'pulang';
+            }
         }
     }
 

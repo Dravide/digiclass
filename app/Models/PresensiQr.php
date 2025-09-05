@@ -28,6 +28,9 @@ class PresensiQr extends Model
         'menit_kepulangan_awal',
         'jam_masuk_standar',
         'jam_pulang_standar',
+        'is_lembur',
+        'menit_lembur',
+        'jam_lembur_standar',
     ];
 
     protected $casts = [
@@ -36,8 +39,10 @@ class PresensiQr extends Model
         'updated_at' => 'datetime',
         'is_terlambat' => 'boolean',
         'is_pulang_awal' => 'boolean',
+        'is_lembur' => 'boolean',
         'jam_masuk_standar' => 'datetime:H:i:s',
         'jam_pulang_standar' => 'datetime:H:i:s',
+        'jam_lembur_standar' => 'datetime:H:i:s',
     ];
 
     /**
@@ -71,6 +76,17 @@ class PresensiQr extends Model
     }
 
     /**
+     * Cek apakah user sudah presensi lembur hari ini
+     */
+    public static function sudahPresensiLemburHariIni(int $userId): bool
+    {
+        return self::where('user_id', $userId)
+                   ->where('jenis_presensi', 'lembur')
+                   ->whereDate('waktu_presensi', Carbon::today())
+                   ->exists();
+    }
+
+    /**
      * Buat presensi baru berdasarkan secure code
      */
     public static function buatPresensi(string $secureCode, string $jenisPresensi, ?string $fotoPath = null): self
@@ -85,7 +101,7 @@ class PresensiQr extends Model
         $userId = $secureCodeModel->user_id;
         
         // Validasi jenis presensi
-        if (!in_array($jenisPresensi, ['masuk', 'pulang'])) {
+        if (!in_array($jenisPresensi, ['masuk', 'pulang', 'lembur'])) {
             throw new \Exception('Jenis presensi tidak valid.');
         }
 
@@ -101,6 +117,9 @@ class PresensiQr extends Model
         $menitKepulanganAwal = null;
         $jamMasukStandar = '07:00:00';
         $jamPulangStandar = '15:00:00';
+        $isLembur = false;
+        $menitLembur = null;
+        $jamLemburStandar = null;
         
         if ($jamPresensi) {
             $jamMasukStandar = Carbon::parse($jamPresensi->jam_masuk_selesai)->format('H:i:s');
@@ -115,6 +134,15 @@ class PresensiQr extends Model
                     $isPulangAwal = true;
                     $menitKepulanganAwal = $jamMinimalPulang->diffInMinutes($waktuSekarang);
                 }
+            } elseif ($jenisPresensi === 'lembur') {
+                $isLembur = true;
+                if ($jamPresensi->jam_lembur_mulai && $jamPresensi->jam_lembur_selesai) {
+                    $jamLemburStandar = Carbon::parse($jamPresensi->jam_lembur_mulai)->format('H:i:s');
+                    $jamLemburMulai = Carbon::parse($jamPresensi->jam_lembur_mulai);
+                    if ($waktuSekarang->gte($jamLemburMulai)) {
+                        $menitLembur = $jamLemburMulai->diffInMinutes($waktuSekarang);
+                    }
+                }
             }
         }
 
@@ -127,9 +155,18 @@ class PresensiQr extends Model
             throw new \Exception('Anda sudah melakukan presensi pulang hari ini.');
         }
 
+        if ($jenisPresensi === 'lembur' && self::sudahPresensiLemburHariIni($userId)) {
+            throw new \Exception('Anda sudah melakukan presensi lembur hari ini.');
+        }
+
         // Jika presensi pulang, pastikan sudah presensi masuk dulu
         if ($jenisPresensi === 'pulang' && !self::sudahPresensiMasukHariIni($userId)) {
             throw new \Exception('Anda harus melakukan presensi masuk terlebih dahulu.');
+        }
+
+        // Jika presensi lembur, pastikan sudah presensi pulang dulu
+        if ($jenisPresensi === 'lembur' && !self::sudahPresensiPulangHariIni($userId)) {
+            throw new \Exception('Anda harus melakukan presensi pulang terlebih dahulu.');
         }
 
         return self::create([
@@ -144,6 +181,9 @@ class PresensiQr extends Model
             'menit_kepulangan_awal' => $menitKepulanganAwal,
             'jam_masuk_standar' => $jamMasukStandar,
             'jam_pulang_standar' => $jamPulangStandar,
+            'is_lembur' => $isLembur,
+            'menit_lembur' => $menitLembur,
+            'jam_lembur_standar' => $jamLemburStandar,
         ]);
     }
 
@@ -162,9 +202,15 @@ class PresensiQr extends Model
                              ->whereDate('waktu_presensi', Carbon::today())
                              ->first();
 
+        $presensiLembur = self::where('user_id', $userId)
+                             ->where('jenis_presensi', 'lembur')
+                             ->whereDate('waktu_presensi', Carbon::today())
+                             ->first();
+
         return [
             'masuk' => $presensiMasuk,
             'pulang' => $presensiPulang,
+            'lembur' => $presensiLembur,
         ];
     }
 }
