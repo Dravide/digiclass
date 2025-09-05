@@ -61,7 +61,8 @@ class MenuHelper
                         ['title' => 'Role & Permission', 'route' => 'role-permission-management', 'permission' => 'manage-roles'],
                         ['title' => 'Pakta Integritas', 'route' => 'pakta-integritas-management', 'permission' => 'manage-users'],
                         ['title' => 'Magic Link & QR', 'route' => 'magic-link-management', 'permission' => 'manage-siswa'],
-                        ['title' => 'Data Perpustakaan', 'route' => 'perpustakaan-management', 'permission' => 'manage-perpustakaan']
+                        ['title' => 'Data Perpustakaan', 'route' => 'perpustakaan-management', 'permission' => 'manage-perpustakaan'],
+                        ['title' => 'Manajemen Hari Libur', 'route' => 'hari-libur-management', 'permission' => 'manage-users']
                     ]
                 ]
             ];
