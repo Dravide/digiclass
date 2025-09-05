@@ -7,6 +7,8 @@ use App\Models\PresensiQr;
 use App\Models\SecureCode;
 use App\Models\User;
 use App\Models\JamPresensi;
+use App\Models\HariLibur;
+use App\Services\HariLiburService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -23,6 +25,11 @@ class QrPresensi extends Component
     public string $resultType = 'success'; // success, error, warning
     public array $presensiHariIni = [];
     public ?object $lastPresensi = null;
+    
+    // Properties untuk hari libur
+    public bool $isHariLibur = false;
+    public string $pesanHariLibur = '';
+    public bool $isWeekend = false;
 
     protected array $rules = [
         'qr_code' => 'required|string',
@@ -41,6 +48,9 @@ class QrPresensi extends Component
 
     public function mount(): void
     {
+        // Cek hari libur terlebih dahulu
+        $this->cekHariLibur();
+        
         // Auto-detect jenis presensi berdasarkan jam
         $this->autoDetectJenisPresensi();
         
@@ -131,6 +141,13 @@ class QrPresensi extends Component
     {
         $this->validate();
     
+        // Cek apakah boleh presensi (tidak weekend/hari libur)
+        if (!$this->isBolehPresensi()) {
+            $this->showResult = true;
+            $this->resultType = 'warning';
+            $this->resultMessage = $this->pesanHariLibur;
+            return;
+        }
         
         try {
             // Reset hasil sebelumnya
@@ -389,7 +406,34 @@ class QrPresensi extends Component
         }
     }
 
-
+    public function cekHariLibur(): void
+    {
+        $today = Carbon::now('Asia/Jakarta');
+        
+        // Cek apakah hari ini weekend (Sabtu atau Minggu)
+        $this->isWeekend = $today->isWeekend();
+        
+        // Cek apakah hari ini hari libur nasional
+        $this->isHariLibur = HariLibur::isHariIniLibur();
+        
+        // Set pesan hari libur
+        if ($this->isWeekend) {
+            $namaHari = $today->locale('id')->dayName;
+            $this->pesanHariLibur = "Hari ini adalah hari {$namaHari}. Presensi tidak tersedia pada akhir pekan.";
+        } elseif ($this->isHariLibur) {
+            $hariLibur = HariLibur::where('tanggal', $today->toDateString())->first();
+            if ($hariLibur) {
+                $this->pesanHariLibur = "Hari ini adalah hari libur: {$hariLibur->keterangan}. Presensi tidak tersedia.";
+            } else {
+                $this->pesanHariLibur = "Hari ini adalah hari libur nasional. Presensi tidak tersedia.";
+            }
+        }
+    }
+    
+    public function isBolehPresensi(): bool
+    {
+        return !$this->isWeekend && !$this->isHariLibur;
+    }
 
     public function render(): View
     {

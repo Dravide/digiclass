@@ -41,12 +41,14 @@ use App\Livewire\Admin\LibraryBorrowingManagement;
 use App\Livewire\Admin\LibraryAttendanceManagement;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\PengaturanJamPresensi;
+use App\Livewire\Admin\HariLibur;
 use App\Livewire\TataUsaha\TataUsahaDashboard;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\PelanggaranController;
 
 // Admin Management Routes
 Route::middleware(['auth.custom', 'permission:manage-users'])->group(function () {
+    Route::get('/admin-dashboard', AdminDashboard::class)->name('admin.dashboard');
     // Route::get('/user-link-management', UserLinkManagement::class)->name('user-link-management'); // Removed - replaced with automatic account creation
     Route::get('/class-management', ClassManagement::class)->name('class-management');
     Route::get('/inactive-siswa-management', InactiveSiswaManagement::class)->name('inactive-siswa-management');
@@ -69,6 +71,7 @@ Route::middleware(['auth.custom', 'permission:manage-users'])->group(function ()
     Route::get('/detail-presensi-guru/{guruId}/{tanggalMulai?}/{tanggalSelesai?}', DetailPresensiGuru::class)->name('admin.detail-presensi-guru');
     Route::get('/detail-presensi-tata-usaha/{tataUsahaId}/{tanggalMulai?}/{tanggalSelesai?}', DetailPresensiTataUsaha::class)->name('admin.detail-presensi-tata-usaha');
     Route::get('/pengaturan-jam-presensi', PengaturanJamPresensi::class)->name('pengaturan-jam-presensi');
+    Route::get('/hari-libur-management', HariLibur::class)->name('hari-libur-management');
     Route::get('/tugas-management', TugasManagement::class)->name('tugas-management');
     Route::get('/nilai-management', NilaiManagement::class)->name('nilai-management');
     Route::get('/rekap-nilai', RekapNilai::class)->name('rekap-nilai');

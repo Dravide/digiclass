@@ -133,7 +133,20 @@
                             @endif
                         </div>
 
-                        <form wire:submit="prosesQrCode">
+                        @if(!$this->isBolehPresensi())
+                            <!-- Pesan Hari Libur -->
+                            <div class="alert alert-warning text-center mb-4">
+                                <i class="mdi mdi-calendar-remove h4 mb-2"></i>
+                                <h5 class="alert-heading">Presensi Tidak Tersedia</h5>
+                                <p class="mb-0">{{ $pesanHariLibur }}</p>
+                            </div>
+                            
+                            <!-- Form yang dinonaktifkan -->
+                            <div class="position-relative">
+                                <div class="overlay-disabled position-absolute w-100 h-100" style="background: rgba(255,255,255,0.8); z-index: 10; border-radius: 0.375rem;"></div>
+                        @endif
+
+                        <form wire:submit="prosesQrCode" @if(!$this->isBolehPresensi()) style="pointer-events: none; opacity: 0.6;" @endif>
                             <!-- Hidden input for QR scanner - Optimized for Fully Kiosk Browser -->
                             <input type="text" 
                                    class="form-control" 
@@ -362,6 +375,10 @@
                                 </div>
                             </div>
                         </form>
+                        
+                        @if(!$this->isBolehPresensi())
+                            </div> <!-- Penutup overlay-disabled -->
+                        @endif
                     </div>
                 </div>
             </div>
